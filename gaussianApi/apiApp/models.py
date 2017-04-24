@@ -9,9 +9,9 @@ class Group(models.Model):
 	# members field should be added as a one2many relation between group and user
 	isPublic = models.BooleanField(default = True)
 	description = models.TextField();
-	avatar = models.ImageField(upload_to=None, height_field=None, width_field=None, max_length=100, **options)
 	location_lat = models.CharField(max_length = 10, blank=True)
 	location_lon = models.CharField(max_length = 10, blank=True)
+	avatar = models.ImageField(upload_to=None, height_field=None, width_field=None, max_length=100, **options)
 	#tags field should be added as a one2many relation between group and tags
 
 

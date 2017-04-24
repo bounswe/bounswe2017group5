@@ -1,5 +1,5 @@
 from django.http import HttpResponse
-from apiApp.models import Profile, Comment, Tag
+from apiApp.models import Profile, Comment, Tag, Post
 from apiApp.serializers import ProfileSerializer, CommentSerializer
 from rest_framework import generics
 
@@ -25,6 +25,14 @@ class TagList(generics.ListAPIView)
 	
 class TagDetail(generics.RetrieveAPIView):
 	queryset = Tag.object.all()
+	serializer_class = UserSerializer
+	
+class PostList(generics.ListAPIView)
+	queryset = Post.object.all()
+	serializer_class = UserSerializer
+	
+class PostDetail(generics.RetrieveAPIView):
+	queryset = Post.object.all()
 	serializer_class = UserSerializer
 	
 

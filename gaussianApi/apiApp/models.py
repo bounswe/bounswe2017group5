@@ -2,6 +2,17 @@ from __future__ import unicode_literals
 from django.contrib.auth.models import User
 from django.db import models
 
+
+# Create your models here.
+
+class Post(models.Model):
+     author = models.ForeignKey('auth.User', related_name='post', on_delete=models.CASCADE)
+     text = models.TextField()
+     created = models.DateTimeField(auto_now_add=True)
+      # a field for comments is needed	
+     class Meta:
+    	ordering = ('created',)
+
 class Tag(models.Model):
 	created = models.DateTimeField(auto_now_add=True)
 	name = models.CharField(max_length=30, blank=True, default='')
@@ -37,4 +48,5 @@ class Comment(models.Model):
 
     class Meta:
     	ordering = ('created',)
+
 

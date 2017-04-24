@@ -1,6 +1,6 @@
+
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
-
 from django.contrib.auth.models import User
 from django.db import models
 
@@ -9,7 +9,6 @@ class Profile(models.Model):
 	created = models.DateTimeField(auto_now_add=True)
 	name = models.CharField(max_length=30, blank=True, default='')
 	surname = models.CharField(max_length=30, blank=True, default='')
-
 
 class Group(models.Model):
 	created = models.DateTimeField(auto_now_add=True)
@@ -30,6 +29,6 @@ class Comment(models.Model):
 	text = models.TextField()
 	created = models.DateTimeField(auto_now_add=True)
 
-	class Meta:
-		ordering = ('created',)
+    class Meta:
+    	ordering = ('created',)
 

@@ -1,7 +1,7 @@
 from django.http import HttpResponse
 
-from apiApp.models import Profile, Comment, Tag, User, Group
-from apiApp.serializers import ProfileSerializer, CommentSerializer, UserSerializer, TagSerializer, GroupSerializer
+from apiApp.models import Profile, Comment, Tag, User, Group, Post
+from apiApp.serializers import ProfileSerializer, CommentSerializer, UserSerializer, TagSerializer, GroupSerializer, PostSerializer
 
 from rest_framework import generics
 
@@ -47,12 +47,12 @@ class ProfileDetail(generics.RetrieveAPIView):
 	queryset = Profile.objects.all()
 	serializer_class = ProfileSerializer
   
-class PostList(generics.ListAPIView)
-	queryset = Post.object.all()
+class PostList(generics.ListAPIView):
+	queryset = Post.objects.all()
 	serializer_class = UserSerializer
 	
 class PostDetail(generics.RetrieveAPIView):
-	queryset = Post.object.all()
+	queryset = Post.objects.all()
 	serializer_class = UserSerializer
 
 def index(request):

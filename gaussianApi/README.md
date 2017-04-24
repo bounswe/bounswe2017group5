@@ -16,7 +16,7 @@ Create a project
 $ django-admin startproject apiProject
 ```
 
-Create the web apps
+Create the api apps
 ```shell
 $ python manage.py startapp apiApp
 ```

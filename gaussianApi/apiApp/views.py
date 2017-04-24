@@ -14,6 +14,7 @@ class UserDetail(generics.RetrieveAPIView):
 class CommentList(generics.ListAPIView):
 	queryset = Comment.objects.all()
 	serializer_class = CommentSerializer
+	# add owner on create
 	
 class CommentDetail(generics.RetrieveAPIView):
 	queryset = Comment.objects.all()

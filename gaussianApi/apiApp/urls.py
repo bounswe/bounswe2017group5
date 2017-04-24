@@ -13,5 +13,7 @@ urlpatterns = [
     url(r'^profiles/$', views.ProfileList.as_view()),
     url(r'^profiles/(?P<pk>[0-9]+)/$', views.ProfileDetail.as_view()),
     url(r'^comments/$', views.CommentList.as_view()),
-    url(r'^comments/(?P<pk>[0-9]+)/$', views.CommentDetail.as_view())
+    url(r'^comments/(?P<pk>[0-9]+)/$', views.CommentDetail.as_view()),
+    url(r'^posts/$', views.PostList.as_view()),
+    url(r'^posts/(?P<pk>[0-9]+)/$', views.PostDetail.as_view())
 ]

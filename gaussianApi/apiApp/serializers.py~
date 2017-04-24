@@ -6,5 +6,5 @@ from apiApp.models import Post
  class PostSerializer(serializers.ModelSerializer):
 
 	class Meta:
-		model = Post
-		fields = ('id', 'text', 'author') # a field for comments is needed
+		model Post
+		fields = ('id', 'text', 'author')

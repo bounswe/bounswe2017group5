@@ -1,3 +1,6 @@
 env
 *.pyc
 db.sqlite3
+run.sh
+migrate.sh
+apiApp/migrations

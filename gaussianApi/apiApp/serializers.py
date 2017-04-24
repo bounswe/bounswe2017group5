@@ -1,7 +1,11 @@
 from rest_framework import serializers
-from apiApp.models import Profile, Comment
+from apiApp.models import Profile, Comment, Post, Group, Tag
 from django.contrib.auth.models import User
 
+class PostSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = Post
+		fields = ('id', 'text', 'author','group') # a field for comments is needed
 
 class ProfileSerializer(serializers.ModelSerializer):
 
@@ -27,7 +31,7 @@ class CommentSerializer(serializers.ModelSerializer):
 
 	class Meta:
 		model = Comment
-		fields = ('id', 'text', 'author')
+		fields = ('id', 'text', 'author','post')
 
 
 
@@ -36,7 +40,8 @@ class TagSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = Tag
 		fields = ('created', 'name')
-		
+    
+
 class PostSerializer(serializers.ModelSerializer):
 	
 	class Meta:

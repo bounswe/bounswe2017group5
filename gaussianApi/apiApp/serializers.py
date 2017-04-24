@@ -2,11 +2,11 @@ from rest_framework import serializers
 from apiApp.models import Comment
 
 
-class TagSerializer(serializers.ModelSerializer):
+class GroupSerializer(serializers.ModelSerializer):
 
 	class Meta:
-		model = Tag
-		fields = ('created', 'name')
+		model = Group
+		fields = ('created', 'name', 'isPublic', 'description', 'location_lat', 'location_lon')
 
 
 class CommentSerializer(serializers.ModelSerializer):
@@ -17,5 +17,7 @@ class CommentSerializer(serializers.ModelSerializer):
 
 
 class TagSerializer(serializers.ModelSerializer):
-	model = Tag
-	fields = ('created', 'name')
+	
+	class Meta:
+		model = Tag
+		fields = ('created', 'name')

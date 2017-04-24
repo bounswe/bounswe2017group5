@@ -2,6 +2,7 @@ from rest_framework import serializers
 from apiApp.models import Profile, Comment, Post, Group, Tag
 from django.contrib.auth.models import User
 
+
 class TagSerializer(serializers.ModelSerializer):
 	
 	class Meta:

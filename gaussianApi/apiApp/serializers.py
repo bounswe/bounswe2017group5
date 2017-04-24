@@ -1,7 +1,6 @@
 from rest_framework import serializers
-from apiApp.models import Profile, Comment
+from apiApp.models import Profile, Comment, Post
 from django.contrib.auth.models import User
-from apiApp.models import Post
  
 # Create serializers here
 

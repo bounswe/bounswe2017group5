@@ -11,7 +11,7 @@ class UserDetail(generics.RetrieveAPIView):
 	queryset = User.objects.all()
 	serializer_class = UserSerializer
 	
-class CommentList(generics.ListAPIView)
+class CommentList(generics.ListAPIView):
 	queryset = Comment.object.all()
 	serializer_class = CommentSerializer
 	
@@ -19,7 +19,7 @@ class CommentDetail(generics.RetrieveAPIView):
 	queryset = Comment.object.all()
 	serializer_class = CommentSerializer
 	
-class TagList(generics.ListAPIView)
+class TagList(generics.ListAPIView):
 	queryset = Tag.object.all()
 	serializer_class = TagSerializer
 	
@@ -27,7 +27,7 @@ class TagDetail(generics.RetrieveAPIView):
 	queryset = Tag.object.all()
 	serializer_class = TagSerializer
 	
-class GroupList(generics.ListAPIView)
+class GroupList(generics.ListAPIView):
 	queryset = Group.object.all()
 	serializer_class = GroupSerializer
 	
@@ -35,7 +35,7 @@ class GroupDetail(generics.RetrieveAPIView):
 	queryset = Group.object.all()
 	serializer_class = GroupSerializer
 	
-class ProfileList(generics.ListAPIView)
+class ProfileList(generics.ListAPIView):
 	queryset = Profile.object.all()
 	serializer_class = ProfileSerializer
 	

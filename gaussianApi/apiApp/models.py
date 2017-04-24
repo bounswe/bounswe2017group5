@@ -1,9 +1,7 @@
 from __future__ import unicode_literals
+
 from django.contrib.auth.models import User
 from django.db import models
-
-
-# Create your models here.
 
 class Post(models.Model):
      author = models.ForeignKey('auth.User', related_name='post', on_delete=models.CASCADE)
@@ -19,7 +17,6 @@ class Tag(models.Model):
 
 	class Meta:
 		ordering = ('created',)
-
 
 class Profile(models.Model):
 	user = models.OneToOneField(User)
@@ -38,7 +35,7 @@ class Group(models.Model):
 	avatar = models.ImageField(upload_to=None, height_field=None, width_field=None, max_length=100, **options)
 	#tags field should be added as a one2many relation between group and tags
 
-  class Meta:
+	class Meta:
 		ordering = ('created',)
 
 class Comment(models.Model):
@@ -46,7 +43,7 @@ class Comment(models.Model):
 	text = models.TextField()
 	created = models.DateTimeField(auto_now_add=True)
 
-    class Meta:
-    	ordering = ('created',)
+	class Meta:
+		ordering = ('created',)
 
 

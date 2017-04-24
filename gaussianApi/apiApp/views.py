@@ -1,6 +1,6 @@
 from django.http import HttpResponse
-from apiApp.models import Profile, Comment, Tag
-from apiApp.serializers import ProfileSerializer, CommentSerializer
+from apiApp.models import Profile, Comment, Tag, User, Group
+from apiApp.serializers import ProfileSerializer, CommentSerializer, UserSerializer, TagSerializer, GroupSerializer
 from rest_framework import generics
 
 class UserList(generics.ListAPIView):
@@ -12,35 +12,35 @@ class UserDetail(generics.RetrieveAPIView):
 	serializer_class = UserSerializer
 	
 class CommentList(generics.ListAPIView):
-	queryset = Comment.object.all()
+	queryset = Comment.objects.all()
 	serializer_class = CommentSerializer
 	
 class CommentDetail(generics.RetrieveAPIView):
-	queryset = Comment.object.all()
+	queryset = Comment.objects.all()
 	serializer_class = CommentSerializer
 	
 class TagList(generics.ListAPIView):
-	queryset = Tag.object.all()
+	queryset = Tag.objects.all()
 	serializer_class = TagSerializer
 	
 class TagDetail(generics.RetrieveAPIView):
-	queryset = Tag.object.all()
+	queryset = Tag.objects.all()
 	serializer_class = TagSerializer
 	
 class GroupList(generics.ListAPIView):
-	queryset = Group.object.all()
+	queryset = Group.objects.all()
 	serializer_class = GroupSerializer
 	
 class GroupDetail(generics.RetrieveAPIView):
-	queryset = Group.object.all()
+	queryset = Group.objects.all()
 	serializer_class = GroupSerializer
 	
 class ProfileList(generics.ListAPIView):
-	queryset = Profile.object.all()
+	queryset = Profile.objects.all()
 	serializer_class = ProfileSerializer
 	
 class ProfileDetail(generics.RetrieveAPIView):
-	queryset = Profile.object.all()
+	queryset = Profile.objects.all()
 	serializer_class = ProfileSerializer
 
 def index(request):

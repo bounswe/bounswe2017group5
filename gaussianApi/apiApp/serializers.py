@@ -18,10 +18,18 @@ class GroupSerializer(serializers.ModelSerializer):
 
 	class Meta:
 		model = Group
-		fields = ('created', 'name', 'isPublic', 'description' , 'location_lat', 'location_lat')
+		fields = ('created', 'name', 'isPublic', 'description', 'location_lat', 'location_lon')
 
 class CommentSerializer(serializers.ModelSerializer):
 
 	class Meta:
 		model Comment
 		fields = ('id', 'text', 'author')
+
+
+
+class TagSerializer(serializers.ModelSerializer):
+	
+	class Meta:
+		model = Tag
+		fields = ('created', 'name')

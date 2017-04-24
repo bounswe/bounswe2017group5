@@ -1,4 +1,7 @@
 from django.http import HttpResponse
+from apiApp.models import Profile, Comment
+from apiApp.serializers import ProfileSerializer, CommentSerializer
+from rest_framework import generics
 
 
 def index(request):

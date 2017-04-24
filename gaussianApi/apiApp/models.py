@@ -29,7 +29,7 @@ class Profile(models.Model):
 
 class Group(models.Model):
 	admin = models.ForeignKey('auth.User', related_name='owned_groups', on_delete=models.CASCADE, null=True)
-	members = models.ManyToManyField(User, null=True)
+	members = models.ManyToManyField(User)
 	created = models.DateTimeField(auto_now_add=True)
 	name = models.CharField(max_length=30, blank=True, default='')
 	# members field should be added as a one2many relation between group and user

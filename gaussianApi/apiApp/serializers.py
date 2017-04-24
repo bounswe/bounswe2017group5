@@ -28,7 +28,13 @@ class GroupSerializer(serializers.ModelSerializer):
 
 	class Meta:
 		model = Group
-		fields = ('created', 'name', 'isPublic', 'description', 'location_lat', 'location_lon', 'posts', 'admin', 'members')
+		fields = ('id', 'created', 'name', 'isPublic', 'description', 'location_lat', 'location_lon', 'posts', 'admin', 'members')
+
+class SmallGroupSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = Group
+		fields = ('id', 'name')
+
 
 class CommentSerializer(serializers.ModelSerializer):
 	author = serializers.ReadOnlyField(source='author.username')
@@ -47,21 +53,33 @@ class NoCommentPostSerializer(serializers.ModelSerializer):
 
 
 class PostSerializer(NoCommentPostSerializer):
-	comments = serializers.PrimaryKeyRelatedField(many=True, queryset=Comment.objects.all())
+	comments = CommentSerializer(many=True)
 	
 	class Meta:
 		model = Post
-		fields = ('id', 'text', 'author', 'group', 'comments')
+		fields = ('id', 'text', 'author', 'group', 'comments', 'created')
 
 
 
 class UserSerializer(serializers.ModelSerializer):
-	profile = ProfileSerializer()
+	password = serializers.CharField(write_only=True, required=True)
+	profile = ProfileSerializer(required=False)
 	comments = CommentSerializer(many=True, read_only=True)
 	posts = NoCommentPostSerializer(many=True, read_only=True)
+	owned_groups = SmallGroupSerializer(many=True, read_only=True)
 
 
 	class Meta:
 		model = User
-		fields = ('id', 'username', 'profile', 'comments', 'posts', 'owned_groups')
+		fields = ('id', 'username', 'profile', 'comments', 'posts', 'owned_groups', 'password')
+
+	def create(self, validated_data):
+		user = User.objects.create(
+			username=validated_data['username']
+		)
+		user.set_password(validated_data['password'])
+		profile = Profile.objects.create(user=user)
+		profile.save()
+		user.save()
+		return user
 

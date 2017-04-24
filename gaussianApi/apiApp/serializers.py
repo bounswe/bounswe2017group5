@@ -15,32 +15,41 @@ class ProfileSerializer(serializers.ModelSerializer):
 		fields = ('id', 'name', 'surname')
 
 class GroupSerializer(serializers.ModelSerializer):
-	posts = serializers.PrimaryKeyRelatedField(many=True, queryset=Post.objects.all())
+	posts = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
 
 	class Meta:
 		model = Group
-		fields = ('created', 'name', 'isPublic', 'description', 'location_lat', 'location_lon')
+		fields = ('created', 'name', 'isPublic', 'description', 'location_lat', 'location_lon', 'posts')
 
 class CommentSerializer(serializers.ModelSerializer):
-	
+	author = serializers.ReadOnlyField(source='author.username')
+
 	class Meta:
 		model = Comment
 		fields = ('id', 'text', 'author', 'post', 'created')
 
 
-class PostSerializer(serializers.ModelSerializer):
-	comments = serializers.PrimaryKeyRelatedField(many=True, queryset=Comment.objects.all())
+class NoCommentPostSerializer(serializers.ModelSerializer):
+	author = serializers.ReadOnlyField(source='author.username')
 
 	class Meta:
 		model = Post
-		fields = ('id', 'text', 'author','group')
+		fields = ('id', 'text', 'author', 'group')
+
+
+class PostSerializer(NoCommentPostSerializer):
+	comments = serializers.PrimaryKeyRelatedField(many=True, queryset=Comment.objects.all())
+	
+	class Meta:
+		model = Post
+		fields = ('id', 'text', 'author', 'group', 'comments')
+
 
 
 class UserSerializer(serializers.ModelSerializer):
 	profile = ProfileSerializer()
-
-	comments = serializers.PrimaryKeyRelatedField(many=True, queryset=Comment.objects.all())
-	posts = serializers.PrimaryKeyRelatedField(many=True, queryset=Post.objects.all())
+	comments = CommentSerializer(many=True, read_only=True)
+	posts = NoCommentPostSerializer(many=True, read_only=True)
 
 	class Meta:
 		model = User

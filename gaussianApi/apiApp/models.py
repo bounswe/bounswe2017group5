@@ -4,10 +4,10 @@ from django.contrib.auth.models import User
 from django.db import models
 
 class Post(models.Model):
-	author = models.ForeignKey('auth.User', related_name='author', on_delete=models.CASCADE)
+	author = models.ForeignKey('auth.User', related_name='posts', on_delete=models.CASCADE)
 	text = models.TextField()
 	created = models.DateTimeField(auto_now_add=True)
-	group = models.ForeignKey('apiApp.Post', related_name='group_of_post', on_delete=models.CASCADE)
+	group = models.ForeignKey('apiApp.Group', related_name='posts', on_delete=models.CASCADE)
 	# a field for comments is needed
 	class Meta:
 		ordering = ('created',)

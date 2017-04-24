@@ -40,3 +40,10 @@ The development server: to verify your Django project works.
 $ python manage.py runserver
 
 ```
+Try to show
+```shell
+http://127.0.0.1:8000/apiApp/
+http://127.0.0.1:8000/admin/
+```
+
+[Documentation](https://docs.djangoproject.com/en/1.11/intro/tutorial01/)

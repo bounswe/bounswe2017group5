@@ -1,6 +1,7 @@
 from django.conf.urls import url
 
 from . import views
+from rest_framework.authtoken import views as auth_views
 
 urlpatterns = [
     url(r'^$', views.index, name='index'),
@@ -15,5 +16,7 @@ urlpatterns = [
     url(r'^comments/$', views.CommentList.as_view()),
     url(r'^comments/(?P<pk>[0-9]+)/$', views.CommentDetail.as_view()),
     url(r'^posts/$', views.PostList.as_view()),
-    url(r'^posts/(?P<pk>[0-9]+)/$', views.PostDetail.as_view())
+    url(r'^posts/(?P<pk>[0-9]+)/$', views.PostDetail.as_view()),
+    url(r'^register/', views.createUser),
+    url(r'^login/', auth_views.obtain_auth_token),
 ]

@@ -4,6 +4,7 @@ from apiApp.models import Profile, Comment, Tag, User, Group, Post
 from apiApp.serializers import ProfileSerializer, CommentSerializer, UserSerializer, TagSerializer, GroupSerializer, PostSerializer
 
 from rest_framework import generics
+from rest_framework.decorators import api_view
 
 
 class UserList(generics.ListCreateAPIView):
@@ -40,10 +41,13 @@ class GroupList(generics.ListCreateAPIView):
 class GroupDetail(generics.RetrieveUpdateDestroyAPIView):
 	queryset = Group.objects.all()
 	serializer_class = GroupSerializer
-	
+
 class ProfileList(generics.ListCreateAPIView):
 	queryset = Profile.objects.all()
 	serializer_class = ProfileSerializer
+
+	def perform_create(self, serializer):
+		serializer.save(user=self.request.user)
 
 class ProfileDetail(generics.RetrieveUpdateDestroyAPIView):
 	queryset = Profile.objects.all()
@@ -59,6 +63,18 @@ class PostList(generics.ListCreateAPIView):
 class PostDetail(generics.RetrieveUpdateDestroyAPIView):
 	queryset = Post.objects.all()
 	serializer_class = PostSerializer
+
+@api_view(['POST'])
+def createUser(request):
+	serialized = UserSerializer(data=request.data)
+	if serialized.is_valid():
+		User.objects.create_user(
+			serialized.init_data['username'],
+			serialized.init_data['password']
+		)
+		return Response(serialized.data, status=status.HTTP_201_CREATED)
+	else:
+		return Response(serialized.errors, status=status.HTTP_400_BAD_REQUEST)
 
 def index(request):
     return HttpResponse("Hello, group 5. This is our first version of API project with Django.")

@@ -14,12 +14,20 @@ class ProfileSerializer(serializers.ModelSerializer):
 		model = Profile
 		fields = ('id', 'name', 'surname')
 
+class SmallUserSerializer(serializers.ModelSerializer):
+	profile = ProfileSerializer()
+
+	class Meta:
+		model = User
+		fields = ('id', 'username', 'profile')
+
 class GroupSerializer(serializers.ModelSerializer):
 	posts = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
+	admin = SmallUserSerializer(read_only=True)
 
 	class Meta:
 		model = Group
-		fields = ('created', 'name', 'isPublic', 'description', 'location_lat', 'location_lon', 'posts')
+		fields = ('created', 'name', 'isPublic', 'description', 'location_lat', 'location_lon', 'posts', 'admin', 'members')
 
 class CommentSerializer(serializers.ModelSerializer):
 	author = serializers.ReadOnlyField(source='author.username')
@@ -51,7 +59,8 @@ class UserSerializer(serializers.ModelSerializer):
 	comments = CommentSerializer(many=True, read_only=True)
 	posts = NoCommentPostSerializer(many=True, read_only=True)
 
+
 	class Meta:
 		model = User
-		fields = ('id', 'username', 'profile', 'comments', 'posts')
+		fields = ('id', 'username', 'profile', 'comments', 'posts', 'owned_groups')
 

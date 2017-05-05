@@ -53,7 +53,7 @@ class NoCommentPostSerializer(serializers.ModelSerializer):
 
 
 class PostSerializer(NoCommentPostSerializer):
-	comments = CommentSerializer(many=True)
+	comments = CommentSerializer(many=True, read_only=True)
 	
 	class Meta:
 		model = Post

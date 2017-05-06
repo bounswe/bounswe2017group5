@@ -35,7 +35,7 @@ class UserTests(APITestCase):
 		response = self.client.post(url, data)
 		self.assertEqual(response.status_code, status.HTTP_200_OK)
 		try:
-			token = response.data
+			token = response.data["token"]
 		except AttributeError:
 			self.fail("No token attribute")
 

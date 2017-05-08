@@ -105,8 +105,8 @@ class UserTests(APITestCase):
 		user = User.objects.create_user('testUser1', 'testEmail@testEmail.com', 'passTestUser')
 		user2 = User.objects.create_user('testUser2', 'testEmail2@testEmail.com', 'passTestUser2')
 		# Creating profiles for users
-		profile = Profile.objects.create(user=user)
-		profile2 = Profile.objects.create(user=user2)
+		profile = Profile.objects.create(user=user, name="name1", surname="surname1")
+		profile2 = Profile.objects.create(user=user2, name="name2", surname="surname2")
 		self.client.force_authenticate(user=user)
 
 	def test_getUsers(self):
@@ -133,7 +133,7 @@ class UserTests(APITestCase):
 		Profiles can be edited by their respective users.
 		"""
 		url = "/profile/1/"
-		data = {"name" : "testName", "surname" : "testSurname"}
+		data = { "name" : "testName", "surname" : "testSurname" }
 		response = self.client.patch(url, data, format='json')
 		self.assertEqual(response.status_code, status.HTTP_200_OK)
 		self.assertEqual(response.data["name"], "testName")
@@ -289,10 +289,14 @@ class CommentTests(APITestCase):
 	 		
 	def test_getCommments(self):
 		
-		Comment.objects.create(text = 'What a nice post.',post = Post.objects.get(id=1)) 
-		Comment.objects.create(text = 'What a nice post.I keep sayig this.', post = Post.objects.get(id=1))
-		Comment.objects.create(text = 'Another brilliant post.', post = Post.objects.get(id=2))
-		Comment.objects.create(text = 'What a nice post...', post = Post.objects.get(id=3)) 
+		Comment.objects.create(text = 'What a nice post.',post = Post.objects.get(id=1), 
+			author = User.objects.get(id=1)) 
+		Comment.objects.create(text = 'What a nice post.I keep sayig this.', post = Post.objects.get(id=1), 
+			author = User.objects.get(id=1))
+		Comment.objects.create(text = 'Another brilliant post.', post = Post.objects.get(id=2), 
+			author = User.objects.get(id=2))
+		Comment.objects.create(text = 'What a nice post...', post = Post.objects.get(id=3), 
+			author = User.objects.get(id=3))
 	
 		
 
@@ -302,6 +306,15 @@ class CommentTests(APITestCase):
 		self.assertEqual(response.data["count"], 3)
 
 	def test_getCommment(self):
+
+		Comment.objects.create(text = 'What a nice post.',post = Post.objects.get(id=1), 
+			author = User.objects.get(id=1)) 
+		Comment.objects.create(text = 'What a nice post.I keep sayig this.', post = Post.objects.get(id=1), 
+			author = User.objects.get(id=1))
+		Comment.objects.create(text = 'Another brilliant post.', post = Post.objects.get(id=2), 
+			author = User.objects.get(id=2))
+		Comment.objects.create(text = 'What a nice post...', post = Post.objects.get(id=3), 
+			author = User.objects.get(id=3))
 
 		url = '/comments/2/' # see a comment that is posted to a group this user belongs
 		response = self.client.get(url, format='json')
@@ -315,9 +328,12 @@ class CommentTests(APITestCase):
 
 	def test_deleteComment(self):
 
-		Comment.objects.create(text = 'What a nice post.', post = Post.objects.get(id=1))
-		Comment.objects.create(text = 'Another brilliant post.', post = Post.objects.get(id=2))
-		Comment.objects.create(text = 'What a nice post...', post = Post.objects.get(id=3)) 
+		Comment.objects.create(text = 'What a nice post.', post = Post.objects.get(id=1), 
+			author = User.objects.get(id=1))
+		Comment.objects.create(text = 'Another brilliant post.', post = Post.objects.get(id=2), 
+			author = User.objects.get(id=2))
+		Comment.objects.create(text = 'What a nice post...', post = Post.objects.get(id=3), 
+			author = User.objects.get(id=3)) 
 
 
 		url = '/comments/2/' # delete self created comment
@@ -351,12 +367,12 @@ class PostTests(APITestCase):
 			description='This is a test group.')
 		group2 = Group.objects.create(admin=user3, name='testGroup2', isPublic=True, 
 			description='This is another test group.')
-		group3 = Group.objects.create(admin=user4,members=[user], name='testGroup3',isPublic=True,
+		group3 = Group.objects.create(admin=user4, name='testGroup3',isPublic=True,
 			description='This is a group for music lovers')
 
 		post1 = Post.objects.create(author=user2,text="Beethoven",group=group)
 		post2 = Post.objects.create(author=user3,text="Rachmaninoff",group=group2)
-		post3 = Post.objcts.create(author=user,text="Teoman",group=group3)	
+		post3 = Post.objects.create(author=user,text="Teoman",group=group3)	
 
 	def test_createPost(self):
 		"""
@@ -375,13 +391,15 @@ class PostTests(APITestCase):
 		self.assertEqual(response.data["text"], 'Vivaldi')
 		self.assertEqual(Post.objects.count(), 4)
 
-	def test_removePost():
+	def test_removePost(self):
 		"""
 		Users can only delete their own post.
 		"""
 		self.client.force_authenticate(user = User.objects.get(id=3))
 
-		post5 = Group.objects.create(author=user, group=group3, text="Mahmut is best computer geek I have ever met")
+		post5 = Post.objects.create(author=User.objects.get(id=3), 
+			text="Mahmut is best computer geek I have ever met",
+			group=Group.objects.get(id=3))
 
 		url = "/post/4/"
 		response = self.client.delete(url, format='json')
@@ -391,7 +409,7 @@ class PostTests(APITestCase):
 		response = self.client.delete(url, format='json')
 		self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
-    def test_getPosts(self):
+	def test_getPosts(self):
 		"""
 		All posts
 		"""

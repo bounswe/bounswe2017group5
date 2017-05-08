@@ -288,12 +288,13 @@ class CommentTests(APITestCase):
 		self.assertEqual(Comment.objects.count(), 4)
 	 		
 	def test_getCommments(self):
-
-		self.addComment({'text' : 'What a nice post.', 'post' : 1})
-		self.addComment({'text' : 'What a nice post.I keep sayig this.', 'post' : 2})
-		self.addComment({'text' : 'Another brilliant post.', 'post' : 2})
-		self.addComment({'text' : 'What a nice post...', 'post' : 3}) 
-
+		
+		Comment.objects.create(text = 'What a nice post.', post = post1)
+		Comment.objects.create(text = 'What a nice post.I keep sayig this.', post = post1)
+		Comment.objects.create(text = 'Another brilliant post.', post = post2)
+		Comment.objects.create(text = 'What a nice post...', post = post3) 
+	
+		
 
 		url = '/comments/'
 		response = self.client.get(url, format='json')
@@ -314,9 +315,9 @@ class CommentTests(APITestCase):
 
 	def test_deleteComment(self):
 
-		self.addComment({'text' : 'What a nice post.', 'post' : 1})
-		self.addComment({'text' : 'What a nice post.I keep sayig this.', 'post' : 1})
-		self.addComment({'text' : 'What a nice post...', 'post' : 2});
+		Comment.objects.create(text = 'What a nice post.', post = post1)
+		Comment.objects.create(text = 'Another brilliant post.', post = post2)
+		Comment.objects.create(text = 'What a nice post...', post = post3) 
 
 
 		url = '/comments/2/' # delete self created comment

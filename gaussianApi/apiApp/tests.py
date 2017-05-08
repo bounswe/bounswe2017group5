@@ -289,10 +289,10 @@ class CommentTests(APITestCase):
 	 		
 	def test_getCommments(self):
 		
-		Comment.objects.create(text = 'What a nice post.', post = post1)
-		Comment.objects.create(text = 'What a nice post.I keep sayig this.', post = post1)
-		Comment.objects.create(text = 'Another brilliant post.', post = post2)
-		Comment.objects.create(text = 'What a nice post...', post = post3) 
+		Comment.objects.create(text = 'What a nice post.',post = Post.objects.get(id=1)) 
+		Comment.objects.create(text = 'What a nice post.I keep sayig this.', post = Post.objects.get(id=1))
+		Comment.objects.create(text = 'Another brilliant post.', post = Post.objects.get(id=2))
+		Comment.objects.create(text = 'What a nice post...', post = Post.objects.get(id=3)) 
 	
 		
 
@@ -315,9 +315,9 @@ class CommentTests(APITestCase):
 
 	def test_deleteComment(self):
 
-		Comment.objects.create(text = 'What a nice post.', post = post1)
-		Comment.objects.create(text = 'Another brilliant post.', post = post2)
-		Comment.objects.create(text = 'What a nice post...', post = post3) 
+		Comment.objects.create(text = 'What a nice post.', post = Post.objects.get(id=1))
+		Comment.objects.create(text = 'Another brilliant post.', post = Post.objects.get(id=2))
+		Comment.objects.create(text = 'What a nice post...', post = Post.objects.get(id=3)) 
 
 
 		url = '/comments/2/' # delete self created comment

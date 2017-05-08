@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from apiApp.models import Profile
+from apiApp.models import Profile, Group
 
 from django.test import TestCase
 from rest_framework import status
@@ -27,7 +27,8 @@ class LogInRegisterTests(APITestCase):
 		self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 		self.assertEqual(User.objects.count(), 2)
 		# Every user must be created with its Profile
-		self.assertEqual(Profile.objects.count(), 2)
+		self.assertEqual(Profile.objects.count(), 1)
+		# The initial user doesn't have a Profile. So it has to be 1.
 		self.assertEqual(User.objects.get(username='testUser1234').username, 'testUser1234')
 
 	def test_login(self):
@@ -100,7 +101,8 @@ class LogInRegisterTests(APITestCase):
 class UserTests(APITestCase):
 
 	def setUp(self):
-		user = User.objects.create_user('testUser2', 'testEmail@testEmail.com', 'passTestUser')
+		user = User.objects.create_user('testUser1', 'testEmail@testEmail.com', 'passTestUser')
+		user2 = User.objects.create_user('testUser2', 'testEmail2@testEmail.com', 'passTestUser2')
 		self.client.force_authenticate(user=user)
 
 	def test_getUsers(self):
@@ -110,15 +112,107 @@ class UserTests(APITestCase):
 		url = "/users/"
 		response = self.client.get(url, format='json')
 		self.assertEqual(response.status_code, status.HTTP_200_OK)
-		self.assertEqual(response.data["count"], 1)
+		self.assertEqual(response.data["count"], 2)
+
+	def test_getUser(self):
+		"""
+		It's possible to get information of a single User.
+		"""
+		url = "/users/2/"
+		response = self.client.get(url, format='json')
+		self.assertEqual(response.status_code, status.HTTP_200_OK)
+		self.assertEqual(response.data["id"], 2)
+		self.assertEqual(response.data["username"], "testUser2")
+
 
 
 class GroupTests(APITestCase):
 
 	def setUp(self):
-		user = User.objects.create_user('testUser2', 'testEmail@testEmail.com', 'passTestUser')
+		user = User.objects.create_user('testUser1', 'testEmail@testEmail.com', 'passTestUser')
+		user2 = User.objects.create_user('testUser2', 'testEmail2@testEmail.com', 'passTestUser2')
+		user3 = User.objects.create_user('testUser3', 'testEmail3@testEmail.com', 'passTestUser3')
+		group = Group.objects.create(admin=user2, name='testGroup', isPublic=False, 
+			description='This is a test group.', location_lat='12345', location_lon='12345')
+		group2 = Group.objects.create(admin=user3, name='testGroup2', isPublic=True, 
+			description='This is another test group.', location_lat='12345', location_lon='12345')
+		# self.client.force_authenticate(user=user)
+
+	def test_getGroups(self):
+		"""
+		All groups are visible to everyone unless it's a private group.
+		"""
+		url = "/groups/"
+		response = self.client.get(url, format='json')
+		self.assertEqual(response.status_code, status.HTTP_200_OK)
+		self.assertEqual(response.data["count"], 1)
+
+	def test_getGroup(self):
+		"""
+		All public groups can be retrieved from api.
+		"""
+		url = "/groups/2/"
+		response = self.client.get(url, format='json')
+		self.assertEqual(response.status_code, status.HTTP_200_OK)
+		self.assertEqual(response.data["id"], 2)
+		self.assertEqual(response.data["name"], "testGroup2")
+
+	def test_createGroup(self):
+		"""
+		Anyone can create a group.
+		"""
+		self.client.force_authenticate(user=User.objects.get(id=1))
+		url = "/groups/"
+		data = {
+			'name' : 'testGroup3',
+			'description' : 'This is another test group that just created.',
+			'isPublic' : True
+		}
+		response = self.client.post(url, data, format='json')
+		self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+		self.assertEqual(response.data["id"], 3)
+		self.assertEqual(response.data["name"], 'testGroup3')
+		
+	def test_editGroup(self):
+		"""
+		Users can only edit their own groups.
+		"""
+		user = User.objects.get(id=1)
+		self.client.force_authenticate(user=user)
+		group = Group.objects.create(admin=user, name='testGroup3', isPublic=True, 
+			description='This is another test group that just created.')
+
+		url = "/groups/3/"
+		data = {
+			'name' : 'anotherTestGroup'
+		}
+
+		response = self.client.patch(url, data, format='json')
+		self.assertEqual(response.status_code, status.HTTP_200_OK)
+		self.assertEqual(response.data["name"], 'anotherTestGroup')
+
+		url = "/groups/1/"
+		response = self.client.patch(url, data, format='json')
+		self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
 
+	def test_removeGroup(self):
+		"""
+		Users can only delete their own groups.
+		"""
+		user = User.objects.get(id=1)
+		self.client.force_authenticate(user=user)
+		group = Group.objects.create(admin=user, name='testGroup3', isPublic=True, 
+			description='This is another test group that just created.')
 
+		url = "/groups/3/"
+		response = self.client.delete(url, format='json')
+		self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+		url = "/groups/1/"
+		response = self.client.delete(url, format='json')
+		self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+			
 
 

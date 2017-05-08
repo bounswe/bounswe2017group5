@@ -7,6 +7,7 @@ from django.test import TestCase
 from rest_framework import status
 from rest_framework.test import APITestCase
 from django.contrib.auth.models import User
+from apiApp.models import Post, Comment
 
 class LogInRegisterTests(APITestCase):
 
@@ -213,6 +214,80 @@ class GroupTests(APITestCase):
 		response = self.client.delete(url, format='json')
 		self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
-			
+
+
+class CommentTests(APITestCase):
+	
+	def addComment(self, data):
+		url = '/comments/'
+		return self.client.post(url, data)
+
+	def setUp(self):
+		user1 = User.objects.create_user('testUser1', 'testEmail@testEmail.com', 'passTestUser')
+		user2 = User.objects.create_user('testUser2', 'testEmail2@testEmail.com', 'passTestUser2')
+		user3 = User.objects.create_user('testUser3', 'testEmail3@testEmail.com', 'passTestUser3')
+		group1 = Group.objects.create(admin=user2, name='testGroup', isPublic=False, 
+			description='This is a test group.', location_lat='12345', location_lon='12345')
+		group2 = Group.objects.create(admin=user3, name='testGroup2', isPublic=True, 
+			description='This is another test group.', location_lat='12345', location_lon='12345')
+		self.client.force_authenticate(user=user2)
+		post1 = Post.objects.create(text='Hello, I am admin in this group.', group= group1, author=user1);
+		post2 = Post.objects.create(text='Hello, this is my second post.', group= group1, author=user1);
+		post3 = Post.objects.create(text='Hello, I am not an admin in this group.', group= group2, author=user1);
+
+	def test_createComment(self):
+		data = {'text' : 'What a nice post.', 'post' : 1} #comment to an existing post
+		url = '/comments/'
+		response = self.client.post(url, data, format='json')
+		self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+		self.assertEqual(Comment.objects.count(), 1)
+
+		data = {'text' : 'What a nice post.I keep sayig this.', 'post' : 1} #comment to the same post
+		url = '/comments/'
+		response = self.client.post(url, data, format='json')
+		self.assertEqual(Comment.objects.count(), 2)
+
+
+		data = {'text' : 'Oops.', 'post' : 5} #comment to the a non-existing post
+		url = '/comments/'
+		response = self.client.post(url, data, format='json')
+		self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+		self.assertEqual(Comment.objects.count(), 2)
+
+		data = {'text' : 'What a nice post...', 'post' : 3} #comment to the another post
+		url = '/comments/'
+		response = self.client.post(url, data, format='json')
+		self.assertEqual(Comment.objects.count(), 3)
+	 		
+	def test_getCommments(self):
+
+		url = '/comments/'
+		response = self.client.get(url, format='json')
+		self.assertEqual(response.status_code, status.HTTP_200_OK)
+		self.assertEqual(response.data["count"], 3)
+
+	def test_getCommment(self):
+
+		url = '/comments/2/'
+		response = self.client.get(url, format='json')
+		self.assertEqual(response.status_code, status.HTTP_200_OK)
+		self.assertEqual(response.data["post"], 1)
+		self.assertEqual(response.data["text"], 'What a nice post.I keep sayig this.')
+
+	def test_deleteComment(self):
+
+		url = '/comments/2/'
+		response = self.client.delete(url, format='json')
+		self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+		url = '/comments/'
+		response = self.client.get(url, format='json')
+		self.assertEqual(response.status_code, status.HTTP_200_OK)
+		self.assertEqual(response.data["count"], 3)
+		
+
+				
+
+				
 
 

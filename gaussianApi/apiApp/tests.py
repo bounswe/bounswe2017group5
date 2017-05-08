@@ -104,6 +104,9 @@ class UserTests(APITestCase):
 	def setUp(self):
 		user = User.objects.create_user('testUser1', 'testEmail@testEmail.com', 'passTestUser')
 		user2 = User.objects.create_user('testUser2', 'testEmail2@testEmail.com', 'passTestUser2')
+		# Creating profiles for users
+		profile = Profile.objects.create(user=user)
+		profile2 = Profile.objects.create(user=user2)
 		self.client.force_authenticate(user=user)
 
 	def test_getUsers(self):
@@ -124,6 +127,17 @@ class UserTests(APITestCase):
 		self.assertEqual(response.status_code, status.HTTP_200_OK)
 		self.assertEqual(response.data["id"], 2)
 		self.assertEqual(response.data["username"], "testUser2")
+
+	def test_editProfile(self):
+		"""
+		Profiles can be edited by their respective users.
+		"""
+		url = "/profile/1/"
+		data = {"name" : "testName", "surname" : "testSurname"}
+		response = self.client.patch(url, data, format='json')
+		self.assertEqual(response.status_code, status.HTTP_200_OK)
+		self.assertEqual(response.data["name"], "testName")
+		self.assertEqual(response.data["surname"], "testSurname")
 
 
 
@@ -213,7 +227,6 @@ class GroupTests(APITestCase):
 		url = "/groups/1/"
 		response = self.client.delete(url, format='json')
 		self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
-
 
 
 class CommentTests(APITestCase):
@@ -327,6 +340,5 @@ class CommentTests(APITestCase):
 
 				
 
-				
 
 

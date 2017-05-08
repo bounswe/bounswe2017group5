@@ -338,7 +338,82 @@ class CommentTests(APITestCase):
 		self.assertEqual(response.data["count"], 2)
 
 
-				
+
+class PostTests(APITestCase):
+
+	def setUp(self):
+		user = User.objects.create_user('testUser1', 'testEmail@testEmail.com', 'passTestUser')
+		user2 = User.objects.create_user('testUser2', 'testEmail2@testEmail.com', 'passTestUser2')
+		user3 = User.objects.create_user('testUser3', 'testEmail3@testEmail.com', 'passTestUser3')
+		user4 = User.objects.create_user('testUser4', 'testEmail4@testEmail.com', 'passTestUser4')
+		group = Group.objects.create(admin=user2, name='testGroup', isPublic=False, 
+			description='This is a test group.')
+		group2 = Group.objects.create(admin=user3, name='testGroup2', isPublic=True, 
+			description='This is another test group.')
+		group3 = Group.objects.create(admin=user4,members=[user], name='testGroup3',isPublic=True,
+			description='This is a group for music lovers')
+
+		post1 = Post.objects.create(author=user2,text="Beethoven",group=group)
+		post2 = Post.objects.create(author=user3,text="Rachmaninoff",group=group2)
+		post3 = Post.objcts.create(author=user,text="Teoman",group=group3)	
+
+	def test_createPost(self):
+		"""
+		If user is a member of the group, he/she can create post
+		"""
+		self.client.force_authenticate(user=User.objects.get(id=1))
+		url = "/posts/"
+		data = {
+			'text' : 'Vivaldi',
+			'group': 3
+
+		}
+		response = self.client.post(url, data, format='json')
+		self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+		self.assertEqual(response.data["id"], 4)
+		self.assertEqual(response.data["text"], 'Vivaldi')
+		self.assertEqual(Post.objects.count(), 4)
+
+	def test_removePost():
+		"""
+		Users can only delete their own post.
+		"""
+		self.client.force_authenticate(user = User.objects.get(id=3))
+
+		post5 = Group.objects.create(author=user, group=group3, text="Mahmut is best computer geek I have ever met")
+
+		url = "/post/4/"
+		response = self.client.delete(url, format='json')
+		self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+		url = "/post/1/"
+		response = self.client.delete(url, format='json')
+		self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_getPosts(self):
+		"""
+		All posts
+		"""
+		url = "/posts/"
+		response = self.client.get(url, format='json')
+		self.assertEqual(response.status_code, status.HTTP_200_OK)
+		self.assertEqual(response.data["count"], 3)
+
+
+	def test_getPost(self):
+		"""
+		get specific Post
+		"""
+		url = "/posts/2/"
+		response = self.client.get(url, format='json')
+		self.assertEqual(response.status_code, status.HTTP_200_OK)
+		self.assertEqual(response.data["id"], 2)
+		self.assertEqual(response.data["text"], "Rachmaninoff")	
+
+		url = "/posts/1/"
+		response = self.client.get(url, format='json')
+		self.assertEqual(response.status_code,status.HTTP_401_UNAUTHORIZED)
+
 
 
 

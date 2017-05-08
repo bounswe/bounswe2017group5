@@ -1,16 +1,17 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+from apiApp.models import Profile
+
 from django.test import TestCase
 from rest_framework import status
 from rest_framework.test import APITestCase
 from django.contrib.auth.models import User
 
-class UserTests(APITestCase):
+class LogInRegisterTests(APITestCase):
 
 	def setUp(self):
 		user = User.objects.create_user('testUser2', 'testEmail@testEmail.com', 'passTestUser')
-
 
 	def login(self, data):
 		url = '/login/'
@@ -25,6 +26,8 @@ class UserTests(APITestCase):
 		response = self.client.post(url, data, format='json')
 		self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 		self.assertEqual(User.objects.count(), 2)
+		# Every user must be created with its Profile
+		self.assertEqual(Profile.objects.count(), 2)
 		self.assertEqual(User.objects.get(username='testUser1234').username, 'testUser1234')
 
 	def test_login(self):
@@ -93,6 +96,27 @@ class UserTests(APITestCase):
 		except AttributeError:
 			self.fail("There must be at least one entry of '" + 
 				error_text + "' in either of 'username' or 'password'")
+
+class UserTests(APITestCase):
+
+	def setUp(self):
+		user = User.objects.create_user('testUser2', 'testEmail@testEmail.com', 'passTestUser')
+		self.client.force_authenticate(user=user)
+
+	def test_getUsers(self):
+		"""
+		The list of users is visible to every user in the system.
+		"""
+		url = "/users/"
+		response = self.client.get(url, format='json')
+		self.assertEqual(response.status_code, status.HTTP_200_OK)
+		self.assertEqual(response.data["count"], 1)
+
+
+class GroupTests(APITestCase):
+
+	def setUp(self):
+		user = User.objects.create_user('testUser2', 'testEmail@testEmail.com', 'passTestUser')
 
 
 

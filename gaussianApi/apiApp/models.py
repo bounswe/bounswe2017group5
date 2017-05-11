@@ -10,7 +10,7 @@ class Post(models.Model):
 	text = models.TextField()
 	created = models.DateTimeField(auto_now_add=True)
 	group = models.ForeignKey('apiApp.Group', related_name='posts', on_delete=models.CASCADE)
-	# a field for comments is needed
+	
 	class Meta:
 		ordering = ('created',)
 

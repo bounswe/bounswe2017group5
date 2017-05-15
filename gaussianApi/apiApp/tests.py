@@ -132,7 +132,7 @@ class UserTests(APITestCase):
 		"""
 		Profiles can be edited by their respective users.
 		"""
-		url = "/profile/1/"
+		url = "/profiles/1/"
 		data = { "name" : "testName", "surname" : "testSurname" }
 		response = self.client.patch(url, data, format='json')
 		self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -401,11 +401,11 @@ class PostTests(APITestCase):
 			text="Mahmut is best computer geek I have ever met",
 			group=Group.objects.get(id=3))
 
-		url = "/post/4/"
+		url = "/posts/4/"
 		response = self.client.delete(url, format='json')
 		self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
-		url = "/post/1/"
+		url = "/posts/1/"
 		response = self.client.delete(url, format='json')
 		self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 

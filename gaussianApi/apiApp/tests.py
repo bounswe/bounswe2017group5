@@ -208,7 +208,7 @@ class GroupTests(APITestCase):
 
 		url = "/groups/1/"
 		response = self.client.patch(url, data, format='json')
-		self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+		self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
 
 	def test_removeGroup(self):
@@ -226,7 +226,7 @@ class GroupTests(APITestCase):
 
 		url = "/groups/1/"
 		response = self.client.delete(url, format='json')
-		self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+		self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
 
 class CommentTests(APITestCase):
@@ -347,7 +347,7 @@ class CommentTests(APITestCase):
 
 		url = '/comments/3/' # delete some comment created by another user
 		response = self.client.delete(url, format='json')
-		self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+		self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
 		url = '/comments/'  
 		response = self.client.get(url, format='json')
@@ -407,7 +407,7 @@ class PostTests(APITestCase):
 
 		url = "/posts/1/"
 		response = self.client.delete(url, format='json')
-		self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+		self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
 	def test_getPosts(self):
 		"""

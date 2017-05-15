@@ -2,6 +2,8 @@ from django.http import HttpResponse
 
 from apiApp.models import Profile, Comment, Tag, User, Group, Post
 from apiApp.serializers import ProfileSerializer, CommentSerializer, UserSerializer, TagSerializer, GroupSerializer, PostSerializer
+from apiApp.permissions import IsOwnerOrReadOnly
+
 
 from rest_framework import generics
 from rest_framework.views import APIView
@@ -23,8 +25,11 @@ class CommentList(generics.ListCreateAPIView):
 
 	def perform_create(self, serializer):
 		serializer.save(author=self.request.user)
-	
+
 class CommentDetail(generics.RetrieveUpdateDestroyAPIView):
+	permission_classes = [
+		IsOwnerOrReadOnly
+	]
 	queryset = Comment.objects.all()
 	serializer_class = CommentSerializer
 	
@@ -41,6 +46,9 @@ class GroupList(generics.ListCreateAPIView):
 	serializer_class = GroupSerializer
 	
 class GroupDetail(generics.RetrieveUpdateDestroyAPIView):
+	permission_classes = [
+		IsOwnerOrReadOnly
+	]
 	queryset = Group.objects.all()
 	serializer_class = GroupSerializer
 
@@ -51,7 +59,7 @@ class ProfileList(generics.ListCreateAPIView):
 	def perform_create(self, serializer):
 		serializer.save(user=self.request.user)
 
-class ProfileDetail(generics.RetrieveUpdateDestroyAPIView):
+class ProfileDetail(generics.RetrieveUpdateAPIView):
 	queryset = Profile.objects.all()
 	serializer_class = ProfileSerializer
   
@@ -63,6 +71,9 @@ class PostList(generics.ListCreateAPIView):
 		serializer.save(author=self.request.user)
 	
 class PostDetail(generics.RetrieveUpdateDestroyAPIView):
+	permission_classes = [
+		IsOwnerOrReadOnly
+	]
 	queryset = Post.objects.all()
 	serializer_class = PostSerializer
 

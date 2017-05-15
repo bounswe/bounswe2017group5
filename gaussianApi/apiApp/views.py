@@ -1,4 +1,6 @@
 from django.http import HttpResponse
+from django.db.models import Q
+
 
 from apiApp.models import Profile, Comment, Tag, User, Group, Post
 from apiApp.serializers import ProfileSerializer, CommentSerializer, UserSerializer, TagSerializer, GroupSerializer, PostSerializer
@@ -20,8 +22,13 @@ class UserDetail(generics.RetrieveUpdateDestroyAPIView):
 	serializer_class = UserSerializer
 	
 class CommentList(generics.ListCreateAPIView):
-	queryset = Comment.objects.all()
 	serializer_class = CommentSerializer
+
+	def get_queryset(self):
+		user = self.request.user
+		comments = Comment.objects.filter(
+			Q(post__group__isPublic=True) | Q(post__group__members__id__exact=user.id)).distinct()
+		return comments
 
 	def perform_create(self, serializer):
 		serializer.save(author=self.request.user)
@@ -30,8 +37,13 @@ class CommentDetail(generics.RetrieveUpdateDestroyAPIView):
 	permission_classes = [
 		IsOwnerOrReadOnly
 	]
-	queryset = Comment.objects.all()
 	serializer_class = CommentSerializer
+
+	def get_queryset(self):
+		user = self.request.user
+		comments = Comment.objects.filter(
+			Q(post__group__isPublic=True) | Q(post__group__members__id__exact=user.id)).distinct()
+		return comments
 	
 class TagList(generics.ListCreateAPIView):
 	queryset = Tag.objects.all()
@@ -42,15 +54,46 @@ class TagDetail(generics.RetrieveUpdateDestroyAPIView):
 	serializer_class = TagSerializer
 	
 class GroupList(generics.ListCreateAPIView):
-	queryset = Group.objects.all()
+	permission_classes = [
+		permissions.IsAuthenticatedOrReadOnly
+	]
+
 	serializer_class = GroupSerializer
+
+	def get_queryset(self):
+		user = self.request.user
+		if user:
+			groups = Group.objects.filter(
+				Q(isPublic=True) | Q(members__id__exact=user.id)).distinct()
+		else:
+			groups = Group.objects.filter(
+				Q(isPublic=True)).distinct()
+
+		return groups
+	
+	
 	
 class GroupDetail(generics.RetrieveUpdateDestroyAPIView):
 	permission_classes = [
-		IsOwnerOrReadOnly
+		IsOwnerOrReadOnly,
+		permissions.IsAuthenticatedOrReadOnly
 	]
-	queryset = Group.objects.all()
+
 	serializer_class = GroupSerializer
+
+	def get_queryset(self):
+		user = self.request.user
+		if user:
+			groups = Group.objects.filter(
+				Q(isPublic=True) | Q(members__id__exact=user.id)).distinct()
+		else:
+			groups = Group.objects.filter(isPublic=True)
+
+		return groups
+
+	def perform_create(self, serializer):
+		serializer.save(admin=self.request.user)
+
 
 class ProfileList(generics.ListCreateAPIView):
 	queryset = Profile.objects.all()
@@ -64,18 +107,32 @@ class ProfileDetail(generics.RetrieveUpdateAPIView):
 	serializer_class = ProfileSerializer
   
 class PostList(generics.ListCreateAPIView):
-	queryset = Post.objects.all()
+	permission_classes = [
+		permissions.IsAuthenticatedOrReadOnly
+	]
 	serializer_class = PostSerializer
+
+	def get_queryset(self):
+		user = self.request.user
+		posts = Post.objects.filter(
+			Q(group__isPublic=True) | Q(group__members__id__exact=user.id)).distinct()
+		return posts
 
 	def perform_create(self, serializer):
 		serializer.save(author=self.request.user)
 	
 class PostDetail(generics.RetrieveUpdateDestroyAPIView):
 	permission_classes = [
+		permissions.IsAuthenticatedOrReadOnly,
 		IsOwnerOrReadOnly
 	]
-	queryset = Post.objects.all()
 	serializer_class = PostSerializer
+
+	def get_queryset(self):
+		user = self.request.user
+		posts = Post.objects.filter(
+			Q(group__isPublic=True) | Q(group__members__id__exact=user.id)).distinct()
+		return posts
 
 class RegisterView(generics.CreateAPIView):
 	permission_classes = [

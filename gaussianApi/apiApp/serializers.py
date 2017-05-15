@@ -25,6 +25,7 @@ class SmallUserSerializer(serializers.ModelSerializer):
 class GroupSerializer(serializers.ModelSerializer):
 	posts = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
 	admin = SmallUserSerializer(read_only=True)
+	members = SmallUserSerializer(many=True, read_only=True)
 
 	class Meta:
 		model = Group

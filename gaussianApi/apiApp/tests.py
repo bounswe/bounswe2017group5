@@ -206,7 +206,7 @@ class GroupTests(APITestCase):
 		self.assertEqual(response.status_code, status.HTTP_200_OK)
 		self.assertEqual(response.data["name"], 'anotherTestGroup')
 
-		url = "/groups/1/"
+		url = "/groups/2/"
 		response = self.client.patch(url, data, format='json')
 		self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
@@ -224,7 +224,7 @@ class GroupTests(APITestCase):
 		response = self.client.delete(url, format='json')
 		self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
-		url = "/groups/1/"
+		url = "/groups/2/"
 		response = self.client.delete(url, format='json')
 		self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
@@ -243,10 +243,10 @@ class CommentTests(APITestCase):
 		user2 = User.objects.create_user('testUser2', 'testEmail2@testEmail.com', 'passTestUser2')
 		user3 = User.objects.create_user('testUser3', 'testEmail3@testEmail.com', 'passTestUser3')
 
-		group1 = Group.objects.create(admin=user2, name='testGroup', isPublic=False, 
+		group1 = Group.objects.create(admin=user2, name='testGroup', isPublic=True, 
 			description='This is a test group.', location_lat='12345', location_lon='12345')
 		group1.members= [1,2]
-		group2 = Group.objects.create(admin=user3, name='testGroup2', isPublic=True, 
+		group2 = Group.objects.create(admin=user3, name='testGroup2', isPublic=False, 
 			description='This is another test group.', location_lat='12345', location_lon='12345')
 		group1.members= [1,3]
 
@@ -322,9 +322,9 @@ class CommentTests(APITestCase):
 		self.assertEqual(response.data["post"], 1)
 		self.assertEqual(response.data["text"], 'What a nice post.I keep sayig this.')
 
-		url = '/comments/3/' # see a comment that is posted to a group this user does not belong
+		url = '/comments/4/' # see a comment that is posted to a group this user does not belong
 		response = self.client.get(url, format='json')
-		self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+		self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
 	def test_deleteComment(self):
 
@@ -343,16 +343,16 @@ class CommentTests(APITestCase):
 		url = '/comments/'  
 		response = self.client.get(url, format='json')
 		self.assertEqual(response.status_code, status.HTTP_200_OK)
-		self.assertEqual(response.data["count"], 2)
+		self.assertEqual(response.data["count"], 1)
 
-		url = '/comments/3/' # delete some comment created by another user
+		url = '/comments/1/' # delete some comment created by another user
 		response = self.client.delete(url, format='json')
 		self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
 		url = '/comments/'  
 		response = self.client.get(url, format='json')
 		self.assertEqual(response.status_code, status.HTTP_200_OK)
-		self.assertEqual(response.data["count"], 2)
+		self.assertEqual(response.data["count"], 1)
 
 
 
@@ -405,7 +405,7 @@ class PostTests(APITestCase):
 		response = self.client.delete(url, format='json')
 		self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
-		url = "/posts/1/"
+		url = "/posts/3/"
 		response = self.client.delete(url, format='json')
 		self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
@@ -414,7 +414,7 @@ class PostTests(APITestCase):
 		All posts
 		"""
 		url = "/posts/"
-		response = self.client.get(url, format='json')
+		response = self.client.get(url)
 		self.assertEqual(response.status_code, status.HTTP_200_OK)
 		self.assertEqual(response.data["count"], 3)
 
@@ -431,7 +431,7 @@ class PostTests(APITestCase):
 
 		url = "/posts/1/"
 		response = self.client.get(url, format='json')
-		self.assertEqual(response.status_code,status.HTTP_401_UNAUTHORIZED)
+		self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
 
 

@@ -32,7 +32,6 @@ class Group(models.Model):
 	members = models.ManyToManyField(User)
 	created = models.DateTimeField(auto_now_add=True)
 	name = models.CharField(max_length=30, blank=True, default='')
-	# members field should be added as a one2many relation between group and user
 	isPublic = models.BooleanField(default = True)
 	description = models.TextField();
 	location_lat = models.CharField(max_length = 10, blank=True)

@@ -97,8 +97,8 @@ These classes check different functionalities.
 In the test scenarios, we have both public and private <i>Group, Post, and Comment</i>
 
 ## One of scenario of the system
-You can show the project on [PythonAnywhere](http://swegroup5.pythonanywhere.com/). I give an example of the system. 
-First of all, go to http://swegroup5.pythonanywhere.com/. <br>
+I give an example of the system. <br>
+First of all, you can show the project on [PythonAnywhere](http://swegroup5.pythonanywhere.com/).  <br>
 Let's assume that you want to show <i>Users</i>. <br>
 You need to type http://swegroup5.pythonanywhere.com/users/. <br>
 You need to write <i>username: admin and password: **********</i>. Then you can show <i> User List</i>

@@ -6,4 +6,4 @@ You can check our [Wiki Page](https://github.com/bounswe/bounswe2017group5/wiki)
 
 The project deploys on [PythonAnywhere](http://swegroup5.pythonanywhere.com/).
 
-You can find the documentation of the project on [here](http://swegroup5.pythonanywhere.com/docs/).
+You can find the Api documentation of the project on [here](http://swegroup5.pythonanywhere.com/docs/).

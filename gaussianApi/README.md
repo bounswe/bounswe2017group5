@@ -144,3 +144,5 @@ Vary: Accept
 }
 ```
 There is only one user who is 'admin', so his id is equal to 1. He has a comment, and post. You can show that what are the parameters of comments, posts models.
+
+You can also reach built-in interactive API documentation on [here](http://swegroup5.pythonanywhere.com/docs/).

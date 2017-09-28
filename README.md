@@ -1,6 +1,6 @@
-# CmpE 352 Project - Group 5
+# CmpE 352/451 Project - Group 5
 
-Welcome to **CmpE 352** group project for the course CmpE 352 offered at [Bogazici University](http://www.boun.edu.tr/en_US) in Spring 2017 semester. We are [Group 5](https://github.com/bounswe/bounswe2017group5/wiki/Group-Members) and it is nice to have you around here. Our project is about [Interest Centric Community.](https://github.com/bounswe/bounswe2017group5/blob/master/projectDescription.pdf) <br>
+Welcome to **CmpE 352/451** group project for the course CmpE 352/451 offered at [Bogazici University](http://www.boun.edu.tr/en_US) in Spring 2017 semester. We are [Group 5](https://github.com/bounswe/bounswe2017group5/wiki/Group-Members) and it is nice to have you around here. Our project is about [Interest Centric Community](https://github.com/bounswe/bounswe2017group5/blob/master/projectDescription.pdf).
 
 You can check our [Wiki Page](https://github.com/bounswe/bounswe2017group5/wiki) for more details and information.
 

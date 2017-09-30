@@ -8,9 +8,9 @@ Please check our comprehensive [Wiki Page](https://github.com/bounswe/bounswe201
 
 ## What's New?
 
-- Say hello to our new group members: [Hatice Esra Aydemir (Communicator)](Hatice-Esra-Aydemir), [Samed Düzçay](Samed-D%C3%BCz%C3%A7ay), [Mehmet Utkan Gezer](Mehmet-Utkan-Gezer), and [Orbay Altuntoprak](Orbay-Altuntoprak)
-- We have updated our requirements, check it out: [Requirements Analysis](Requirements-Analysis)
-- Our new communication plan, reflecting the change in our team members: [Communication Plan](Communication-Plan)
+- Say hello to our new group members: [Hatice Esra Aydemir (Communicator)](https://github.com/bounswe/bounswe2017group5/wiki/Hatice-Esra-Aydemir), [Samed Düzçay](https://github.com/bounswe/bounswe2017group5/wiki/Samed-D%C3%BCz%C3%A7ay), [Mehmet Utkan Gezer](https://github.com/bounswe/bounswe2017group5/wiki/Mehmet-Utkan-Gezer), and [Orbay Altuntoprak](https://github.com/bounswe/bounswe2017group5/wiki/Orbay-Altuntoprak)
+- We have updated our requirements, check it out: [Requirements Analysis](https://github.com/bounswe/bounswe2017group5/wiki/Requirements-Analysis)
+- Our new communication plan, reflecting the change in our team members: [Communication Plan](https://github.com/bounswe/bounswe2017group5/wiki/Communication-Plan)
 
 ## What's Old?
 

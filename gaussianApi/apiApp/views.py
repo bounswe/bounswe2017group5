@@ -36,6 +36,7 @@ class CommentList(generics.ListCreateAPIView):
 	post:
 	Create a new Comment. Should have a parent post.
 	"""
+
 	serializer_class = CommentSerializer
 
 	def get_queryset(self):

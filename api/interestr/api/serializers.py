@@ -5,13 +5,13 @@ from django.contrib.auth import models as auth_models
 
 
 class GroupSerializer(serializers.ModelSerializer):
-    
+
     class Meta:
         model = core_models.Group
         fields = ('name', 'created', 'updated', )
 
-class UserSerializer(serializers.ModelsSerializer):
-    
+class UserSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = auth_models.User
         fields = ('username', 'email',)

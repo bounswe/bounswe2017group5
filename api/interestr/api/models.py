@@ -8,7 +8,7 @@ from django.contrib.auth import models as auth_models
 class BaseModel(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
-    
+
     class Meta:
         abstract = True
         ordering = ('created', )
@@ -17,7 +17,7 @@ class BaseModel(models.Model):
 
 class Group(BaseModel):
     name = models.CharField(max_length=40)
-    
+
     def __str__(self):
         return self.name
 

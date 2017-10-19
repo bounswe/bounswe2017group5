@@ -36,6 +36,15 @@ Please check our comprehensive [Wiki Page](https://github.com/bounswe/bounswe201
 * [Sequence Diagrams](Sequence-Diagrams)
 * [Test Cases](Test-Cases)
 
+## Development
+```
+cd api/interestr # go to the project folder
+sh setup.sh # set up the project - only do it once
+python manage.py runserver # run the server
+```
+
+Open `localhost:8000` in your browser - you should see the homepage of our project.
+
 ## What's New?
 
 - Say hello to our new group members: [Hatice Esra Aydemir (Communicator)](https://github.com/bounswe/bounswe2017group5/wiki/Hatice-Esra-Aydemir), [Samed Düzçay](https://github.com/bounswe/bounswe2017group5/wiki/Samed-D%C3%BCz%C3%A7ay), [Mehmet Utkan Gezer](https://github.com/bounswe/bounswe2017group5/wiki/Mehmet-Utkan-Gezer), and [Orbay Altuntoprak](https://github.com/bounswe/bounswe2017group5/wiki/Orbay-Altuntoprak)

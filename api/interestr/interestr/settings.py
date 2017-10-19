@@ -45,16 +45,12 @@ INSTALLED_APPS = [
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.SessionAuthentication',
-<<<<<<< HEAD
         'rest_framework.authentication.TokenAuthentication',
     ),
     'DEFAULT_PARSER_CLASSES': (
         'rest_framework.parsers.JSONParser',
         'rest_framework.parsers.FormParser'
     ),
-=======
-    )
->>>>>>> 84345cd8570a0a6fd9b2cba68264a99a8eca52a1
 }
 
 MIDDLEWARE = [
@@ -95,12 +91,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'interestr',
-<<<<<<< HEAD
-        'USER': 'interestr',
-        'PASSWORD' : '1234',
-=======
         'USER': 'bounswe2017group5',
->>>>>>> 84345cd8570a0a6fd9b2cba68264a99a8eca52a1
         'HOST': '127.0.0.1',
         'PORT': '5432',
     },

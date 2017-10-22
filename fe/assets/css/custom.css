@@ -1,0 +1,26 @@
+#navbar {
+  height: 90px;
+}
+
+html, body {
+  height: 100%;
+}
+
+.main {
+  height: calc(100% - 90px);
+}
+
+.home-container {
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+
+.home-cta-button {
+  padding: 20px 60px;
+  border-radius: 80px !important;
+  font-size: 18px;
+  line-height: 18px;
+}

@@ -31,6 +31,8 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'data_templates.apps.DataTemplatesConfig',
+    'strings.apps.StringsConfig',
     'api.apps.ApiConfig',
     'rest_framework',
     'rest_framework.authtoken',
@@ -91,9 +93,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'interestr',
-        'USER': 'bounswe2017group5',
-        'HOST': '127.0.0.1',
-        'PORT': '5432',
+        'USER': 'bounswe2017group5'
     },
     'old': {
         'ENGINE': 'django.db.backends.sqlite3',

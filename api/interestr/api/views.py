@@ -12,21 +12,6 @@ from django.http import JsonResponse
 
 from . import serializers as core_serializers
 
-def obtain_auth_token(request):
-    # !!!!!! Has to use https !!!!!!
-    # TODO make it available only over https
-    username = request.data.get('username')
-    password = request.data.get('password')
-
-    user = authenticate(username=username, password=password)
-
-    if user is not None:
-        token = Token.objects.create(user=user)
-        return JsonResponse({ "token" : token.key })
-    else:
-        pass
-
-
 ### List Views BEGIN
 
 class UserList(generics.ListAPIView):

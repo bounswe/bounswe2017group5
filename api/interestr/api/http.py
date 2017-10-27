@@ -7,5 +7,5 @@ class ErrorResponse(Response):
     """
     A unified way to return error messages from the api
     """
-    def __init__(self, message=None, status=None):
+    def __init__(self, message, status=None):
         super(ErrorResponse, self).__init__(data={'message' : message}, status=status)

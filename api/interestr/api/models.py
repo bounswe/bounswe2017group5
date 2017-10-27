@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 from django.db import models
 from django.contrib.auth import models as auth_models
 from django.utils import timezone
+from data-templates import DataTemplate 
 
 # BaseModel, do not touch this...
 class BaseModel(models.Model):
@@ -28,7 +29,6 @@ class Post(BaseModel):
     content_url = models.URLField(default = '')
     group = models.ForeignKey('api.Group', related_name='posts', on_delete=models.CASCADE,
     	default = None)
-    #comments = models.ManyToManyField(Comment) #not necessarily add now
     published_date = models.DateTimeField(default = timezone.now)
 
 
@@ -43,6 +43,7 @@ class Post(BaseModel):
 
 
     def __str__(self):
-        return self.owner.username
+        return self.text
 
 # Models END
+

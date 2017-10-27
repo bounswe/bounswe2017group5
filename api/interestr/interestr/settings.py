@@ -34,7 +34,6 @@ INSTALLED_APPS = [
     'data_templates.apps.DataTemplatesConfig',
     'strings.apps.StringsConfig',
     'api.apps.ApiConfig',
-    'data_templates.apps.DataTemplatesConfig',
     'rest_framework',
     'rest_framework.authtoken',
     'django.contrib.admin',

@@ -15,3 +15,11 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = auth_models.User
         fields = ('username', 'email',)
+
+class PostSerializer(serializers.ModelSerializer):
+
+	class Meta:
+		model = core_models.Post
+		fields = ('owner', 'text', 'content_url', 'group', 'published_date',)
+
+

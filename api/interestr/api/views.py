@@ -6,6 +6,7 @@ from rest_framework import generics
 from django.shortcuts import render
 
 from django.contrib.auth import models as auth_models
+from . import models as core_models
 from django.contrib.auth import authenticate
 
 from django.http import JsonResponse
@@ -33,9 +34,13 @@ class UserList(generics.ListAPIView):
     queryset = auth_models.User.objects.all()
     serializer_class = core_serializers.UserSerializer
 
-class GroupList(generics.ListAPIView):
-    queryset = auth_models.Group.objects.all()
+class GroupList(generics.ListCreateAPIView):
+    queryset = core_models.Group.objects.all()
     serializers_class = core_serializers.GroupSerializer
+
+class PostList(generics.ListCreateAPIView):
+    queryset = core_models.Post.objects.all()
+    serializer_class = core_serializers.PostSerializer
 
 ### List Views END
 
@@ -49,4 +54,11 @@ class GroupDetail(generics.RetrieveUpdateAPIView):
     queryset = auth_models.Group.objects.all()
     serializers_class = core_serializers.GroupSerializer
 
+class PostDetail(generics.RetrieveUpdateAPIView):
+    queryset = core_models.Post.objects.all()
+    serializer_class = core_serializers.PostSerializer
+
+
 ### Detail Views END
+
+

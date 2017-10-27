@@ -29,7 +29,8 @@ class Post(BaseModel):
     content_url = models.URLField(default = '')
     group = models.ForeignKey('api.Group', related_name='posts', on_delete=models.CASCADE,
     	default = None, null=True)
-    
+    data_template = models.ForeignKey('data_templates.DataTemplate', related_name='posts')
+
     def __str__(self):
         return self.text
 

@@ -24,6 +24,10 @@ class GroupList(generics.ListCreateAPIView):
     queryset = core_models.Group.objects.all()
     serializers_class = core_serializers.GroupSerializer
 
+class DataTemplateList(generics.ListCreateAPIView):
+    queryset = data_templates_models.DataTemplate.objects.all()
+    serializer_class = core_serializers.DataTemplateSerializer
+
 class PostList(generics.ListCreateAPIView):
     queryset = core_models.Post.objects.all()
     serializer_class = core_serializers.PostSerializer
@@ -34,11 +38,15 @@ class PostList(generics.ListCreateAPIView):
 
 class UserDetail(generics.RetrieveUpdateAPIView):
     queryset = auth_models.User.objects.all()
-    serializers_class = core_serializers.UserSerializer
+    serializer_class = core_serializers.UserSerializer
 
 class GroupDetail(generics.RetrieveUpdateAPIView):
-    queryset = auth_models.Group.objects.all()
-    serializers_class = core_serializers.GroupSerializer
+    queryset = core_models.Group.objects.all()
+    serializer_class = core_serializers.GroupSerializer
+
+class DataTemplateDetail(generics.RetrieveUpdateAPIView):
+    queryset = data_templates_models.DataTemplate.objects.all()
+    serializer_class = core_serializers.DataTemplateSerializer
 
 class PostDetail(generics.RetrieveUpdateAPIView):
     queryset = core_models.Post.objects.all()
@@ -46,5 +54,3 @@ class PostDetail(generics.RetrieveUpdateAPIView):
 
 
 ### Detail Views END
-
-

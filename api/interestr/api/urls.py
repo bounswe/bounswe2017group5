@@ -9,7 +9,8 @@ urlpatterns = [
     url(r'^login/$', rf_views.obtain_auth_token, name='token_auth'),
     url(r'^users/$', views.UserList.as_view(), name='users'),
     url(r'^users/(?P<pk>\d+)/$', views.UserDetail.as_view(), name='userdetail'),
-    
+    url(r'^posts/$', views.PostList.as_view(), name='posts'),
+    url(r'^posts/(?P<pk>\d+)/$', views.PostDetail.as_view(), name='postdetail'),
     url(r'^data_templates/$', views.DataTemplateList.as_view(), name='datatemplates'),
     url(r'^data_templates/(?P<pk>\d+)/$', views.DataTemplateDetail.as_view(), name='datatemplatedetail'),
 ]

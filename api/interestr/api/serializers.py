@@ -18,11 +18,15 @@ class UserSerializer(serializers.ModelSerializer):
         model = auth_models.User
         fields = ('username', 'email',)
 
+class PostSerializer(serializers.ModelSerializer):
+
+	class Meta:
+		model = core_models.Post
+		fields = ('owner', 'text', 'content_url', 'group',)
+
 class DataTemplateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = data_templates_models.DataTemplate
         fields = ('name', 'group', 'user', 'created', 'updated', 'fields' )
 
-
-    

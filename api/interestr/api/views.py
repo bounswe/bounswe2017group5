@@ -9,24 +9,10 @@ from django.contrib.auth import models as auth_models
 from . import models as core_models
 from django.contrib.auth import authenticate
 
-from django.http import JsonResponse
-
 from . import serializers as core_serializers
+from .http import ErrorResponse
 
-def obtain_auth_token(request):
-    # !!!!!! Has to use https !!!!!!
-    # TODO make it available only over https
-    username = request.data.get('username')
-    password = request.data.get('password')
-
-    user = authenticate(username=username, password=password)
-
-    if user is not None:
-        token = Token.objects.create(user=user)
-        return JsonResponse({ "token" : token.key })
-    else:
-        pass
-
+from strings import strings
 
 ### List Views BEGIN
 

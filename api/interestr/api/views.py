@@ -20,8 +20,14 @@ class UserList(generics.ListAPIView):
     serializer_class = core_serializers.UserSerializer
 
 class GroupList(generics.ListAPIView):
-    queryset = auth_models.Group.objects.all()
-    serializers_class = core_serializers.GroupSerializer
+    queryset = core_models.Group.objects.all()
+    serializer_class = core_serializers.GroupSerializer
+
+class DataTemplateList(generics.ListCreateAPIView):
+    queryset = data_templates_models.DataTemplate.objects.all()
+    serializer_class = core_serializers.DataTemplateSerializer
+
+
 
 ### List Views END
 
@@ -29,10 +35,15 @@ class GroupList(generics.ListAPIView):
 
 class UserDetail(generics.RetrieveUpdateAPIView):
     queryset = auth_models.User.objects.all()
-    serializers_class = core_serializers.UserSerializer
+    serializer_class = core_serializers.UserSerializer
 
 class GroupDetail(generics.RetrieveUpdateAPIView):
-    queryset = auth_models.Group.objects.all()
-    serializers_class = core_serializers.GroupSerializer
+    queryset = core_models.Group.objects.all()
+    serializer_class = core_serializers.GroupSerializer
+
+class DataTemplateDetail(generics.RetrieveUpdateAPIView):
+    queryset = data_templates_models.DataTemplate.objects.all()
+    serializer_class = core_serializers.DataTemplateSerializer
 
 ### Detail Views END
+

@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 from django.db import models
 from django.contrib.auth import models as auth_models
+from django.utils import timezone
 
 # BaseModel, do not touch this...
 class BaseModel(models.Model):
@@ -23,6 +24,23 @@ class Group(BaseModel):
 
 class Post(BaseModel):
     owner = models.ForeignKey(auth_models.User, related_name="posts")
+    text = models.TextField(default = '')
+    content_url = models.URLField(default = '')
+    group = models.ForeignKey('api.Group', related_name='posts', on_delete=models.CASCADE,
+    	default = None)
+    #comments = models.ManyToManyField(Comment) #not necessarily add now
+    published_date = models.DateTimeField(default = timezone.now)
+
+
+    def publish(self):
+    	self.published_date = timezone.now()
+    	self.save()
+
+    def edit(text, content):
+    	self.text = text
+    	self.contentUrl = content
+       	publish(save)
+
 
     def __str__(self):
         return self.owner.username

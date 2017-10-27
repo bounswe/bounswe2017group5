@@ -17,9 +17,15 @@ class BaseModel(models.Model):
 
 class Group(BaseModel):
     name = models.CharField(max_length=40)
+    description = models.TextField(blank=True, default='No description.')
+    # members = models.ManyToManyField(auth_models.User)
 
     def __str__(self):
         return self.name
+
+    def size(self):
+        return len(self.members)
+    #ToDo def addMember(self, request)
 
 class Post(BaseModel):
     owner = models.ForeignKey(auth_models.User, related_name="posts")

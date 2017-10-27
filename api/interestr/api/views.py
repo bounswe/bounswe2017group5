@@ -14,6 +14,8 @@ from .http import ErrorResponse
 
 from strings import strings
 
+from data_templates import models as data_templates_models
+
 ### List Views BEGIN
 
 class UserList(generics.ListAPIView):

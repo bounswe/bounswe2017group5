@@ -32,6 +32,7 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     'api.apps.ApiConfig',
+    'data_templates.apps.DataTemplatesConfig',
     'rest_framework',
     'rest_framework.authtoken',
     'django.contrib.admin',
@@ -49,6 +50,7 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_PARSER_CLASSES': (
         'rest_framework.parsers.JSONParser',
+        'rest_framework.parsers.MultiPartParser',
         'rest_framework.parsers.FormParser'
     ),
 }

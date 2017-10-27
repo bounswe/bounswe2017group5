@@ -8,9 +8,10 @@ from django.shortcuts import render
 from django.contrib.auth import models as auth_models
 from django.contrib.auth import authenticate
 
-from django.http import JsonResponse
-
 from . import serializers as core_serializers
+from .http import ErrorResponse
+
+from strings import strings
 
 ### List Views BEGIN
 

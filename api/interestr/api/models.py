@@ -23,6 +23,7 @@ class Group(BaseModel):
 
 class Post(BaseModel):
     owner = models.ForeignKey(auth_models.User, related_name="posts")
+    data_template = models.ForeignKey('data_templates.DataTemplate', related_name='posts')
 
     def __str__(self):
         return self.owner.username

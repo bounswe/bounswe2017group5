@@ -8,7 +8,7 @@ class GroupSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = core_models.Group
-        fields = ('name', 'created', 'updated', )
+        fields = ('name', 'created', 'updated',)
 
 class UserSerializer(serializers.ModelSerializer):
 

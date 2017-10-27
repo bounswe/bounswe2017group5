@@ -35,7 +35,7 @@ class UserList(generics.ListAPIView):
 
 class GroupList(generics.ListAPIView):
     queryset = auth_models.Group.objects.all()
-    serializers_class = core_serializers.GroupSerializer
+    serializer_class = core_serializers.GroupSerializer
 
 ### List Views END
 
@@ -43,10 +43,10 @@ class GroupList(generics.ListAPIView):
 
 class UserDetail(generics.RetrieveUpdateAPIView):
     queryset = auth_models.User.objects.all()
-    serializers_class = core_serializers.UserSerializer
+    serializer_class = core_serializers.UserSerializer
 
 class GroupDetail(generics.RetrieveUpdateAPIView):
     queryset = auth_models.Group.objects.all()
-    serializers_class = core_serializers.GroupSerializer
+    serializer_class = core_serializers.GroupSerializer
 
 ### Detail Views END

@@ -30,7 +30,7 @@ class Post(BaseModel):
     group = models.ForeignKey('api.Group', related_name='posts', on_delete=models.CASCADE,
     	default = None)
     published_date = models.DateTimeField(default = timezone.now)
-
+    data_template = models.ForeignKey('data_templates.DataTemplate', related_name='posts')
 
     def publish(self):
     	self.published_date = timezone.now()
@@ -41,6 +41,7 @@ class Post(BaseModel):
     	self.contentUrl = content
        	publish(save)
 
+    
 
     def __str__(self):
         return self.text

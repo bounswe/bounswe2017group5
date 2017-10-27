@@ -93,7 +93,10 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'interestr',
-        'USER': 'bounswe2017group5'
+        'USER': 'bounswe2017group5',
+        'HOST': '127.0.0.1',
+        'PORT': '5432',
+        'PASSWORD': '1234',
     },
     'old': {
         'ENGINE': 'django.db.backends.sqlite3',

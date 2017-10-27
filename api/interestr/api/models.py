@@ -4,7 +4,6 @@ from __future__ import unicode_literals
 from django.db import models
 from django.contrib.auth import models as auth_models
 from django.utils import timezone
-from data_templates.models import DataTemplate 
 
 # BaseModel, do not touch this...
 class BaseModel(models.Model):
@@ -35,4 +34,3 @@ class Post(BaseModel):
         return self.text
 
 # Models END
-

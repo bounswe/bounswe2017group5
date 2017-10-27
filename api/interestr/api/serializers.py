@@ -20,6 +20,6 @@ class PostSerializer(serializers.ModelSerializer):
 
 	class Meta:
 		model = core_models.Post
-		fields = ('owner', 'text', 'content_url', 'group', 'published_date',)
+		fields = ('owner', 'text', 'content_url', 'group',)
 
 

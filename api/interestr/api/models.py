@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 from django.db import models
 from django.contrib.auth import models as auth_models
 from django.utils import timezone
-from data-templates import DataTemplate 
+from data_templates.models import DataTemplate 
 
 # BaseModel, do not touch this...
 class BaseModel(models.Model):
@@ -28,20 +28,8 @@ class Post(BaseModel):
     text = models.TextField(default = '')
     content_url = models.URLField(default = '')
     group = models.ForeignKey('api.Group', related_name='posts', on_delete=models.CASCADE,
-    	default = None)
-    published_date = models.DateTimeField(default = timezone.now)
-
-
-    def publish(self):
-    	self.published_date = timezone.now()
-    	self.save()
-
-    def edit(text, content):
-    	self.text = text
-    	self.contentUrl = content
-       	publish(save)
-
-
+    	default = None, null=True)
+    
     def __str__(self):
         return self.text
 

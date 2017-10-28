@@ -18,23 +18,25 @@ class BaseModel(models.Model):
 
 class Group(BaseModel):
     name = models.CharField(max_length=40)
-    description = models.TextField(blank=True, default='No description.')
-    # members = models.ManyToManyField(auth_models.User)
-
+    description = models.TextField(blank=True, default='')
+    members = models.ManyToManyField(auth_models.User)
+    picture = models.ImageField(blank=True, null=True)#ToDo add default picture
     def __str__(self):
         return self.name
 
     def size(self):
-        return len(self.members)
-    #ToDo def addMember(self, request)
+        return self.members.count()
+    
 
 class Post(BaseModel):
-    owner = models.ForeignKey(auth_models.User, related_name="posts")
+    owner = models.ForeignKey(auth_models.User, related_name="posts",
+     default = None, null=True)
     text = models.TextField(default = '')
     content_url = models.URLField(default = '')
-    group = models.ForeignKey('api.Group', related_name='posts', on_delete=models.CASCADE,
-    	default = None, null=True)
-    data_template = models.ForeignKey('data_templates.DataTemplate', related_name='posts')
+    group = models.ForeignKey('api.Group', related_name='posts', 
+        on_delete=models.CASCADE,	default = None, null=True)
+    data_template = models.ForeignKey('data_templates.DataTemplate', related_name='posts',
+        default = None, null=True)
 
     def __str__(self):
         return self.text

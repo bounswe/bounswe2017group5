@@ -5,9 +5,14 @@ from rest_framework.authtoken.models import Token
 from rest_framework import generics
 from django.shortcuts import render
 
+from django.http import HttpResponse, JsonResponse
+
 from django.contrib.auth import models as auth_models
 from . import models as core_models
 from django.contrib.auth import authenticate
+
+
+from django.views.decorators.csrf import csrf_exempt
 
 from . import serializers as core_serializers
 from .http import ErrorResponse
@@ -55,3 +60,43 @@ class PostDetail(generics.RetrieveUpdateAPIView):
     serializer_class = core_serializers.PostSerializer
 
 ### Detail Views END
+
+#@csrf_exempt
+#removes or adds the authenticated user from/to the group
+#whose id is pk
+def memberGroupOperation(request, pk):
+    #check auth
+    try:
+        group = core_models.Group.objects.get(pk=pk)
+    except core_models.Group.DoesNotExist:
+        return HttpResponse(status=404)
+
+    # get authenticated user.
+    user = request.user
+    if not user.is_authenticated():
+        # Do something for anonymous users.
+        # return JsonResponse({"patates":"ehe"})
+        return HttpResponse(status=403)
+    # user = auth_models.User.objects.get(id=1)
+
+    if request.method == 'PUT':
+        if group.members.filter(id=user.id).count() == 1:
+            # handle, user is already a member.
+            # return JsonResponse({"patates":"ehe"})
+            return HttpResponse(status=410)
+        else:
+            group.members.add(user)
+            group.save()
+            serializer = core_serializers.GroupSerializer(group)
+            return JsonResponse(serializer.data)
+
+    elif request.method == 'DELETE':
+        if group.members.filter(id=user.id).count() == 0:
+            # handle, user isn't a member to begin with.
+            # return JsonResponse({"patates":"ehe"})
+            return HttpResponse(status=410)
+        else:
+            group.members.remove(user)
+            group.save()
+            serializer = core_serializers.GroupSerializer(group)
+            return JsonResponse(serializer.data)

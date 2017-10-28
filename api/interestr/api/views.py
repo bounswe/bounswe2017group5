@@ -27,8 +27,8 @@ class UserList(generics.ListAPIView):
     queryset = auth_models.User.objects.all()
     serializer_class = core_serializers.UserSerializer
 
-class GroupList(generics.ListAPIView):
-    queryset = auth_models.Group.objects.all()
+class GroupList(generics.ListCreateAPIView):
+    queryset = core_models.Group.objects.all()
     serializer_class = core_serializers.GroupSerializer
 
 class DataTemplateList(generics.ListCreateAPIView):
@@ -47,24 +47,26 @@ class UserDetail(generics.RetrieveUpdateAPIView):
     queryset = auth_models.User.objects.all()
     serializer_class = core_serializers.UserSerializer
 
-class GroupDetail(generics.RetrieveUpdateAPIView):
+class GroupDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = core_models.Group.objects.all()
     serializer_class = core_serializers.GroupSerializer
 
-class DataTemplateDetail(generics.RetrieveUpdateAPIView):
+class DataTemplateDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = data_templates_models.DataTemplate.objects.all()
     serializer_class = core_serializers.DataTemplateSerializer
 
-class PostDetail(generics.RetrieveUpdateAPIView):
+class PostDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = core_models.Post.objects.all()
     serializer_class = core_serializers.PostSerializer
 
 ### Detail Views END
 
 #@csrf_exempt
-#removes or adds the authenticated user from/to the group
-#whose id is pk
 def memberGroupOperation(request, pk):
+    """
+    Removes or adds the authenticated user from/to the group
+    whose id is pk.
+    """
     #check auth
     try:
         group = core_models.Group.objects.get(pk=pk)

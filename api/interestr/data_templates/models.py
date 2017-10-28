@@ -18,7 +18,7 @@ class DataTemplateType:
 
 class DataTemplate(core_models.BaseModel):
     name = models.CharField(max_length=40)
-    
+
     group = models.ForeignKey(core_models.Group, on_delete=models.SET_NULL, null=True)
     user = models.ForeignKey(auth_models.User, on_delete=models.SET_NULL, null=True)
 
@@ -28,6 +28,5 @@ class DataTemplate(core_models.BaseModel):
         return length(self.posts.all())
 
     def __str__(self):
-        return name
+        return self.name
 # Create your models here.
-

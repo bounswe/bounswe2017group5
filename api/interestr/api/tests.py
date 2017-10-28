@@ -6,6 +6,7 @@ from django.test import Client
 
 from django.contrib.auth.models import User
 from .models import Post
+from .models import Group
 
 from rest_framework.authtoken.models import Token
 
@@ -49,3 +50,56 @@ class PostTests(TestCase):
 
 		self.assertEqual(response.status_code, 404)
 
+class GroupTests(TestCase):
+
+	def setUp(self):
+		self.client = Client()
+		self.test_user1 = User.objects.create_user('user', 'e@mail.com', '1234')
+		self.test_user2 = User.objects.create_user('iser', 'g@mail.com', '4321')
+		self.test_group = Group.objects.create(name = "grupce", description="boyband")
+
+	def test_1_add_users_to_group(self):
+		self.client.login(username= 'user', password='1234')
+		response = self.client.put('/api/v1/users/groups/1/', follow=True)
+		json_response = json.loads(response.content)
+
+		self.assertEqual(response.status_code, 200)
+		self.assertEqual(json_response['name'], 'grupce')
+		self.assertEqual(json_response['size'], 1)
+
+		self.client.login(username= 'iser', password='4321')
+		response = self.client.put('/api/v1/users/groups/1/', follow=True)
+		json_response = json.loads(response.content)		
+		self.assertEqual(response.status_code, 200)
+		self.assertEqual(json_response['name'], 'grupce')
+		self.assertEqual(json_response['size'], 2)
+
+	def test_2_add_existing_user_to_group(self):
+		self.client.login(username= 'user', password='1234')
+		response = self.client.put('/api/v1/users/groups/2/', follow=True)
+		response = self.client.put('/api/v1/users/groups/2/', follow=True)
+		self.assertEqual(response.status_code, 410)
+	
+	def test_3_add_users_to_group(self):
+		# add 2 users, remove the last one.
+		self.client.login(username= 'user', password='1234')
+		response = self.client.put('/api/v1/users/groups/3/', follow=True)
+		self.client.login(username= 'iser', password='4321')
+		response = self.client.put('/api/v1/users/groups/3/', follow=True)
+		response = self.client.delete('/api/v1/users/groups/3/', follow=True)
+		self.assertEqual(response.status_code, 200)
+		json_response = json.loads(response.content)
+		self.assertEqual(json_response['name'], 'grupce')
+		self.assertEqual(json_response['size'], 1)
+
+
+	def test_4_remove_nonexistant_users_from_group(self):
+		#add user1
+		self.client.login(username= 'user', password='1234')
+		self.client.put('/api/v1/users/groups/4/', follow=True)
+		
+		#try to remove user2
+		self.client.login(username= 'iser', password='4321')
+		response = self.client.delete('/api/v1/users/groups/4/', follow=True)
+
+		self.assertEqual(response.status_code, 410)

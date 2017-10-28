@@ -31,6 +31,8 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'data_templates.apps.DataTemplatesConfig',
+    'strings.apps.StringsConfig',
     'api.apps.ApiConfig',
     'rest_framework',
     'rest_framework.authtoken',
@@ -40,13 +42,19 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_extensions'
 ]
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework.authentication.BasicAuthentication',
         'rest_framework.authentication.SessionAuthentication',
-    )
+        'rest_framework.authentication.TokenAuthentication',
+    ),
+    'DEFAULT_PARSER_CLASSES': (
+        'rest_framework.parsers.JSONParser',
+        'rest_framework.parsers.MultiPartParser',
+        'rest_framework.parsers.FormParser'
+    ),
 }
 
 MIDDLEWARE = [
@@ -90,6 +98,7 @@ DATABASES = {
         'USER': 'bounswe2017group5',
         'HOST': '127.0.0.1',
         'PORT': '5432',
+        'PASSWORD': '1234',
     },
     'old': {
         'ENGINE': 'django.db.backends.sqlite3',

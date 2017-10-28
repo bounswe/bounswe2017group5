@@ -10,22 +10,22 @@ class GroupSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = core_models.Group
-        fields = ('name', 'created', 'updated', 'size', 'members', 'picture')
+        fields = ('id', 'name', 'created', 'updated', 'size', 'members', 'picture', )
 
 class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = auth_models.User
-        fields = ('username', 'email',)
+        fields = ('id', 'username', 'email',)
 
 class PostSerializer(serializers.ModelSerializer):
 
 	class Meta:
 		model = core_models.Post
-		fields = ('owner', 'text', 'content_url', 'group', 'data_template')
+		fields = ('id', 'owner', 'text', 'content_url', 'group', 'data_template', 'created', 'updated', )
 
 class DataTemplateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = data_templates_models.DataTemplate
-        fields = ('name', 'group', 'user', 'created', 'updated', 'fields' )
+        fields = ('id', 'name', 'group', 'user', 'created', 'updated', 'fields' )

@@ -9,7 +9,7 @@ from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from .models import Group
 
 # Create your views here.
-class IndexView(generic.ListView):
+class GroupView(generic.ListView):
     template_name = 'templates/groups.html'
 
     def get_queryset(self):

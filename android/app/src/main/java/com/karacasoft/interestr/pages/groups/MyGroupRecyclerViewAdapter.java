@@ -4,24 +4,27 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.karacasoft.interestr.pages.groups.GroupsFragment.OnListFragmentInteractionListener;
-import com.karacasoft.interestr.pages.groups.dummy.DummyContent.DummyItem;
+import com.karacasoft.interestr.R;
+import com.karacasoft.interestr.network.models.Group;
+import com.karacasoft.interestr.pages.groups.GroupsFragment.*;
+import com.karacasoft.interestr.util.StringUtils;
 
 import java.util.List;
 
 /**
- * {@link RecyclerView.Adapter} that can display a {@link DummyItem} and makes a call to the
- * specified {@link OnListFragmentInteractionListener}.
+ * {@link RecyclerView.Adapter} that can display a {@link com.karacasoft.interestr.network.models.Group}
+ * and makes a call to the specified {@link OnListFragmentInteractionListener}.
  * TODO: Replace the implementation with code for your data type.
  */
 public class MyGroupRecyclerViewAdapter extends RecyclerView.Adapter<MyGroupRecyclerViewAdapter.ViewHolder> {
 
-    private final List<DummyItem> mValues;
+    private final List<Group> mValues;
     private final OnListFragmentInteractionListener mListener;
 
-    public MyGroupRecyclerViewAdapter(List<DummyItem> items, OnListFragmentInteractionListener listener) {
+    public MyGroupRecyclerViewAdapter(List<Group> items, OnListFragmentInteractionListener listener) {
         mValues = items;
         mListener = listener;
     }
@@ -36,8 +39,10 @@ public class MyGroupRecyclerViewAdapter extends RecyclerView.Adapter<MyGroupRecy
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         holder.mItem = mValues.get(position);
-        holder.mIdView.setText(mValues.get(position).id);
-        holder.mContentView.setText(mValues.get(position).content);
+        holder.mGroupNameView.setText(mValues.get(position).getName());
+        holder.mGroupDescView.setText(mValues.get(position).getDescription());
+        holder.mGroupMemberCountView.setText(StringUtils.pluralize(mValues.get(position).getMemberCount(), "Member"));
+        // TODO: 30.10.2017 Start loading image
 
         holder.mView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -58,20 +63,25 @@ public class MyGroupRecyclerViewAdapter extends RecyclerView.Adapter<MyGroupRecy
 
     public class ViewHolder extends RecyclerView.ViewHolder {
         public final View mView;
-        public final TextView mIdView;
-        public final TextView mContentView;
-        public DummyItem mItem;
+        public final ImageView mGroupPictureView;
+        public final TextView mGroupNameView;
+        public final TextView mGroupDescView;
+        public final TextView mGroupMemberCountView;
+
+        public Group mItem;
 
         public ViewHolder(View view) {
             super(view);
             mView = view;
-            mIdView = (TextView) view.findViewById(R.id.id);
-            mContentView = (TextView) view.findViewById(R.id.content);
+            mGroupPictureView = view.findViewById(R.id.group_image);
+            mGroupNameView = view.findViewById(R.id.group_name);
+            mGroupDescView = view.findViewById(R.id.group_desc);
+            mGroupMemberCountView = view.findViewById(R.id.group_member_count);
         }
 
         @Override
         public String toString() {
-            return super.toString() + " '" + mContentView.getText() + "'";
+            return super.toString() + " '" + mGroupNameView.getText() + "'";
         }
     }
 }

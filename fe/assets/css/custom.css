@@ -52,10 +52,10 @@ small {
 }
 
 .home-cta-button {
-  padding: 20px 60px;
+  padding: 30px 60px;
   border-radius: 80px !important;
   font-size: 18px;
-  line-height: 18px;
+  line-height: 0;
 }
 
 .nav-search {

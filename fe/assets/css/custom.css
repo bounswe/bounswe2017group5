@@ -10,12 +10,33 @@ small {
   font-size: 90% !important;
 }
 
+.navbar-brand {
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+  height: 70px;
+}
+
+.navbar-brand img {
+  display: block;
+  height: 60px;
+  padding: 5px 0;
+  width: auto;
+}
+
 .main.hero {
   height: calc(100% - 90px);
 }
 
 .main {
   padding-bottom: 20px;
+}
+
+.hero .logo-container {
+  max-width: 450px;
+  width: 62%;
+  margin-bottom: 10px;
 }
 
 .btn.btn-wide {
@@ -31,10 +52,10 @@ small {
 }
 
 .home-cta-button {
-  padding: 20px 60px;
+  padding: 30px 60px;
   border-radius: 80px !important;
   font-size: 18px;
-  line-height: 18px;
+  line-height: 0;
 }
 
 .nav-search {

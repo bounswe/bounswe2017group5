@@ -11,10 +11,8 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.karacasoft.interestr.R;
+import com.karacasoft.interestr.network.models.Group;
 import com.karacasoft.interestr.pages.groups.dummy.DummyContent;
-import com.karacasoft.interestr.pages.groups.dummy.DummyContent.DummyItem;
-
-import java.util.List;
 
 /**
  * A fragment representing a list of Items.
@@ -24,9 +22,7 @@ import java.util.List;
  */
 public class GroupsFragment extends Fragment {
 
-    // TODO: Customize parameter argument names
     private static final String ARG_COLUMN_COUNT = "column-count";
-    // TODO: Customize parameters
     private int mColumnCount = 1;
     private OnListFragmentInteractionListener mListener;
 
@@ -104,7 +100,6 @@ public class GroupsFragment extends Fragment {
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnListFragmentInteractionListener {
-        // TODO: Update argument type and name
-        void onListFragmentInteraction(DummyItem item);
+        void onListFragmentInteraction(Group item);
     }
 }

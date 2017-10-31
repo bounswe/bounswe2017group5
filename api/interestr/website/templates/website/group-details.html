@@ -1,0 +1,156 @@
+{% extends 'website/base.html' %}
+
+{% load static %}
+
+{% block title %}Create a new Group{% endblock title %}
+
+{% block navbaritems %}
+<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+  <ul class="nav navbar-nav navbar-right">
+    <li class="nav-search">
+      <input type="text" value="" class="form-control" placeholder="Search...">
+    </li>
+    <li>
+      <a href="javascript:void(0);">
+        <i class="fa fa-search"></i>
+      </a>
+    </li>
+    <li class="dropdown">
+      <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{ user.username }}<b class="caret"></b></a>
+      <ul class="dropdown-menu">
+        <li><a href="{% url 'website:groups' %}">Groups</a></li>
+        <li class="divider"></li>
+        <li><a href="{% url 'website:logout' %}">Logout</a></li>
+      </ul>
+    </li>
+  </ul>
+</div>
+{% endblock navbaritems %}
+
+{% block content %}
+<div class="main">
+  <div class="container">
+    <div class="col-md-3">
+      <div class="row left-nav-block">
+        <h5>YOUR GROUPS</h5>
+        <div class="btn btn-round btn-left-nav">
+          <span>Guitar Freaks</span><span>...</span>
+        </div>
+
+        <div class="btn btn-round btn-left-nav">
+          <span>Metal Music</span><span>...</span>
+        </div>
+
+        <div class="btn btn-round btn-left-nav">
+          <strong>+ Create More Groups</strong>
+        </div>
+
+
+      </div>
+
+      <div class="row left-nav-block">
+        <h5>JOINED GROUPS</h5>
+
+        <div class="btn btn-round btn-left-nav">
+          <span>Guitar Freaks</span><span>...</span>
+        </div>
+
+        <div class="btn btn-round btn-left-nav">
+          <span>Metal Music</span><span>...</span>
+        </div>
+
+        <div class="btn btn-round btn-left-nav">
+          <span>Guitar Hero</span><span>...</span>
+        </div>
+
+        <div class="btn btn-round btn-left-nav">
+          <span>Video Games</span><span>...</span>
+        </div>
+
+        <div class="btn btn-round btn-left-nav">
+          <span>Alter Bridge Fans</span><span>...</span>
+        </div>
+
+        <div class="btn btn-round btn-left-nav">
+          <strong>+ Join More Groups</strong>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-9 main-block">
+      <div class="group-detail-header-block">
+        <div class="group">
+          <div class="group-image">
+            <img src="{{ group.get_picture }}" alt="Group alt..." class="img-thumbnail img-responsive">
+          </div>
+          <div class="group-info">
+            <div class="group-name">
+              <h4>{{ group.name }}</h4>
+            </div>
+            <div class="group-member-count">
+              {{ group.members|length }} member{{ group.members|pluralize }}
+            </div>
+            <div class="group-description">
+              {{ group.description }}
+            </div>
+          </div>
+        </div>
+
+        <div class="buttons">
+          <div class="btn btn-round btn-fill">Joined</div>
+          <div class="btn btn-round">More ...</div>
+        </div>
+      </div>
+
+      <div class="group-detail-content-create-block">
+        <div class="dropdown">
+          <button class="btn btn-round dropdown-toggle" type="button" id="group-detail-content-block-dropdown"
+            data-toggle="dropdown">
+            Default
+            <b class="caret"></b>
+          </button>
+          <ul class="dropdown-menu" role="menu" aria-labelledby="group-detail-content-block-dropdown">
+            <li><a href="#">Default</a></li>
+            <li><a href="#">Music Shop</a></li>
+            <li><a href="#"><strong>Add Template...</strong></a></li>
+          </ul>
+        </div>
+
+        <form method="POST" class="group-detail-content-form">
+          {% csrf_token %}
+          {{ form.non_field_errors }}
+          <div class="form-group">
+            <label for="name">Text: </label>
+            <input type="text" class="form-control" id="text" name="{{ post_create_form.text.name }}" placeholder="Text of the post">
+            {{ form.text.errors }}
+          </div>
+
+          <div class="text-right">
+            <button type="submit" class="btn btn-round btn-warning btn-fill btn-wide">Share</button>
+          </div>
+        </form>
+      </div>
+
+      {% for post in group.posts.all %}
+      <div class="group-detail-content">
+        <div class="header">
+          <div class="text">
+            <p class="title"><strong>{{ post.owner.username }}</strong></p>
+            <p class="subtitle"><small>Shared in <i>{{ group.name }}</i></small></p>
+          </div>
+          <div class="img">
+            <img src="{% static 'assets/img/dave.jpg' %}" alt="Dave Mustaine" class="img-circle avatar">
+          </div>
+        </div>
+        <div class="content">
+          <p>{{ post.text }}</p>
+        </div>
+        <div class="comments">
+          <a class="text-muted" href="#">0 Comments</a>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+{% endblock content %}

@@ -76,7 +76,7 @@ class UserRegisterView(View):
 
 
 class GroupView(LoginRequiredMixin, generic.ListView):
-    template_name = 'templates/groups.html'
+    template_name = 'website/groups.html'
 
     def get_queryset(self):
         return Group.objects.all()

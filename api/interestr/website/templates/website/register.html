@@ -5,9 +5,9 @@
 {% block navbaritems %}
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
           <ul class="nav navbar-nav navbar-right">
-            <li><a href="index.html">Home</a></li>
-            <li><a href="{% url 'website:register' %}">Login</a></li>
-            <li class="active"><a href="signup.html">Signup</a></li>
+            <li><a href="{% url 'website:index' %}">Home</a></li>
+            <li><a href="{% url 'website:login' %}">Login</a></li>
+            <li class="active"><a href="{% url 'website:register' %}">Signup</a></li>
           </ul>
         </div>
 {% endblock %}
@@ -21,10 +21,10 @@
         <form method='POST'>
 
         {% csrf_token %}
-        
+
         {{form}}
         <button type="submit" class="btn btn-warning">Submit</button>
-        
+
         <!--
           <div class="form-group">
             <label for="email">Username/Email:</label>

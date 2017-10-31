@@ -5,9 +5,9 @@
 {% block navbaritems %}
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
           <ul class="nav navbar-nav navbar-right">
-            <li class="active"><a href="index.html">Home</a></li>
-            <li><a href="#">Login</a></li>
-            <li><a href="signup.html">Signup</a></li>
+            <li class="active"><a href="{% url 'website:index' %}">Home</a></li>
+            <li><a href="{% url 'website:login' %}">Login</a></li>
+            <li><a href="{% url 'website:register' %}">Signup</a></li>
           </ul>
         </div>
 {% endblock %}
@@ -22,7 +22,7 @@
               href="signup.html">
               Sign Up Now!
       </button>
-      <h4 style="font-size: 18px; margin: 10px">...or <a href="login.html" style="text-decoration: underline;">login</a>, if you have an account</h4>
+      <h4 style="font-size: 18px; margin: 10px">...or <a href="{% url 'website:login' %}" style="text-decoration: underline;">login</a>, if you have an account</h4>
     </div>
   </div>
 {% endblock %}

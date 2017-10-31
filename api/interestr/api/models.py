@@ -5,6 +5,8 @@ from django.db import models
 from django.contrib.auth import models as auth_models
 from django.utils import timezone
 
+from django.contrib.postgres.fields import JSONField
+
 # BaseModel, do not touch this...
 class BaseModel(models.Model):
     created = models.DateTimeField(auto_now_add=True)
@@ -41,11 +43,12 @@ class Post(BaseModel):
     owner = models.ForeignKey(auth_models.User, related_name="posts",
      default = None, null=True)
     text = models.TextField(default = '')
-    content_url = models.URLField(default = '')
     group = models.ForeignKey('api.Group', related_name='posts',
-        on_delete=models.CASCADE,	default = None, null=True)
+        on_delete=models.CASCADE, default=None, null=True)
     data_template = models.ForeignKey('data_templates.DataTemplate', related_name='posts',
         default = None, null=True)
+
+    data = JSONField(default=None, null=True)
 
     def __str__(self):
         return self.text

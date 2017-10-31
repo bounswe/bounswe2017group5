@@ -33,18 +33,8 @@ class CreateGroupForm(forms.ModelForm):
 	tags = forms.CharField(required=False)
 	location = forms.CharField(required=False)
 	is_private = forms.BooleanField(required=False)
+	picture = forms.ImageField(required=False)
+
 	class Meta:
 		model = Group
-		fields = ['name','description','tags','location','is_private']
-
-
-	#def save(self, commit=True):
-	#	group = super(CreateGroupForm,self).save(commit=False)
-	#	group.name = self.cleaned_data['name']
-	#	group.description = self.cleaned_data['description']
-	#	group.tags = self.cleaned_data['tags']
-	#	group.location = self.cleaned_data['location']
-	#	group.is_private = self.cleaned_data['is_private']
-	#	if commit:
-	#		group.save()
-	#	return group
+		fields = ['name','description','tags','location','is_private','picture']

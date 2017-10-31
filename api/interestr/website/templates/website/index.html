@@ -17,11 +17,11 @@
     <div class="container home-container text-center">
       <h2>Interestr Logo</h2>
       <h4>Build your own interest based community</h4>
-      <button type="button"
+      <a href="{% url 'website:register' %}"><button type="button"
               class="btn btn-warning btn-round btn-fill home-cta-button"
-              href="signup.html">
+              >
               Sign Up Now!
-      </button>
+      </button></a>
       <h4 style="font-size: 18px; margin: 10px">...or <a href="{% url 'website:login' %}" style="text-decoration: underline;">login</a>, if you have an account</h4>
     </div>
   </div>

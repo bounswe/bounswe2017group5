@@ -14,6 +14,8 @@ from django.views import View
 
 from .forms import LoginForm, RegisterForm
 
+from django.contrib.auth.mixins import LoginRequiredMixin
+
 
 class UserLoginView(View):
 	form_class = AuthenticationForm
@@ -73,11 +75,8 @@ class UserRegisterView(View):
 		return render(request,self.template_name, {'form': form})
 
 
-# Create your views here.
-class GroupView(generic.ListView):
-    if not request.user.is_authenticated():
-        return redirect('login')
-    else:
-        template_name = 'templates/groups.html'
-        def get_queryset(self):
-            return Group.objects.all()
+class GroupView(LoginRequiredMixin, generic.ListView):
+    template_name = 'templates/groups.html'
+
+    def get_queryset(self):
+        return Group.objects.all()

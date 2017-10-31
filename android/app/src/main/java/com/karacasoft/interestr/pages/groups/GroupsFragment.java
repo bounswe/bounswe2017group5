@@ -6,13 +6,19 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.karacasoft.interestr.R;
+import com.karacasoft.interestr.network.InterestrAPI;
+import com.karacasoft.interestr.network.InterestrAPIImpl;
+import com.karacasoft.interestr.network.InterestrAPIResult;
 import com.karacasoft.interestr.network.models.Group;
 import com.karacasoft.interestr.pages.groups.dummy.DummyContent;
+
+import java.util.ArrayList;
 
 /**
  * A fragment representing a list of Items.
@@ -25,6 +31,33 @@ public class GroupsFragment extends Fragment {
     private static final String ARG_COLUMN_COUNT = "column-count";
     private int mColumnCount = 1;
     private OnListFragmentInteractionListener mListener;
+
+    private ArrayList<Group> dataset = new ArrayList<>();
+    private RecyclerView recyclerView;
+    private MyGroupRecyclerViewAdapter groupRecyclerViewAdapter;
+
+    private InterestrAPI api;
+
+    private boolean detached = false;
+
+    private InterestrAPI.Callback groupsCallback = new InterestrAPI.Callback() {
+        @Override
+        public void onResult(InterestrAPIResult result) {
+            if(detached) return;
+
+            dataset.clear();
+
+            //noinspection unchecked
+            dataset.addAll((ArrayList<Group>) result.get());
+
+            groupRecyclerViewAdapter.notifyItemRangeInserted(0, dataset.size());
+        }
+
+        @Override
+        public void onError(String error_message) {
+            Log.e("Groups Fragment", "Hata olmuş, lel :" + error_message);
+        }
+    };
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -50,6 +83,8 @@ public class GroupsFragment extends Fragment {
         if (getArguments() != null) {
             mColumnCount = getArguments().getInt(ARG_COLUMN_COUNT);
         }
+
+        api = new InterestrAPIImpl(getContext());
     }
 
     @Override
@@ -60,13 +95,13 @@ public class GroupsFragment extends Fragment {
         // Set the adapter
         if (view instanceof RecyclerView) {
             Context context = view.getContext();
-            RecyclerView recyclerView = (RecyclerView) view;
+            recyclerView = (RecyclerView) view;
             if (mColumnCount <= 1) {
                 recyclerView.setLayoutManager(new LinearLayoutManager(context));
             } else {
                 recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
-            recyclerView.setAdapter(new MyGroupRecyclerViewAdapter(DummyContent.ITEMS, mListener));
+            recyclerView.setAdapter(groupRecyclerViewAdapter = new MyGroupRecyclerViewAdapter(dataset, mListener));
         }
         return view;
     }
@@ -81,6 +116,21 @@ public class GroupsFragment extends Fragment {
             throw new RuntimeException(context.toString()
                     + " must implement OnListFragmentInteractionListener");
         }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        detached = false;
+
+        api.getGroups(groupsCallback);
+
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        detached = true;
     }
 
     @Override

@@ -11,6 +11,8 @@ import com.karacasoft.interestr.R;
 import com.karacasoft.interestr.network.models.Group;
 import com.karacasoft.interestr.pages.groups.GroupsFragment.*;
 import com.karacasoft.interestr.util.StringUtils;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 
 import java.util.List;
 
@@ -24,9 +26,13 @@ public class MyGroupRecyclerViewAdapter extends RecyclerView.Adapter<MyGroupRecy
     private final List<Group> mValues;
     private final OnListFragmentInteractionListener mListener;
 
+    private ImageLoader imageLoader;
+
     public MyGroupRecyclerViewAdapter(List<Group> items, OnListFragmentInteractionListener listener) {
         mValues = items;
         mListener = listener;
+        imageLoader = ImageLoader.getInstance();
+
     }
 
     @Override
@@ -42,7 +48,7 @@ public class MyGroupRecyclerViewAdapter extends RecyclerView.Adapter<MyGroupRecy
         holder.mGroupNameView.setText(mValues.get(position).getName());
         holder.mGroupDescView.setText(mValues.get(position).getDescription());
         holder.mGroupMemberCountView.setText(StringUtils.pluralize(mValues.get(position).getMemberCount(), "Member"));
-        // TODO: 30.10.2017 Start loading image
+        imageLoader.displayImage(mValues.get(position).getPictureUrl(), holder.mGroupPictureView);
 
         holder.mView.setOnClickListener(new View.OnClickListener() {
             @Override

@@ -19,6 +19,9 @@ class BaseModel(models.Model):
 class Group(BaseModel):
     name = models.CharField(max_length=40)
     description = models.TextField(blank=True, default='')
+    location = models.TextField(blank = True, default='')
+    tags = models.TextField(blank = True, default='') #TODO change to list
+    is_private = models.BooleanField(blank = True,default = False)
     members = models.ManyToManyField(auth_models.User)
     picture = models.ImageField(blank=True, null=True)#ToDo add default picture
     def __str__(self):

@@ -91,10 +91,10 @@ class LogoutView(View):
 		return redirect('website:index')
 
 class GroupView(LoginRequiredMixin, generic.ListView):
-    template_name = 'website/groups.html'
+	template_name = 'website/groups.html'
 
-    def get_queryset(self):
-        return Group.objects.all()
+	def get_queryset(self):
+		return Group.objects.all()
 
 class HomePageView(View):
 	template_name = 'website/index.html'
@@ -106,7 +106,7 @@ class HomePageView(View):
 
 	def get(self, request):
 		return render(request, self.template_name)
-  
+
 class GroupDetailsView(generic.DetailView):
     template_name = 'website/group-details.html'
 

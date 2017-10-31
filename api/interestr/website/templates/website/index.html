@@ -1,6 +1,8 @@
 {% extends 'website/base.html' %}
 
+{% block title %}Homepage{% endblock %}
 
+<<<<<<< HEAD
 
 <div class="main hero">
   <div class="container home-container text-center">
@@ -30,3 +32,19 @@
 <script src="assets/js/custom.js"></script>
 
 </html>
+=======
+{% block content %}
+  <div class="main hero">
+    <div class="container home-container text-center">
+      <h2>Interestr Logo</h2>
+      <h4>Build your own interest based community</h4>
+      <button type="button"
+              class="btn btn-warning btn-round btn-fill home-cta-button"
+              href="signup.html">
+              Sign Up Now!
+      </button>
+      <h4 style="font-size: 18px; margin: 10px">...or <a href="login.html" style="text-decoration: underline;">login</a>, if you have an account</h4>
+    </div>
+  </div>
+{% endblock %}
+>>>>>>> b7fe5046e8bac193e33f3a18dd3febf5aa4be393

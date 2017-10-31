@@ -24,8 +24,6 @@
 </head>
 
 <body>
-  {% block navbar %}
-
   <div id="navbar">
     <nav class="navbar navbar-ct-orange navbar-fixed-top" role="navigation">
       <div class="container">
@@ -38,6 +36,9 @@
           </button>
           <a class="navbar-brand" href="#">Interestr</a>
         </div>
+
+        {% block navbaritems %}
+        {% endblock %}
         <!-- /.navbar-collapse -->
       </div>
       <!-- /.container -->

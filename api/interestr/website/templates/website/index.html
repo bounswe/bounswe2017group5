@@ -2,6 +2,16 @@
 
 {% block title %}Homepage{% endblock %}
 
+{% block navbaritems %}
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+          <ul class="nav navbar-nav navbar-right">
+            <li class="active"><a href="index.html">Home</a></li>
+            <li><a href="#">Login</a></li>
+            <li><a href="signup.html">Signup</a></li>
+          </ul>
+        </div>
+{% endblock %}
+
 {% block content %}
   <div class="main hero">
     <div class="container home-container text-center">

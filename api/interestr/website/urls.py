@@ -11,8 +11,5 @@ urlpatterns = [
     url(r'^register/$', views.UserRegisterView.as_view(), name='register'),
     url(r'^groups/$', views.GroupView.as_view(), name='groups'),
     url(r'^logout/$', views.LogoutView.as_view(), name='logout'),
-
-
-
-    #url(r'^$'),
+    url(r'^create-group/$', views.CreateGroupView.as_view(), name='create-group'),
 ]

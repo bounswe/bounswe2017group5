@@ -12,8 +12,8 @@ from django.views import generic
 #from django.views.generic import views
 from django.views import View
 
-from .forms import LoginForm, RegisterForm
 from api.models import Group
+from .forms import LoginForm, RegisterForm, CreateGroupForm
 
 from django.contrib.auth.mixins import LoginRequiredMixin
 
@@ -106,3 +106,23 @@ class HomePageView(View):
 
 	def get(self, request):
 		return render(request, self.template_name)
+  
+
+class CreateGroupView(View):
+
+	form_class = CreateGroupForm
+	template_name = 'website/create-group.html'
+
+	def get(self, request):
+		form = self.form_class(None)
+		return render(request,self.template_name, {'form': form})
+
+	def post(self, request):
+		form = self.form_class(request.POST)
+
+		if form.is_valid():
+
+			group = form.save(commit=True)
+			return redirect('/') #TODO
+
+		return render(request,self.template_name, {'form': form})

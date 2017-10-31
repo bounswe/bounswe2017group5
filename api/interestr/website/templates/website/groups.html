@@ -1,0 +1,51 @@
+{% extends 'website/base.html' %}
+
+{% block title %}Groups{% endblock %}
+
+{% block navbaritems %}
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+          <ul class="nav navbar-nav navbar-right">
+            <li><a href="{% url 'website:index' %}">Home</a></li>
+            <li><a href="{% url 'website:logout' %}">Logout</a></li>
+          </ul>
+        </div>
+{% endblock %}
+
+{% block content %}
+
+<div class="main">
+  <div class="container">
+    <h1>Groups</h1>
+    <hr>
+
+    <div class="groups">
+
+
+
+      {% for group in object_list %}
+      <div class="group">
+        {% if group.picture %}
+        <div class="group-image">
+          <img src="{{ group.picture.url }}" alt="Group alt..." class="img-thumbnail img-responsive">
+        </div>
+        {% endif %}
+        <div class="group-info">
+          <div class="group-name">
+            <h4>{{ group.name }}</h4>
+          </div>
+          <div class="group-member-count">
+            {{ group.members|length }} member{{ group.members|pluralize }}
+          </div>
+          <div class="group-description">
+            {{ group.description }}
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+
+
+    </div>
+  </div>
+</div>
+
+{% endblock %}

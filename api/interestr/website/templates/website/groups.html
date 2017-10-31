@@ -6,7 +6,7 @@
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
           <ul class="nav navbar-nav navbar-right">
             <li><a href="{% url 'website:index' %}">Home</a></li>
-            <li><a href="#">Logout</a></li>
+            <li><a href="{% url 'website:logout' %}">Logout</a></li>
           </ul>
         </div>
 {% endblock %}
@@ -22,17 +22,19 @@
 
 
 
-      {% for group in group.queryset %}
+      {% for group in object_list %}
       <div class="group">
+        {% if group.picture %}
         <div class="group-image">
           <img src="{{ group.picture.url }}" alt="Group alt..." class="img-thumbnail img-responsive">
         </div>
+        {% endif %}
         <div class="group-info">
           <div class="group-name">
             <h4>{{ group.name }}</h4>
           </div>
           <div class="group-member-count">
-            {{ group.members|length }}
+            {{ group.members|length }} member{{ group.members|pluralize }}
           </div>
           <div class="group-description">
             {{ group.description }}

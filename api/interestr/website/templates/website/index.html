@@ -1,0 +1,32 @@
+{% extends 'website/base.html' %}
+
+{% load static %}
+
+{% block title %}Homepage{% endblock %}
+
+{% block navbaritems %}
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+          <ul class="nav navbar-nav navbar-right">
+            <li class="active"><a href="{% url 'website:index' %}">Home</a></li>
+            <li><a href="{% url 'website:login' %}">Login</a></li>
+            <li><a href="{% url 'website:register' %}">Signup</a></li>
+          </ul>
+        </div>
+{% endblock %}
+
+{% block content %}
+  <div class="main hero">
+    <div class="container home-container text-center">
+      <div class="logo-container">
+        <img src="{% static 'assets/img/logo.png' %}" alt="Interestr logo" title="Interestr" class="img-responsive" />
+      </div>
+      <h4>Build your own interest based community</h4>
+      <a href="{% url 'website:create_group' %}"><button type="button"
+              class="btn btn-warning btn-round btn-fill home-cta-button"
+              >
+              Sign Up Now!
+      </button></a>
+      <h4 style="font-size: 18px; margin: 10px">...or <a href="{% url 'website:login' %}" style="text-decoration: underline;">login</a>, if you have an account</h4>
+    </div>
+  </div>
+{% endblock %}

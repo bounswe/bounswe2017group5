@@ -107,6 +107,11 @@ class HomePageView(View):
 	def get(self, request):
 		return render(request, self.template_name)
   
+class GroupDetailsView(generic.DetailView):
+    template_name = 'website/group-details.html'
+
+    def get_queryset(self):
+        return Group.objects.all()
 
 class CreateGroupView(View):
 

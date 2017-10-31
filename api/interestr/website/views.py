@@ -75,9 +75,6 @@ class UserRegisterView(View):
 
 # Create your views here.
 class GroupView(generic.ListView):
-    if not request.user.is_authenticated():
-        return redirect('login')
-    else:
-        template_name = 'templates/groups.html'
-        def get_queryset(self):
-            return Group.objects.all()
+    template_name = 'templates/groups.html'
+    def get_queryset(self):
+        return Group.objects.all()

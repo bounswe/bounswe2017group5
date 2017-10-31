@@ -1,0 +1,46 @@
+{% extends 'website/base.html' %}
+
+{% block title %}Create a new Group{% endblock title %}
+
+{% block navbaritems %}
+<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+  <ul class="nav navbar-nav navbar-right">
+    <li class="nav-search">
+      <input type="text" value="" class="form-control" placeholder="Search...">
+    </li>
+    <li>
+      <a href="javascript:void(0);">
+        <i class="fa fa-search"></i>
+      </a>
+    </li>
+    <li class="dropdown">
+      <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{ user.username }}<b class="caret"></b></a>
+      <ul class="dropdown-menu">
+        <li><a href="{% url 'website:groups' %}">Groups</a></li>
+        <li class="divider"></li>
+        <li><a href="{% url 'website:logout' %}">Logout</a></li>
+      </ul>
+    </li>
+
+  </ul>
+</div>
+{% endblock navbaritems %}
+
+{% block content %}
+<div class="main">
+  <div class="container">
+    <div class="col-md-8">
+      <h1>Create A Group</h1>
+      <hr>
+      <form method='POST' enctype="multipart/form-data">
+
+      {% csrf_token %}
+
+      {{form.as_p}}
+      <button type="submit" class="btn btn-warning btn-fill btn-wide">Create</button>
+      <a href="{% url 'website:groups' %}" class="btn btn-fill btn-wide">Go Back</a>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock content %}

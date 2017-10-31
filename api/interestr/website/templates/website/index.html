@@ -1,5 +1,7 @@
 {% extends 'website/base.html' %}
 
+{% load static %}
+
 {% block title %}Homepage{% endblock %}
 
 {% block navbaritems %}
@@ -15,7 +17,9 @@
 {% block content %}
   <div class="main hero">
     <div class="container home-container text-center">
-      <h2>Interestr Logo</h2>
+      <div class="logo-container">
+        <img src="{% static 'assets/img/logo.png' %}" alt="Interestr logo" title="Interestr" class="img-responsive" />
+      </div>
       <h4>Build your own interest based community</h4>
       <a href="{% url 'website:create_group' %}"><button type="button"
               class="btn btn-warning btn-round btn-fill home-cta-button"

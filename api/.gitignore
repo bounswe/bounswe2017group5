@@ -4,3 +4,4 @@ db.postgresql
 *.pyc
 .DS_Store
 interestr/static/
+interestr/media/

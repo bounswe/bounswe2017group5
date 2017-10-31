@@ -114,71 +114,40 @@
           </ul>
         </div>
 
-        <form action="" class="group-detail-content-form">
+        <form method="POST" class="group-detail-content-form">
+          {% csrf_token %}
+          {{ form.non_field_errors }}
           <div class="form-group">
-            <label for="name">Name: </label>
-            <input type="text" class="form-control" id="name" placeholder="Name of the shop">
-          </div>
-
-          <div class="form-group">
-            <label for="address">Address: </label>
-            <input type="text" class="form-control" id="address" placeholder="Address of the shop">
-          </div>
-
-          <div class="form-group">
-            <label for="what-to-find">What to find: </label>
-            <div class="items col-sm-12">
-              <div class="col-sm-6">
-                <label class="checkbox" for="checkbox1">
-                  <input type="checkbox" value="" id="checkbox1" data-toggle="checkbox">Guitars
-                </label>
-              </div>
-              <div class="col-sm-6">
-                <label class="checkbox" for="checkbox2">
-                  <input type="checkbox" value="" id="checkbox2" data-toggle="checkbox">T-Shirts
-                </label>
-              </div>
-              <div class="col-sm-6">
-                <label class="checkbox" for="checkbox3">
-                  <input type="checkbox" value="" id="checkbox3" data-toggle="checkbox">Vinyl
-                </label>
-              </div>
-              <div class="col-sm-6">
-                <label class="checkbox" for="checkbox4">
-                  <input type="checkbox" value="" id="checkbox4" data-toggle="checkbox">Casette
-                </label>
-              </div>
-              <div class="col-sm-6">
-                <label class="checkbox" for="checkbox5">
-                  <input type="checkbox" value="" id="checkbox5" data-toggle="checkbox">CD
-                </label>
-              </div>
-            </div>
+            <label for="name">Text: </label>
+            <input type="text" class="form-control" id="text" name="{{ post_create_form.text.name }}" placeholder="Text of the post">
+            {{ form.text.errors }}
           </div>
 
           <div class="text-right">
-            <div class="btn btn-round btn-warning btn-fill btn-wide">Share</div>
+            <button type="submit" class="btn btn-round btn-warning btn-fill btn-wide">Share</button>
           </div>
         </form>
       </div>
 
+      {% for post in group.posts.all %}
       <div class="group-detail-content">
         <div class="header">
           <div class="text">
-            <p class="title"><strong>Fan of Dave Mustainer</strong></p>
-            <p class="subtitle"><small>Shared in <i>Metal</i></small></p>
+            <p class="title"><strong>{{ post.owner.username }}</strong></p>
+            <p class="subtitle"><small>Shared in <i>{{ group.name }}</i></small></p>
           </div>
           <div class="img">
             <img src="assets/img/dave.jpg" alt="Dave Mustaine" class="img-circle avatar">
           </div>
         </div>
         <div class="content">
-          <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+          <p>{{ post.text }}</p>
         </div>
         <div class="comments">
-          <a class="text-muted" href="#">3 Comments</a>
+          <a class="text-muted" href="#">0 Comments</a>
         </div>
       </div>
+      {% endfor %}
     </div>
   </div>
 

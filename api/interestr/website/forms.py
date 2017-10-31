@@ -43,4 +43,13 @@ class CreatePostForm(forms.ModelForm):
 
 	class Meta:
 		model = Post
-		fields = []
+		fields = ['text', ]
+
+	def save(self, owner, group, commit=True):
+		post = super(CreatePostForm, self).save(commit=False)
+		post.owner = owner
+		post.group = group
+		post.data_template = None
+		if commit:
+			post.save()
+		return post

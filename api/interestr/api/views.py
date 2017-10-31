@@ -24,18 +24,42 @@ from data_templates import models as data_templates_models
 ### List Views BEGIN
 
 class UserList(generics.ListAPIView):
+    """
+    Return a list of all the existing users.
+    """
     queryset = auth_models.User.objects.all()
     serializer_class = core_serializers.UserSerializer
 
 class GroupList(generics.ListCreateAPIView):
+    """
+    get:
+    Return a list of all the existing groups.
+
+    post:
+    Create a new group instance.
+    """
     queryset = core_models.Group.objects.all()
     serializer_class = core_serializers.GroupSerializer
 
 class DataTemplateList(generics.ListCreateAPIView):
+    """
+    get:
+    Return a list of all the existing data templates.
+
+    post:
+    Create a new data template instance.
+    """
     queryset = data_templates_models.DataTemplate.objects.all()
     serializer_class = core_serializers.DataTemplateSerializer
 
 class PostList(generics.ListCreateAPIView):
+    """
+    get:
+    Return a list of all the existing posts.
+
+    post:
+    Create a new data post instance.
+    """
     queryset = core_models.Post.objects.all()
     serializer_class = core_serializers.PostSerializer
 
@@ -44,18 +68,55 @@ class PostList(generics.ListCreateAPIView):
 ### Detail Views BEGIN
 
 class UserDetail(generics.RetrieveUpdateAPIView):
+    """
+    get:
+    Return the details of the user with the given id.
+
+    update:
+    Update the user with the given id.
+    """
     queryset = auth_models.User.objects.all()
     serializer_class = core_serializers.UserSerializer
 
 class GroupDetail(generics.RetrieveUpdateDestroyAPIView):
+    """
+    get:
+    Return the details of the group with the given id.
+
+    update:
+    Update the group with the given id.
+
+    delete:
+    Delete the group with the given id.
+    """
     queryset = core_models.Group.objects.all()
     serializer_class = core_serializers.GroupSerializer
 
 class DataTemplateDetail(generics.RetrieveUpdateDestroyAPIView):
+    """
+    get:
+    Return the details of the data template with the given id.
+
+    update:
+    Update the data template detail with the given id.
+
+    delete:
+    Delete the data template detail with the given id.
+    """
     queryset = data_templates_models.DataTemplate.objects.all()
     serializer_class = core_serializers.DataTemplateSerializer
 
 class PostDetail(generics.RetrieveUpdateDestroyAPIView):
+    """
+    get:
+    Return the details of the post with the given id.
+
+    update:
+    Update the post detail with the given id.
+
+    delete:
+    Delete the post detail with the given id.
+    """
     queryset = core_models.Post.objects.all()
     serializer_class = core_serializers.PostSerializer
 

@@ -23,20 +23,26 @@ class Group(BaseModel):
     tags = models.TextField(blank = True, default='') #TODO change to list
     is_private = models.BooleanField(blank = True,default = False)
     members = models.ManyToManyField(auth_models.User)
-    picture = models.ImageField(blank=True, null=True)#ToDo add default picture
+    picture = models.ImageField(blank=True, null=True)
     def __str__(self):
         return self.name
 
     def size(self):
         return self.members.count()
-    
+
+    def get_picture(self):
+        if self.picture and hasattr(self.picture, 'url'):
+            return self.picture.url
+        else:
+            return '/static/assets/img/group_default_icon.png'
+
 
 class Post(BaseModel):
     owner = models.ForeignKey(auth_models.User, related_name="posts",
      default = None, null=True)
     text = models.TextField(default = '')
     content_url = models.URLField(default = '')
-    group = models.ForeignKey('api.Group', related_name='posts', 
+    group = models.ForeignKey('api.Group', related_name='posts',
         on_delete=models.CASCADE,	default = None, null=True)
     data_template = models.ForeignKey('data_templates.DataTemplate', related_name='posts',
         default = None, null=True)

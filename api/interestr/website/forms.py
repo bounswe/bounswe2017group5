@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 from django import forms
-from api.models import Group
+from api.models import Group, Post
 from django.contrib.auth.forms import UserCreationForm
 
 class LoginForm(forms.ModelForm):
@@ -19,7 +19,7 @@ class RegisterForm(UserCreationForm):
 	class Meta:
 		model = User
 		fields = ("username", "email", "password1", "password2")
-	
+
 	def save(self, commit=True):
 		user = super(RegisterForm, self).save(commit=False)
 		user.email = self.cleaned_data["email"]
@@ -38,3 +38,9 @@ class CreateGroupForm(forms.ModelForm):
 	class Meta:
 		model = Group
 		fields = ['name','description','tags','location','is_private','picture']
+
+class CreatePostForm(forms.ModelForm):
+
+	class Meta:
+		model = Post
+		fields = []

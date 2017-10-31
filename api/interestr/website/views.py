@@ -13,6 +13,7 @@ from django.views import generic
 from django.views import View
 
 from .forms import LoginForm, RegisterForm
+from api.models import Group
 
 from django.contrib.auth.mixins import LoginRequiredMixin
 
@@ -80,3 +81,9 @@ class GroupView(LoginRequiredMixin, generic.ListView):
 
     def get_queryset(self):
         return Group.objects.all()
+
+class HomePageView(View):
+	template_name = 'website/index.html'
+
+	def get(self, request):
+		return render(request, self.template_name)

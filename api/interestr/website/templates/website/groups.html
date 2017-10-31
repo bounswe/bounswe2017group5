@@ -5,7 +5,7 @@
 {% block navbaritems %}
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
           <ul class="nav navbar-nav navbar-right">
-            <li><a href="index.html">Home</a></li>
+            <li><a href="{% url 'website:index' %}">Home</a></li>
             <li><a href="#">Logout</a></li>
           </ul>
         </div>
@@ -23,11 +23,9 @@
 
 
       {% for group in group.queryset %}
-
-
       <div class="group">
         <div class="group-image">
-          <img src="{{ group.picture }}" alt="Group alt..." class="img-thumbnail img-responsive">
+          <img src="{{ group.picture.url }}" alt="Group alt..." class="img-thumbnail img-responsive">
         </div>
         <div class="group-info">
           <div class="group-name">
@@ -41,21 +39,10 @@
           </div>
         </div>
       </div>
-
       {% endfor %}
 
 
     </div>
-
-    <ul class="pagination">
-      <li><a href="#">&laquo;</a></li>
-      <li><a href="#">1</a></li>
-      <li><a href="#">2</a></li>
-      <li class="active"><a href="#">3</a></li>
-      <li><a href="#">4</a></li>
-      <li><a href="#">5</a></li>
-      <li><a href="#">&raquo;</a></li>
-    </ul>
   </div>
 </div>
 

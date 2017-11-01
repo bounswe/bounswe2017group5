@@ -9,6 +9,8 @@ from django.contrib.auth.forms import AuthenticationForm
 
 from django.views import generic
 
+from django.contrib.auth.models import User
+
 #from django.views.generic import views
 from django.views import View
 
@@ -18,8 +20,7 @@ from .forms import LoginForm, RegisterForm, CreateGroupForm, CreatePostForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 
 class UserLoginView(View):
-    form_class = AuthenticationForm
-    #template_name = '/registration_form.html'
+    form_class = LoginForm
     template_name = 'website/login.html'
 
     def dispatch(self, request, *args, **kwargs):
@@ -29,22 +30,34 @@ class UserLoginView(View):
 
     #display blank form
     def get(self, request):
-        form = self.form_class(request)
-        return render(request,self.template_name, {'form': form})
+        form = self.form_class()
+        return render(request,self.template_name)
 
     # process form data
     def post(self, request):
-        form = self.form_class(request, request.POST)
 
-        if form.is_valid():
-            user = form.get_user()
+		#form = self.form_class(request.POST)
+		#user = form.get_user(request)
+		password = request.POST["pwd"]
+		username_or_email = request.POST["username_or_email"]
 
-        if user is not None:
-            if user.is_active: #if he/she is not banned
-                login(request,user)
-                return redirect('/') #TODO
+		try:
+			if '@'in username_or_email:
+				username = User.objects.get(email=username_or_email).username
+				print username
+			else:
+				username = username_or_email
+			
+			user = authenticate(username=username, password=password)
+		except:
+			user = None 
 
-        return render(request,self.template_name, {'form': form})
+		if user is not None:
+			if user.is_active: #if he/she is not banned 
+				login(request,user)
+				return redirect('website:groups') 
+		
+		return render(request,self.template_name, {'err_msg': 'Invalid credentials!'})
 
 class UserRegisterView(View):
 
@@ -67,6 +80,8 @@ class UserRegisterView(View):
 
         if form.is_valid():
             user = form.save(commit=False)
+        else:
+            return render(request,self.template_name, {'form': form})
 
         #cleaned (normalized) data
         username = form.cleaned_data['username']

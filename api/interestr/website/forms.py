@@ -1,16 +1,18 @@
+from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 from django import forms
 from api.models import Group, Post
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 
-class LoginForm(forms.ModelForm):
+class LoginForm(forms.Form):
 
-	password = forms.CharField(widget = forms.PasswordInput)
+	username_or_email = forms.CharField(label="Username/Email",widget = forms.TextInput(attrs={'placeholder': 'Username/Email'}))
+	password = forms.CharField(label="Password", widget = forms.PasswordInput(attrs={'placeholder': 'Password'}))
 
-	class Meta:
-		model = User
-		fields = ['username', 'password']
-
+	#class Meta:
+	#	model = User
+	#	fields = ['username_or_email', 'password']
+	
 
 class RegisterForm(UserCreationForm):
 

@@ -80,6 +80,8 @@ class UserRegisterView(View):
 
         if form.is_valid():
             user = form.save(commit=False)
+        else:
+            return render(request,self.template_name, {'form': form})
 
         #cleaned (normalized) data
         username = form.cleaned_data['username']

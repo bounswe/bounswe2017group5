@@ -22,7 +22,7 @@ class PostSerializer(serializers.ModelSerializer):
 
 	class Meta:
 		model = core_models.Post
-		fields = ('id', 'owner', 'text', 'content_url', 'group', 'data_template', 'created', 'updated', )
+		fields = ('id', 'owner', 'text', 'group', 'data_template', 'created', 'updated', )
 
 class DataTemplateSerializer(serializers.ModelSerializer):
 

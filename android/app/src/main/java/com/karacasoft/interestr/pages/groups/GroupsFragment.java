@@ -16,7 +16,6 @@ import com.karacasoft.interestr.network.InterestrAPI;
 import com.karacasoft.interestr.network.InterestrAPIImpl;
 import com.karacasoft.interestr.network.InterestrAPIResult;
 import com.karacasoft.interestr.network.models.Group;
-import com.karacasoft.interestr.pages.groups.dummy.DummyContent;
 
 import java.util.ArrayList;
 
@@ -50,7 +49,9 @@ public class GroupsFragment extends Fragment {
             //noinspection unchecked
             dataset.addAll((ArrayList<Group>) result.get());
 
-            groupRecyclerViewAdapter.notifyItemRangeInserted(0, dataset.size());
+            // TODO handle this via inserted and replaced
+            groupRecyclerViewAdapter.notifyDataSetChanged();
+
         }
 
         @Override

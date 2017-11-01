@@ -17,25 +17,30 @@
     <div class="container">
       <div class="col-md-6">
         <h2>Login</h2>
+		{% if err_msg %}
+		<div style=>
+		<h4 style="color:Red">Invalid Credentials!</h4>
+		</div>
+		{%endif %}
         <hr>
         <form method='POST'>
-
-        {% csrf_token %}
+			{% csrf_token %}
+        <!-- 
 
         {{form.as_p}}
         <button type="submit" class="btn btn-warning">Submit</button>
-
-        <!--
+        -->
+       
           <div class="form-group">
-            <label for="email">Username/Email:</label>
-            <input type="email" class="form-control" id="email" placeholder="Username or email address">
+            <label for="username_or_email">Username/Email:</label>
+            <input type="text" class="form-control" name="username_or_email" placeholder="Username or email address">
           </div>
           <div class="form-group">
             <label for="pwd">Password:</label>
-            <input type="password" class="form-control" id="pwd" placeholder="password">
+            <input type="password" class="form-control" name="pwd" placeholder="password">
           </div>
           <button type="submit" class="btn btn-warning">Submit</button>
-        -->
+
 
         </form>
       </div>

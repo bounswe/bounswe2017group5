@@ -15,19 +15,19 @@ import json
 # Create your tests here.
 class AuthTests(TestCase):
 
-    def setUp(self):
-        self.client = Client()
-        self.test_user = User.objects.create_user('name', 'wow@wow.com', 'wowpass123')
+	def setUp(self):
+		self.client = Client()
+		self.test_user = User.objects.create_user('name', 'wow@wow.com', 'wowpass123')
 
 
-    def test_token_auth(self):
-        response = self.client.post('/api/v1/login/', { 'username' : 'name', 'password' : 'wowpass123' })
+	def test_token_auth(self):
+		response = self.client.post('/api/v1/login/', { 'username' : 'name', 'password' : 'wowpass123' })
 
-        self.assertEqual(response.status_code, 200)
+		self.assertEqual(response.status_code, 200)
 
-        json_response = json.loads(response.content)
+		json_response = json.loads(response.content)
 
-        self.assertEqual(json_response['token'], Token.objects.get(user=self.test_user).key)
+		self.assertEqual(json_response['token'], Token.objects.get(user=self.test_user).key)
 
 class PostTests(TestCase):
 
@@ -69,7 +69,7 @@ class GroupTests(TestCase):
 
 		self.client.login(username= 'iser', password='4321')
 		response = self.client.put('/api/v1/users/groups/1/', follow=True)
-		json_response = json.loads(response.content)		
+		json_response = json.loads(response.content)
 		self.assertEqual(response.status_code, 200)
 		self.assertEqual(json_response['name'], 'grupce')
 		self.assertEqual(json_response['size'], 2)
@@ -79,7 +79,7 @@ class GroupTests(TestCase):
 		response = self.client.put('/api/v1/users/groups/2/', follow=True)
 		response = self.client.put('/api/v1/users/groups/2/', follow=True)
 		self.assertEqual(response.status_code, 410)
-	
+
 	def test_3_add_users_to_group(self):
 		# add 2 users, remove the last one.
 		self.client.login(username= 'user', password='1234')
@@ -97,9 +97,19 @@ class GroupTests(TestCase):
 		#add user1
 		self.client.login(username= 'user', password='1234')
 		self.client.put('/api/v1/users/groups/4/', follow=True)
-		
+
 		#try to remove user2
 		self.client.login(username= 'iser', password='4321')
 		response = self.client.delete('/api/v1/users/groups/4/', follow=True)
 
 		self.assertEqual(response.status_code, 410)
+
+class ApiDocTests(TestCase):
+
+	def setUp(self):
+		self.client = Client()
+
+	def test_doc_working(self):
+		response = self.client.get('/api/v1/docs/')
+
+		self.assertEqual(response.status_code, 200)

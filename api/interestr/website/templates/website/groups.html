@@ -33,13 +33,6 @@
     <hr>
 
     <div class="groups">
-      <a href="{% url 'website:create_group' %}"><button type="button"
-              class="btn btn-warning btn-round btn-fill">
-              Create a new Group!
-      </button></a>
-
-
-
       {% for group in object_list %}
       <div class="group">
         <a href="{% url 'website:group_details' group.id %}">
@@ -63,6 +56,11 @@
       </div>
       {% endfor %}
 
+      <a href="{% url 'website:create_group' %}">
+        <button type="button" class="btn btn-warning btn-round btn-fill">
+              Create a new Group!
+        </button>
+      </a>
 
     </div>
   </div>

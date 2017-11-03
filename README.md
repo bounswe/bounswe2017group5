@@ -8,35 +8,35 @@ Please check our comprehensive [Wiki Page](https://github.com/bounswe/bounswe201
 
 ## Group Members
 
-1. [Hatice Esra Aydemir (Communicator)](wiki/Hatice-Esra-Aydemir)
-2. [Irem ULUTAS](wiki/Irem-Ulutas)
-3. [Mahmut KARACA](wiki/Mahmut-Karaca)
-4. [Samed Düzçay](wiki/Samed-Düzçay)
-5. [Yasar Fatih Enes YALCIN](wiki/Yaşar-Fatih-Enes-Yalçın)
-6. [Mehmet Utkan Gezer](wiki/Mehmet-Utkan-Gezer)
-7. [Ilkay Ramazan PALA](wiki/Morgazipa)  
-8. [Murat KARAMAN](wiki/Murat-Karaman)
-9. [Orbay Altuntoprak](wiki/Orbay-Altuntoprak)
+1. [Hatice Esra Aydemir (Communicator)](https://github.com/bounswe/bounswe2017group5/wiki/Hatice-Esra-Aydemir)
+2. [Irem ULUTAS](https://github.com/bounswe/bounswe2017group5/wiki/Irem-Ulutas)
+3. [Mahmut KARACA](https://github.com/bounswe/bounswe2017group5/wiki/Mahmut-Karaca)
+4. [Samed Düzçay](https://github.com/bounswe/bounswe2017group5/wiki/Samed-Düzçay)
+5. [Yasar Fatih Enes YALCIN](https://github.com/bounswe/bounswe2017group5/wiki/Yaşar-Fatih-Enes-Yalçın)
+6. [Mehmet Utkan Gezer](https://github.com/bounswe/bounswe2017group5/wiki/Mehmet-Utkan-Gezer)
+7. [Ilkay Ramazan PALA](https://github.com/bounswe/bounswe2017group5/wiki/Morgazipa)  
+8. [Murat KARAMAN](https://github.com/bounswe/bounswe2017group5/wiki/Murat-Karaman)
+9. [Orbay Altuntoprak](https://github.com/bounswe/bounswe2017group5/wiki/Orbay-Altuntoprak)
 
 ## Project
 
-* [Requirements Analysis](wiki/Requirements-Analysis)
+* [Requirements Analysis](https://github.com/bounswe/bounswe2017group5/wiki/Requirements-Analysis)
 * **Initial Plan**
-  * [Communication Plan](wiki/Communication-Plan)
-  * [Project Plan](wiki/Project-Plan)
+  * [Communication Plan](https://github.com/bounswe/bounswe2017group5/wiki/Communication-Plan)
+  * [Project Plan](https://github.com/bounswe/bounswe2017group5/wiki/Project-Plan)
 * **Research Plan**
-  * [API Research](wiki/Twitter-API)
+  * [API Research](https://github.com/bounswe/bounswe2017group5/wiki/Twitter-API)
 * **Mockups**
-  * [Web](wiki/Mockup-web)
-  * [Android](wiki/Mockup-android)
+  * [Web](https://github.com/bounswe/bounswe2017group5/wiki/Mockup-web)
+  * [Android](https://github.com/bounswe/bounswe2017group5/wiki/Mockup-android)
 * **Reports**
-  * [Milestone 1 Report](wiki/Milestone-1-Report)
-* [Use Case Diagram](wiki/Use-Case-Diagram)
-* [Use Cases](wiki/Use-Cases)
-* [Use Case Scenarios](wiki/Use-Case-Scenarios)
-* [Class Diagram](wiki/Class-Diagram)
-* [Sequence Diagrams](wiki/Sequence-Diagrams)
-* [Test Cases](wiki/Test-Cases)
+  * [Milestone 1 Report](https://github.com/bounswe/bounswe2017group5/wiki/Milestone-1-Report)
+* [Use Case Diagram](https://github.com/bounswe/bounswe2017group5/wiki/Use-Case-Diagram)
+* [Use Cases](https://github.com/bounswe/bounswe2017group5/wiki/Use-Cases)
+* [Use Case Scenarios](https://github.com/bounswe/bounswe2017group5/wiki/Use-Case-Scenarios)
+* [Class Diagram](https://github.com/bounswe/bounswe2017group5/wiki/Class-Diagram)
+* [Sequence Diagrams](https://github.com/bounswe/bounswe2017group5/wiki/Sequence-Diagrams)
+* [Test Cases](https://github.com/bounswe/bounswe2017group5/wiki/Test-Cases)
 
 ## Development
 ```

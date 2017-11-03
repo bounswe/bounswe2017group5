@@ -8,35 +8,35 @@ Please check our comprehensive [Wiki Page](https://github.com/bounswe/bounswe201
 
 ## Group Members
 
-1. [Hatice Esra Aydemir (Communicator)](Hatice-Esra-Aydemir)
-2. [Irem ULUTAS](Irem-Ulutas)
-3. [Mahmut KARACA](Mahmut-Karaca)
-4. [Samed Düzçay](Samed-D%C3%BCz%C3%A7ay)
-5. [Yasar Fatih Enes YALCIN](Yaşar-Fatih-Enes-Yalçın)
-6. [Mehmet Utkan Gezer](Mehmet-Utkan-Gezer)
-7. [Ilkay Ramazan PALA](Morgazipa)  
-8. [Murat KARAMAN](Murat-Karaman)
-9. [Orbay Altuntoprak](Orbay-Altuntoprak)
+1. [Hatice Esra Aydemir (Communicator)](wiki/Hatice-Esra-Aydemir)
+2. [Irem ULUTAS](wiki/Irem-Ulutas)
+3. [Mahmut KARACA](wiki/Mahmut-Karaca)
+4. [Samed Düzçay](wiki/Samed-Düzçay)
+5. [Yasar Fatih Enes YALCIN](wiki/Yaşar-Fatih-Enes-Yalçın)
+6. [Mehmet Utkan Gezer](wiki/Mehmet-Utkan-Gezer)
+7. [Ilkay Ramazan PALA](wiki/Morgazipa)  
+8. [Murat KARAMAN](wiki/Murat-Karaman)
+9. [Orbay Altuntoprak](wiki/Orbay-Altuntoprak)
 
 ## Project
 
-* [Requirements Analysis](Requirements-Analysis)
+* [Requirements Analysis](wiki/Requirements-Analysis)
 * **Initial Plan**
-  * [Communication Plan](Communication-Plan)
-  * [Project Plan](Project-Plan)
+  * [Communication Plan](wiki/Communication-Plan)
+  * [Project Plan](wiki/Project-Plan)
 * **Research Plan**
-  * [API Research](Twitter-API)
+  * [API Research](wiki/Twitter-API)
 * **Mockups**
-  * [Web](Mockup-web)
-  * [Android](Mockup-android)
+  * [Web](wiki/Mockup-web)
+  * [Android](wiki/Mockup-android)
 * **Reports**
-  * [Milestone 1 Report](https://github.com/bounswe/bounswe2017group5/wiki/Milestone-1-Report)
-* [Use Case Diagram](Use-Case-Diagram)
-* [Use Cases](Use-Cases)
-* [Use Case Scenarios](Use-Case-Scenarios)
-* [Class Diagram](Class-Diagram)
-* [Sequence Diagrams](Sequence-Diagrams)
-* [Test Cases](Test-Cases)
+  * [Milestone 1 Report](wiki/Milestone-1-Report)
+* [Use Case Diagram](wiki/Use-Case-Diagram)
+* [Use Cases](wiki/Use-Cases)
+* [Use Case Scenarios](wiki/Use-Case-Scenarios)
+* [Class Diagram](wiki/Class-Diagram)
+* [Sequence Diagrams](wiki/Sequence-Diagrams)
+* [Test Cases](wiki/Test-Cases)
 
 ## Development
 ```

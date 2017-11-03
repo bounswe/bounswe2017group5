@@ -29,14 +29,14 @@ Please check our comprehensive [Wiki Page](https://github.com/bounswe/bounswe201
 * **Mockups**
   * [Web](Mockup-web)
   * [Android](Mockup-android)
+* **Reports**
+  * [Milestone 1 Report](https://github.com/bounswe/bounswe2017group5/wiki/Milestone-1-Report)
 * [Use Case Diagram](Use-Case-Diagram)
 * [Use Cases](Use-Cases)
 * [Use Case Scenarios](Use-Case-Scenarios)
 * [Class Diagram](Class-Diagram)
 * [Sequence Diagrams](Sequence-Diagrams)
 * [Test Cases](Test-Cases)
-* **Reports**
-  * [Milestone 1 Report](https://github.com/bounswe/bounswe2017group5/wiki/Milestone-1-Report)
 
 ## Development
 ```

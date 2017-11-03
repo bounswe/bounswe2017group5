@@ -35,6 +35,8 @@ Please check our comprehensive [Wiki Page](https://github.com/bounswe/bounswe201
 * [Class Diagram](Class-Diagram)
 * [Sequence Diagrams](Sequence-Diagrams)
 * [Test Cases](Test-Cases)
+* **Reports**
+  * [Milestone 1 Report](https://github.com/bounswe/bounswe2017group5/wiki/Milestone-1-Report)
 
 ## Development
 ```

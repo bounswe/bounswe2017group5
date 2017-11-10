@@ -7,6 +7,7 @@ from django.test import Client
 from django.contrib.auth.models import User
 from .models import Post
 from .models import Group
+from data_templates.models import DataTemplate
 
 from rest_framework.authtoken.models import Token
 
@@ -34,7 +35,10 @@ class PostTests(TestCase):
 	def setUp(self):
 		self.client = Client()
 		self.test_user = User.objects.create_user('owner', 'wow@wow.com', 'wowpass123')
-		self.test_post = Post.objects.create(owner = self.test_user, text = 'text', content_url = '/post/1')
+		self.test_group = Group.objects.create(name = "test_group", description="lalala")
+		self.test_data_template = DataTemplate.objects.create(name="",group=self.test_group, user=self.test_user)
+		self.test_post = Post.objects.create(owner = self.test_user, text = 'text', data_template = self.test_data_template)
+		
 
 	def test_existing_post(self):
 		response = self.client.get('/api/v1/posts/' + str(self.test_post.id) + '/')
@@ -43,11 +47,12 @@ class PostTests(TestCase):
 
 		json_response = json.loads(response.content)
 
-		self.assertEqual(json_response, {'owner' : self.test_user.id, 'text' : 'text', 'content_url' : '/post/1', 'group' : None})
+		self.assertEqual(json_response['owner'], self.test_user.id)
+		self.assertEqual(json_response['text'], 'text')
+		self.assertEqual(json_response['group'], None)
 
 	def test_non_existing_post(self):
 		response = self.client.get('/api/v1/posts/' + str(999) + '/')
-
 		self.assertEqual(response.status_code, 404)
 
 class GroupTests(TestCase):

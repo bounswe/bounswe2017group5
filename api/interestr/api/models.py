@@ -32,6 +32,15 @@ class Group(BaseModel):
     def size(self):
         return self.members.count()
 
+    def has_user(self, user):
+        return user in self.members
+
+    def join_user(self, user):
+        return self.members.add(user)
+
+    def remove_user(self, user):
+        return self.members.remove(user)
+
     def get_picture(self):
         if self.picture and hasattr(self.picture, 'url'):
             return self.picture.url

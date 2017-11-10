@@ -22,7 +22,7 @@ class DataTemplate(core_models.BaseModel):
     group = models.ForeignKey(core_models.Group, on_delete=models.SET_NULL, null=True)
     user = models.ForeignKey(auth_models.User, on_delete=models.SET_NULL, null=True)
 
-    fields = JSONField()
+    fields = JSONField(default=None, null=True)
 
     def usage_count(self):
         return length(self.posts.all())

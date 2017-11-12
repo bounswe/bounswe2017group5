@@ -97,10 +97,37 @@
         </div>
 
         <div class="buttons">
+          <script type="text/javascript">
+            function leave_group(btn) {
+              alert('keks');
+              btn.disabled = true;
+              btn.innerHTML = 'Leaving...';
+              
+              var xhr = new XMLHttpRequest();
+              xhr.open('DELETE', 'users/groups/' + group.pk + '/');
+              xhr.onload = function () {
+                // btn.innerHTML = ''
+              };
+              xhr.send();
+            }
+
+            function join_group(btn) {
+              alert('keks');
+              btn.disabled = true;
+              btn.innerHTML = 'Joining...';
+              
+              var xhr = new XMLHttpRequest();
+              xhr.open('PUT', 'users/groups/' + group.pk + '/');
+              xhr.onload = function () {
+                // btn.innerHTML = ''
+              };
+              xhr.send();
+            }
+          </script>
           {% if user in group.members %}
-          <div class="btn btn-round btn-fill" onclick="">Leave Group</div>
+            <div class="btn btn-round btn-fill" onclick="leave_group(this)">Leave Group</div>
           {% else %}
-          <div class="btn btn-round btn-fill" onclick="{% group.members.add(user) %}">Join Group</div>
+            <div class="btn btn-round btn-fill" onclick="join_group(this)">Join Group</div>
           {% endif %}
           <div class="btn btn-round">More ...</div>
         </div>

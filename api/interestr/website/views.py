@@ -36,28 +36,27 @@ class UserLoginView(View):
     # process form data
     def post(self, request):
 
-		#form = self.form_class(request.POST)
-		#user = form.get_user(request)
-		password = request.POST["pwd"]
-		username_or_email = request.POST["username_or_email"]
+                #form = self.form_class(request.POST)
+                #user = form.get_user(request)
+                password = request.POST["pwd"]
+                username_or_email = request.POST["username_or_email"]
 
-		try:
-			if '@'in username_or_email:
-				username = User.objects.get(email=username_or_email).username
-				print username
-			else:
-				username = username_or_email
-			
-			user = authenticate(username=username, password=password)
-		except:
-			user = None 
+                try:
+                        if '@'in username_or_email:
+                                username = User.objects.get(email=username_or_email).username
+                        else:
+                                username = username_or_email
+                        
+                        user = authenticate(username=username, password=password)
+                except:
+                        user = None 
 
-		if user is not None:
-			if user.is_active: #if he/she is not banned 
-				login(request,user)
-				return redirect('website:groups') 
-		
-		return render(request,self.template_name, {'err_msg': 'Invalid credentials!'})
+                if user is not None:
+                        if user.is_active: #if he/she is not banned 
+                                login(request,user)
+                                return redirect('website:groups') 
+                
+                return render(request,self.template_name, {'err_msg': 'Invalid credentials!'})
 
 class UserRegisterView(View):
 

@@ -165,3 +165,9 @@ class CreateGroupView(View):
             return redirect('website:group_details', group.id)
 
         return render(request,self.template_name, {'form': form})
+
+class NewsView(LoginRequiredMixin, generic.ListView):
+    template_name = 'website/news.html'
+
+    def get_queryset(self):
+        return None

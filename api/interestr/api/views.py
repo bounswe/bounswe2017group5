@@ -118,7 +118,7 @@ class PostDetail(generics.RetrieveUpdateDestroyAPIView):
 
 ### Detail Views END
 
-#@csrf_exempt
+@csrf_exempt
 def memberGroupOperation(request, pk):
     """
     Removes or adds the authenticated user from/to the group

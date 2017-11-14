@@ -60,7 +60,7 @@ class Post(BaseModel):
     owner = models.ForeignKey(auth_models.User, related_name="posts", default=None, null=True)
     text = models.TextField(default='')
     group = models.ForeignKey(Group, related_name='posts', on_delete=models.CASCADE, default=None, null=True)
-    data_template = models.ForeignKey(DataTemplate, related_name='posts', default=None, null=True)
+    data_template = models.ForeignKey('api.DataTemplate', related_name='posts', default=None, null=True)
     data = JSONField(default=None, null=True)
 
     def __str__(self):

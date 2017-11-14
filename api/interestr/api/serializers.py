@@ -3,9 +3,6 @@ from rest_framework import serializers
 from . import models as core_models
 from django.contrib.auth import models as auth_models
 
-from data_templates import models as data_templates_models
-
-
 class GroupSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -27,5 +24,5 @@ class PostSerializer(serializers.ModelSerializer):
 class DataTemplateSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = data_templates_models.DataTemplate
+        model = core_models.DataTemplate
         fields = ('id', 'name', 'group', 'user', 'created', 'updated', 'fields' )

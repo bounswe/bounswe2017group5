@@ -17,10 +17,6 @@ from django.views.decorators.csrf import csrf_exempt
 from . import serializers as core_serializers
 from .http import ErrorResponse
 
-from strings import strings
-
-from data_templates import models as data_templates_models
-
 ### List Views BEGIN
 
 class UserList(generics.ListAPIView):
@@ -49,7 +45,7 @@ class DataTemplateList(generics.ListCreateAPIView):
     post:
     Create a new data template instance.
     """
-    queryset = data_templates_models.DataTemplate.objects.all()
+    queryset = core_models.DataTemplate.objects.all()
     serializer_class = core_serializers.DataTemplateSerializer
 
 class PostList(generics.ListCreateAPIView):
@@ -103,7 +99,7 @@ class DataTemplateDetail(generics.RetrieveUpdateDestroyAPIView):
     delete:
     Delete the data template detail with the given id.
     """
-    queryset = data_templates_models.DataTemplate.objects.all()
+    queryset = core_models.DataTemplate.objects.all()
     serializer_class = core_serializers.DataTemplateSerializer
 
 class PostDetail(generics.RetrieveUpdateDestroyAPIView):

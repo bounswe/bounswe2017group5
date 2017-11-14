@@ -131,7 +131,13 @@ class GroupDetailsView(LoginRequiredMixin, View):
 
     def get(self, request, pk):
         form = self.form_class()
-        return render(request, self.template_name, { 'post_create_form': form, 'group' : self.get_object(pk) })
+        group = self.get_object(pk)
+        isJoined = request.user in group.members.all()
+        return render(request, self.template_name, {
+            'post_create_form': form,
+            'group' : group,
+            'is_joined' : isJoined
+            })
 
     def post(self, request, pk):
         form = self.form_class(request.POST, request.FILES)

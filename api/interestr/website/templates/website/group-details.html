@@ -97,39 +97,41 @@
         </div>
 
         <div class="buttons">
+          <div id="leaveJoinButton" class="btn btn-round btn-fill" onclick="leave_join_group(this)"></div>
+          <div class="btn btn-round">More ...</div>
+
           <script type="text/javascript">
-            function leave_group(btn) {
-              alert('keks');
-              btn.disabled = true;
-              btn.innerHTML = 'Leaving...';
-              
-              var xhr = new XMLHttpRequest();
-              xhr.open('DELETE', 'users/groups/' + group.pk + '/');
-              xhr.onload = function () {
-                // btn.innerHTML = ''
-              };
-              xhr.send();
+            var isJoined = {{ is_joined|yesno:"1,0" }};
+            var buttonText = ['Join Group', 'Leave Group'];
+            var buttonTextPending = ['Joining...', 'Leaving...'];
+            var btn = document.getElementById('leaveJoinButton');
+
+            function refresh_button() {
+              btn.innerHTML = buttonText[isJoined];
+              if (!isJoined) {
+                btn.classList.add("btn-warning");
+              }
+              else {
+                btn.classList.remove("btn-warning");
+              }
+              btn.disabled = false;
             }
 
-            function join_group(btn) {
-              alert('keks');
+            refresh_button();
+
+            function leave_join_group(btn) {
               btn.disabled = true;
-              btn.innerHTML = 'Joining...';
-              
-              var xhr = new XMLHttpRequest();
-              xhr.open('PUT', 'users/groups/' + group.pk + '/');
-              xhr.onload = function () {
-                // btn.innerHTML = ''
-              };
-              xhr.send();
+              btn.innerHTML = buttonTextPending[isJoined];
+
+              $.ajax({
+                method: isJoined ? 'DELETE' : 'PUT',
+                url: '{% url "api:groupOperation" group.id %}'
+              }).done(function (msg) {
+                isJoined = 1 - isJoined;
+                refresh_button();
+              });
             }
           </script>
-          {% if user in group.members %}
-            <div class="btn btn-round btn-fill" onclick="leave_group(this)">Leave Group</div>
-          {% else %}
-            <div class="btn btn-round btn-fill" onclick="join_group(this)">Join Group</div>
-          {% endif %}
-          <div class="btn btn-round">More ...</div>
         </div>
       </div>
 

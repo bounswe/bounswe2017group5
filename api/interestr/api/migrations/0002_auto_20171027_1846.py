@@ -13,15 +13,15 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('api', '0001_initial'),
+        ('api', '0010_datatemplate'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('data_templates', '0001_initial'),
     ]
 
     operations = [
         migrations.AddField(
             model_name='post',
             name='data_template',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='posts', to='data_templates.DataTemplate'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='posts', to='api.DataTemplate'),
         ),
         migrations.AddField(
             model_name='post',

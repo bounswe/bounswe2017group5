@@ -14,6 +14,9 @@ from django.contrib.auth import authenticate
 
 from django.views.decorators.csrf import csrf_exempt
 
+import urllib
+import json
+
 from . import serializers as core_serializers
 from .http import ErrorResponse
 
@@ -159,3 +162,11 @@ def memberGroupOperation(request, pk):
             group.save()
             serializer = core_serializers.GroupSerializer(group)
             return JsonResponse(serializer.data)
+
+def search_wikidata(request, limit=15):
+    searched_name = request.GET["name"]
+    url = "http://www.wikidata.org//w/api.php?action=wbsearchentities&format=json&search="+searched_name+"&language=en&type=item&limit="+str(limit)
+    response = urllib.request.urlopen(url)
+    data = json.loads(response.read())
+
+    return JsonResponse(data)

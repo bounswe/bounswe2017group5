@@ -9,7 +9,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('api', '0007_remove_post_content_url'),
+        ('api', '0006_auto_20171031_2019'),
     ]
 
     operations = [

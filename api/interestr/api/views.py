@@ -164,9 +164,17 @@ def memberGroupOperation(request, pk):
             return JsonResponse(serializer.data)
 
 def search_wikidata(request, limit=15):
+    """
+    Returns wikidata search results for the specified name in the requests GET field.
+    """
     searched_name = request.GET["name"]
     url = "http://www.wikidata.org//w/api.php?action=wbsearchentities&format=json&search="+searched_name+"&language=en&type=item&limit="+str(limit)
     response = urllib.request.urlopen(url)
     data = json.loads(response.read())
+    print(data)
+ 
+    data = data["search"]
+    fields = ('label', 'url','description', 'concepturi', 'created', 'updated')
+    data = [{k:tag_data[k] for k in fields if k in tag_data} for tag_data in data]
 
-    return JsonResponse(data)
+    return JsonResponse({"resuts":data})

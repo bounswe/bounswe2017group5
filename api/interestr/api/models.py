@@ -37,11 +37,11 @@ class ChoiceEnum(Enum):
 class Tag(BaseModel):
     label = models.CharField(max_length=40)
     url = models.SlugField()
-    concept_uri = models.SlugField(primary_key=True)
+    concepturi = models.SlugField(primary_key=True)
     description = models.TextField()
 
     def __str__(self):
-        return self.name,'(',self.url,')'
+        return self.label+'('+self.concepturi+')'
 
 class Group(BaseModel):
     name = models.CharField(max_length=40)

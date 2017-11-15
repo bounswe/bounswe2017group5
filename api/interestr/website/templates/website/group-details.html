@@ -98,7 +98,7 @@
         </div>
 
         <div class="buttons">
-          <div id="leaveJoinButton" class="btn btn-round btn-fill" onclick="leave_join_group(this)"></div>
+          <div id="leaveJoinButton" class="btn btn-round btn-fill" onclick="leave_join_group()"></div>
           <div class="btn btn-round">More ...</div>
 
           <script type="text/javascript">
@@ -120,17 +120,19 @@
 
             refresh_button();
 
-            function leave_join_group(btn) {
-              btn.disabled = true;
-              btn.innerHTML = buttonTextPending[isJoined];
+            function leave_join_group() {
+              if (!btn.disabled) {
+                btn.disabled = true;
+                btn.innerHTML = buttonTextPending[isJoined];
 
-              $.ajax({
-                method: isJoined ? 'DELETE' : 'PUT',
-                url: '{% url "api:groupOperation" group.id %}'
-              }).done(function (msg) {
-                isJoined = 1 - isJoined;
-                refresh_button();
-              });
+                $.ajax({
+                  method: isJoined ? 'DELETE' : 'PUT',
+                  url: '{% url "api:groupOperation" group.id %}'
+                }).done(function (msg) {
+                  isJoined = 1 - isJoined;
+                  refresh_button();
+                });
+              }
             }
           </script>
         </div>

@@ -97,11 +97,7 @@
         </div>
 
         <div class="buttons">
-          {% if user in group.members %}
-          <div class="btn btn-round btn-fill" onclick="">Leave Group</div>
-          {% else %}
-          <div class="btn btn-round btn-fill" onclick="{% group.members.add(user) %}">Join Group</div>
-          {% endif %}
+          <div class="btn btn-round btn-fill">Joined</div>
           <div class="btn btn-round">More ...</div>
         </div>
       </div>

@@ -167,7 +167,7 @@ def search_wikidata(request, limit=15):
     """
     Returns wikidata search results for the specified name in the requests GET field.
     """
-    searched_name = request.GET["name"]
+    searched_name = urllib.parse.quote_plus(request.GET["name"])
     url = "http://www.wikidata.org//w/api.php?action=wbsearchentities&format=json&search="+searched_name+"&language=en&type=item&limit="+str(limit)
     response = urllib.request.urlopen(url)
     data = json.loads(response.read())

@@ -62,6 +62,18 @@ class PostList(generics.ListCreateAPIView):
     queryset = core_models.Post.objects.all()
     serializer_class = core_serializers.PostSerializer
 
+class TagList(generics.ListCreateAPIView):
+    """
+    get:
+    Return a list of all the existing tags.
+
+    post:
+    Create a new data tag instance.
+    """
+    queryset = core_models.Tag.objects.all()
+    serializer_class = core_serializers.TagSerializer
+
+
 ### List Views END
 
 ### Detail Views BEGIN
@@ -118,6 +130,21 @@ class PostDetail(generics.RetrieveUpdateDestroyAPIView):
     """
     queryset = core_models.Post.objects.all()
     serializer_class = core_serializers.PostSerializer
+
+class TagDetail(generics.RetrieveUpdateDestroyAPIView):
+    """
+    get:
+    Return the details of the tag with the given id.
+
+    update:
+    Update the tag detail with the given id.
+
+    delete:
+    Delete the tag detail with the given id.
+    """
+    queryset = core_models.Tag.objects.all()
+    serializer_class = core_serializers.TagSerializer
+
 
 ### Detail Views END
 

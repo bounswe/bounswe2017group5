@@ -31,4 +31,4 @@ class TagSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = core_models.Tag
-        fields = ('label', 'url','description', 'concepturi', 'created', 'updated')
+        fields = ('id','label', 'url','description', 'concepturi', 'created', 'updated')

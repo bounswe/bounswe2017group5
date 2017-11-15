@@ -36,8 +36,8 @@ class ChoiceEnum(Enum):
 
 class Tag(BaseModel):
     label = models.CharField(max_length=40)
-    url = models.SlugField()
-    concepturi = models.SlugField(primary_key=True)
+    url = models.URLField()
+    concepturi = models.URLField(unique=True)
     description = models.TextField()
 
     def __str__(self):

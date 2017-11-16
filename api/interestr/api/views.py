@@ -172,15 +172,11 @@ def memberGroupOperation(request, pk):
     # get authenticated user.
     user = request.user
     if not user.is_authenticated():
-        # Do something for anonymous users.
-        # return JsonResponse({"patates":"ehe"})
         return HttpResponse(status=403)
-    # user = auth_models.User.objects.get(id=1)
 
     if request.method == 'PUT':
         if group.members.filter(id=user.id).count() == 1:
             # handle, user is already a member.
-            # return JsonResponse({"patates":"ehe"})
             return HttpResponse(status=410)
         else:
             group.members.add(user)
@@ -191,7 +187,6 @@ def memberGroupOperation(request, pk):
     elif request.method == 'DELETE':
         if group.members.filter(id=user.id).count() == 0:
             # handle, user isn't a member to begin with.
-            # return JsonResponse({"patates":"ehe"})
             return HttpResponse(status=410)
         else:
             group.members.remove(user)

@@ -7,13 +7,15 @@ class GroupSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = core_models.Group
-        fields = ('id', 'name', 'created', 'updated', 'size', 'members', 'picture', )
+        fields = ('id', 'name', 'created', 'updated', 'size', 'members', 'moderators', 'picture', )
 
 class UserSerializer(serializers.ModelSerializer):
+    joined_groups = GroupSerializer(many=True, read_only=True)
+    moderated_groups = GroupSerializer(many=True, read_only=True)
 
     class Meta:
         model = auth_models.User
-        fields = ('id', 'username', 'email',)
+        fields = ('id', 'username', 'email', 'joined_groups', 'moderated_groups', )
 
 class PostSerializer(serializers.ModelSerializer):
 

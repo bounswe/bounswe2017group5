@@ -31,7 +31,6 @@ ALLOWED_HOSTS = ['35.177.96.220']
 # Application definition
 
 INSTALLED_APPS = [
-    'data_templates.apps.DataTemplatesConfig',
     'strings.apps.StringsConfig',
     'api.apps.ApiConfig',
     'website.apps.WebsiteConfig',

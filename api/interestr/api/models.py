@@ -47,7 +47,7 @@ class Group(BaseModel):
     name = models.CharField(max_length=40)
     description = models.TextField(blank=True, default='')
     location = models.TextField(blank=True, default='')
-    tags = models.TextField(blank=True, default='')  # TODO change to list
+    tags = models.ManyToManyField(Tag, related_name='groups')
     is_private = models.BooleanField(blank=True, default=False)
     members = models.ManyToManyField(auth_models.User, related_name='joined_groups')
     moderators = models.ManyToManyField(auth_models.User, related_name='moderated_groups')

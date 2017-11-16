@@ -34,13 +34,12 @@
     <div class="col-md-3">
       <div class="row left-nav-block">
         <h5>YOUR GROUPS</h5>
-        <div class="btn btn-round btn-left-nav">
-          <span>Guitar Freaks</span><span>...</span>
-        </div>
 
-        <div class="btn btn-round btn-left-nav">
-          <span>Metal Music</span><span>...</span>
-        </div>
+        {% for group in user.moderated_groups.all %}
+          <div class="btn btn-round btn-left-nav">
+            <span>{{group.name}}</span><span>...</span>
+          </div>
+        {% endfor %}
 
         <div class="btn btn-round btn-left-nav">
           <strong>+ Create More Groups</strong>
@@ -52,25 +51,11 @@
       <div class="row left-nav-block">
         <h5>JOINED GROUPS</h5>
 
-        <div class="btn btn-round btn-left-nav">
-          <span>Guitar Freaks</span><span>...</span>
-        </div>
-
-        <div class="btn btn-round btn-left-nav">
-          <span>Metal Music</span><span>...</span>
-        </div>
-
-        <div class="btn btn-round btn-left-nav">
-          <span>Guitar Hero</span><span>...</span>
-        </div>
-
-        <div class="btn btn-round btn-left-nav">
-          <span>Video Games</span><span>...</span>
-        </div>
-
-        <div class="btn btn-round btn-left-nav">
-          <span>Alter Bridge Fans</span><span>...</span>
-        </div>
+        {% for group in user.joined_groups.all %}
+          <div class="btn btn-round btn-left-nav">
+            <span>{{group.name}}</span><span>...</span>
+          </div>
+        {% endfor %}
 
         <div class="btn btn-round btn-left-nav">
           <strong>+ Join More Groups</strong>
@@ -127,7 +112,10 @@
 
                 $.ajax({
                   method: isJoined ? 'DELETE' : 'PUT',
-                  url: '{% url "api:groupOperation" group.id %}'
+                  url: '{% url "api:groupOperation" group.id %}',
+                  beforeSend: function(xhr) {
+                    xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
+                  }
                 }).done(function (msg) {
                   isJoined = 1 - isJoined;
                   refresh_button();

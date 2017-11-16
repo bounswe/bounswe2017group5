@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 from rest_framework.authtoken.models import Token
 from rest_framework import generics
+from rest_framework.decorators import api_view
 from django.shortcuts import render
 
 from django.http import HttpResponse, JsonResponse
@@ -149,6 +150,7 @@ class TagDetail(generics.RetrieveUpdateDestroyAPIView):
 ### Detail Views END
 
 #@csrf_exempt
+@api_view(['PUT', 'DELETE'])
 def memberGroupOperation(request, pk):
     """
     Removes or adds the authenticated user from/to the group
@@ -190,15 +192,15 @@ def memberGroupOperation(request, pk):
             serializer = core_serializers.GroupSerializer(group)
             return JsonResponse(serializer.data)
 
+@api_view(['GET'])
 def search_wikidata(request, limit=15):
     """
     Returns wikidata search results for the specified name in the requests GET field.
     """
-    searched_name = urllib.parse.quote_plus(request.GET["name"])
+    searched_name = urllib.quote_plus(request.GET["name"])
     url = "http://www.wikidata.org//w/api.php?action=wbsearchentities&format=json&search="+searched_name+"&language=en&type=item&limit="+str(limit)
-    response = urllib.request.urlopen(url)
+    response = urllib.urlopen(url)
     data = json.loads(response.read())
-    print(data)
  
     data = data["search"]
     fields = ('label', 'url','description', 'concepturi', 'created', 'updated')

@@ -37,12 +37,12 @@
 
         {% for group in user.moderated_groups.all %}
           <div class="btn btn-round btn-left-nav">
-            <span>{{group.name}}</span><span>...</span>
+            <a href="{% url 'website:groups' group.id %}">{{group.name}}</a><span>...</span>
           </div>
         {% endfor %}
 
         <div class="btn btn-round btn-left-nav">
-          <strong>+ Create More Groups</strong>
+          <strong><a href="{% url 'website:create_group' %}">+ Create More Groups</a></strong>
         </div>
 
 
@@ -53,12 +53,12 @@
 
         {% for group in user.joined_groups.all %}
           <div class="btn btn-round btn-left-nav">
-            <span>{{group.name}}</span><span>...</span>
+            <a href="{% url 'website:group_details' group.id %}">{{group.name}}</a><span>...</span>
           </div>
         {% endfor %}
 
         <div class="btn btn-round btn-left-nav">
-          <strong>+ Join More Groups</strong>
+          <strong><a href="{% url 'website:groups' %}">+ Join More Groups</a></strong>
         </div>
       </div>
     </div>

@@ -1,6 +1,6 @@
 {% extends 'website/base.html' %}
 
-{% block title %}Create a new Group{% endblock title %}
+{% block title %}News Feed{% endblock %}
 
 {% block navbaritems %}
 <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
@@ -22,26 +22,27 @@
         <li><a href="{% url 'website:logout' %}">Logout</a></li>
       </ul>
     </li>
-
   </ul>
 </div>
-{% endblock navbaritems %}
+{% endblock %}
 
 {% block content %}
+
 <div class="main">
   <div class="container">
-    <div class="col-md-8">
-      <h1>Create A Group</h1>
-      <hr>
-      <form method='POST' enctype="multipart/form-data">
+    <h1>News Feed</h1>
+    <hr>
 
-      {% csrf_token %}
-
-      {{form.as_p}}
-      <button type="submit" class="btn btn-warning btn-fill btn-wide">Create</button>
-      <a href="{% url 'website:groups' %}" class="btn btn-fill btn-wide">Go Back</a>
-      </form>
+    <div class="news">
+      {% if object_list %}
+        {% for news_item in object_list %}
+        
+        {% endfor %}
+      {% else %}
+        No news to show!
+      {% endif %}
     </div>
   </div>
 </div>
-{% endblock content %}
+
+{% endblock %}

@@ -149,7 +149,6 @@ class TagDetail(generics.RetrieveUpdateDestroyAPIView):
 
 ### Detail Views END
 
-#@csrf_exempt
 @api_view(['PUT', 'DELETE'])
 def memberGroupOperation(request, pk):
     """

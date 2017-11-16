@@ -18,6 +18,7 @@
     <li class="dropdown">
       <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{ user.username }}<b class="caret"></b></a>
       <ul class="dropdown-menu">
+        <li><a href="{% url 'website:news' %}">News Feed</a></li>
         <li><a href="{% url 'website:groups' %}">Groups</a></li>
         <li class="divider"></li>
         <li><a href="{% url 'website:logout' %}">Logout</a></li>
@@ -88,7 +89,7 @@
               <h4>{{ group.name }}</h4>
             </div>
             <div class="group-member-count">
-              {{ group.members|length }} member{{ group.members|pluralize }}
+              {{ group.size }} member{{ group.size|pluralize }}
             </div>
             <div class="group-description">
               {{ group.description }}
@@ -97,8 +98,43 @@
         </div>
 
         <div class="buttons">
-          <div class="btn btn-round btn-fill">Joined</div>
+          <div id="leaveJoinButton" class="btn btn-round btn-fill" onclick="leave_join_group()"></div>
           <div class="btn btn-round">More ...</div>
+
+          <script type="text/javascript">
+            var isJoined = {{ is_joined|yesno:"1,0" }};
+            var buttonText = ['Join Group', 'Leave Group'];
+            var buttonTextPending = ['Joining...', 'Leaving...'];
+            var btn = document.getElementById('leaveJoinButton');
+
+            function refresh_button() {
+              btn.innerHTML = buttonText[isJoined];
+              if (!isJoined) {
+                btn.classList.add("btn-warning");
+              }
+              else {
+                btn.classList.remove("btn-warning");
+              }
+              btn.disabled = false;
+            }
+
+            refresh_button();
+
+            function leave_join_group() {
+              if (!btn.disabled) {
+                btn.disabled = true;
+                btn.innerHTML = buttonTextPending[isJoined];
+
+                $.ajax({
+                  method: isJoined ? 'DELETE' : 'PUT',
+                  url: '{% url "api:groupOperation" group.id %}'
+                }).done(function (msg) {
+                  isJoined = 1 - isJoined;
+                  refresh_button();
+                });
+              }
+            }
+          </script>
         </div>
       </div>
 

@@ -26,3 +26,9 @@ class DataTemplateSerializer(serializers.ModelSerializer):
     class Meta:
         model = core_models.DataTemplate
         fields = ('id', 'name', 'group', 'user', 'created', 'updated', 'fields' )
+
+class TagSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = core_models.Tag
+        fields = ('id','label', 'url','description', 'concepturi', 'created', 'updated')

@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 from rest_framework.authtoken.models import Token
 from rest_framework import generics
+from rest_framework.decorators import api_view
 from django.shortcuts import render
 
 from django.http import HttpResponse, JsonResponse
@@ -13,6 +14,9 @@ from django.contrib.auth import authenticate
 
 
 from django.views.decorators.csrf import csrf_exempt
+
+import urllib
+import json
 
 from . import serializers as core_serializers
 from .http import ErrorResponse
@@ -58,6 +62,18 @@ class PostList(generics.ListCreateAPIView):
     """
     queryset = core_models.Post.objects.all()
     serializer_class = core_serializers.PostSerializer
+
+class TagList(generics.ListCreateAPIView):
+    """
+    get:
+    Return a list of all the existing tags.
+
+    post:
+    Create a new data tag instance.
+    """
+    queryset = core_models.Tag.objects.all()
+    serializer_class = core_serializers.TagSerializer
+
 
 ### List Views END
 
@@ -116,9 +132,24 @@ class PostDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = core_models.Post.objects.all()
     serializer_class = core_serializers.PostSerializer
 
+class TagDetail(generics.RetrieveUpdateDestroyAPIView):
+    """
+    get:
+    Return the details of the tag with the given id.
+
+    update:
+    Update the tag detail with the given id.
+
+    delete:
+    Delete the tag detail with the given id.
+    """
+    queryset = core_models.Tag.objects.all()
+    serializer_class = core_serializers.TagSerializer
+
+
 ### Detail Views END
 
-@csrf_exempt
+@api_view(['PUT', 'DELETE'])
 def memberGroupOperation(request, pk):
     """
     Removes or adds the authenticated user from/to the group
@@ -159,3 +190,19 @@ def memberGroupOperation(request, pk):
             group.save()
             serializer = core_serializers.GroupSerializer(group)
             return JsonResponse(serializer.data)
+
+@api_view(['GET'])
+def search_wikidata(request, limit=15):
+    """
+    Returns wikidata search results for the specified name in the requests GET field.
+    """
+    searched_name = urllib.quote_plus(request.GET["name"])
+    url = "http://www.wikidata.org//w/api.php?action=wbsearchentities&format=json&search="+searched_name+"&language=en&type=item&limit="+str(limit)
+    response = urllib.urlopen(url)
+    data = json.loads(response.read())
+ 
+    data = data["search"]
+    fields = ('label', 'url','description', 'concepturi', 'created', 'updated')
+    data = [{k:tag_data[k] for k in fields if k in tag_data} for tag_data in data]
+
+    return JsonResponse({"resuts":data})

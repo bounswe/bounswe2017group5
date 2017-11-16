@@ -12,6 +12,10 @@ from django.contrib.auth import models as auth_models
 from . import models as core_models
 from django.contrib.auth import authenticate
 
+from .pagination import GroupLimitOffsetPagination
+from .pagination import PostLimitOffsetPagination
+from .pagination import UserLimitOffsetPagination
+from .pagination import DataTemplateLimitOffSetPagination
 
 from django.views.decorators.csrf import csrf_exempt
 
@@ -29,6 +33,7 @@ class UserList(generics.ListAPIView):
     """
     queryset = auth_models.User.objects.all()
     serializer_class = core_serializers.UserSerializer
+    pagination_class = UserLimitOffsetPagination
 
 class GroupList(generics.ListCreateAPIView):
     """
@@ -40,6 +45,7 @@ class GroupList(generics.ListCreateAPIView):
     """
     queryset = core_models.Group.objects.all()
     serializer_class = core_serializers.GroupSerializer
+    pagination_class = GroupLimitOffsetPagination
 
 class DataTemplateList(generics.ListCreateAPIView):
     """
@@ -51,6 +57,7 @@ class DataTemplateList(generics.ListCreateAPIView):
     """
     queryset = core_models.DataTemplate.objects.all()
     serializer_class = core_serializers.DataTemplateSerializer
+    pagination_class = DataTemplateLimitOffSetPagination
 
 class PostList(generics.ListCreateAPIView):
     """
@@ -62,6 +69,7 @@ class PostList(generics.ListCreateAPIView):
     """
     queryset = core_models.Post.objects.all()
     serializer_class = core_serializers.PostSerializer
+    pagination_class = PostLimitOffsetPagination
 
 class TagList(generics.ListCreateAPIView):
     """

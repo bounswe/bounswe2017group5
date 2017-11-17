@@ -148,7 +148,8 @@
           <ul class="dropdown-menu" role="menu" aria-labelledby="group-detail-content-block-dropdown">
             <li><a href="#">Default</a></li>
             <li><a href="#">Music Shop</a></li>
-            <li><a href="#"><strong>Add Template...</strong></a></li>
+            <li class="divider"></li>
+            <li><a href="#" data-toggle="modal" data-target="#createTemplateModal">+ Add new...</a></li>
           </ul>
         </div>
 
@@ -188,5 +189,240 @@
       {% endfor %}
     </div>
   </div>
+
+  <!-- Modal -->
+  <div class="modal fade" id="createTemplateModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Create a template</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form>
+            <div class="form-group row">
+              <label for="templateName" class="col-sm-2 col-form-label">Name</label>
+              <div class="col-sm-10">
+                <input type="text" class="form-control" id="templateName" value="">
+              </div>
+            </div>
+            <div id="templateFields"></div>
+            <div class="dropdown">
+              <button class="btn btn-primary dropdown-toggle" type="button" id="newFieldDropdownButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                +
+              </button>
+              <div class="dropdown-menu" id="newFieldDropdown" aria-labelledby="newFieldDropdownButton"></div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Dismiss</button>
+          <button type="button" class="btn btn-primary">Create!</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="text/javascript">
+    var fields;
+    var templateFieldTypes;
+    var dropdownItem;
+    var dropdown;
+
+    fields = document.getElementById('templateFields');
+
+    function createInputElement(type) {
+      var el;
+
+      if (type == 'textarea') {
+        el = document.createElement('textarea');
+      }
+      else {
+        el = document.createElement('input');
+        el.type = type;
+      }
+
+      return el;
+    }
+
+    function createTemplateField(type, inputs, legend = 'Field legend', legendIsLabel = false) {
+      var field;
+      var legendElem;
+      var input;
+      var inputElem;
+      var inputElemCount;
+      var label;
+      var labelElem;
+
+      field = document.createElement('div');
+      field.classList.add('form-group', 'row');
+      field.attributes['data-template-type'] = type;
+
+      if (legendIsLabel) {
+        legendElem = document.createElement('label');
+        legendElem.classList.add('col-form-label');
+      }
+      else {
+        legendElem = document.createElement('legend');
+        legendElem.classList.add('col-form-legend');
+      }
+      
+      legendElem.classList.add('col-sm-2');
+      legendElem.innerHTML = legend;
+      field.appendChild(legendElem);
+
+      inputElems = [];
+
+      for (input of inputs) {
+        for (label of input.labels) {
+          inputElem = createInputElement(input.type);
+
+          if (label.label) {
+            labelElem = document.createElement('label');
+            labelElem.appendChild(inputElem);
+
+            if (label.side == 'R') {
+              labelElem.insertAdjacentHTML('beforeend', label.label);
+            }
+            else if (label.side == 'L') {
+              labelElem.insertAdjacentHTML('afterbegin', label.label);
+            }
+
+            field.appendChild(labelElem);
+          }
+          else {
+            field.appendChild(inputElem);
+          }
+
+          inputElemCount++;
+        }
+      }
+
+      if (inputElemCount == 1 && legendIsLabel) {
+        legendElem.appendChild(labelElem || inputElem);
+      }
+
+      return field;
+    }
+
+    createCheckboxField.type = 'checkbox';
+    function createCheckboxField(legend = 'A question?', label = 'Agree') {
+      return createTemplateField(this.type,
+        [
+          {
+            type: 'checkbox',
+            labels:
+            [
+              {
+                label: label,
+                side: 'R'
+              }
+            ]
+          }
+        ],
+        legend);
+    }
+
+    createMultiselField.type = 'multiple-selection';
+    function createMultiselField(legend = 'There are...', labels = ['Birds', 'Trees', 'Fountains']) {
+      return createTemplateField(this.type,
+        [
+          {
+            type: 'checkbox',
+            labels: labels.map(
+              label =>
+              {
+                return {
+                  label: label,
+                  side: 'R'
+                };
+              })
+          }
+        ],
+        legend);
+    }
+
+    createTextareaField.type = 'textarea';
+    function createTextareaField(legend = 'Your feedback') {
+      return createTemplateField(this.type,
+        [
+          {
+            type: 'textarea',
+            labels:
+            [
+              {
+                label: false
+              }
+            ]
+          }
+        ],
+        legend,
+        true);
+    }
+
+    templateFieldTypes = {};
+
+    function registerTemplateField(creator, friendlyName) {
+      templateFieldTypes[creator.type] = {
+        friendlyName: friendlyName,
+        creator: creator
+      };
+    }
+
+    registerTemplateField(createCheckboxField, 'Checkbox');
+    registerTemplateField(createMultiselField, 'Multiple Selection');
+    registerTemplateField(createTextareaField, 'Text Area');
+
+    dropdown = document.getElementById('newFieldDropdown')
+
+    for (const type in templateFieldTypes) {
+      dropdownItem = document.createElement('button');
+      dropdownItem.classList.add('dropdown-item');
+      dropdownItem.type = 'button';
+
+      dropdownItem.innerHTML = templateFieldTypes[type].friendlyName;
+      dropdownItem.onclick = function (event) {
+        fields.appendChild(templateFieldTypes[type].creator());
+      }
+
+      dropdown.appendChild(dropdownItem);
+    }
+
+
+    /*
+
+<button class="dropdown-item" type="button">Action</button>
+
+checkbox        checkbox
+                multiple-selection
+color           color-pick
+date            date-pick
+datetime-local  datetime-pick
+
+email     
+file      
+hidden      
+image     
+month     
+number      
+password    
+Note      
+radio     
+range     
+reset     
+search      
+submit      
+tel       
+text      
+time      
+url       
+week      
+
+    */
+
+
+  </script>
 
 {% endblock content %}

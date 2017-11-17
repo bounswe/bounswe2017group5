@@ -230,7 +230,12 @@
     var templateFieldTypes;
     var dropdownItem;
     var dropdown;
+    var removeButton;
+    var removeSymbol;
+    var editTextInput;
+    var modal;
 
+    modal = document.getElementById('createTemplateModal');
     fields = document.getElementById('templateFields');
 
     function createInputElement(type) {
@@ -247,6 +252,48 @@
       return el;
     }
 
+    function replaceInputWithSpan() {
+      if (editTextInput) {
+        var span = makeChangableSpan(editTextInput.value);
+        editTextInput.parentNode.replaceChild(span, editTextInput);
+
+        editTextInput = null;
+      }
+    }
+
+    modal.onclick = function (evt) {
+      if (evt.target != editTextInput) {
+        replaceInputWithSpan();
+      }
+    };
+
+    function replaceSpanWithInput(span) {
+      replaceInputWithSpan();
+
+      editTextInput = document.createElement('input');
+      editTextInput.type = 'text';
+      editTextInput.value = span.innerHTML;
+
+      editTextInput.onkeypress = function (evt) {
+        if (event.key == 'Enter') replaceInputWithSpan(editTextInput);
+      };
+
+      span.parentNode.replaceChild(editTextInput, span);
+      editTextInput.focus();
+      editTextInput.select();
+    }
+
+    function makeChangableSpan(str) {
+      var span = document.createElement('span');
+      span.innerHTML = str;
+      span.onclick = function (evt) {
+        replaceSpanWithInput(span);
+        evt.stopPropagation();
+      };
+
+      return span;
+    }
+
     function createTemplateField(type, inputs, legend = 'Field legend', legendIsLabel = false) {
       var field;
       var legendElem;
@@ -255,6 +302,7 @@
       var inputElemCount;
       var label;
       var labelElem;
+      var text;
 
       field = document.createElement('div');
       field.classList.add('form-group', 'row');
@@ -270,7 +318,7 @@
       }
       
       legendElem.classList.add('col-sm-2');
-      legendElem.innerHTML = legend;
+      legendElem.appendChild(makeChangableSpan(legend));
       field.appendChild(legendElem);
 
       inputElems = [];
@@ -283,11 +331,13 @@
             labelElem = document.createElement('label');
             labelElem.appendChild(inputElem);
 
+            text = makeChangableSpan(label.label);
+
             if (label.side == 'R') {
-              labelElem.insertAdjacentHTML('beforeend', label.label);
+              labelElem.appendChild(text);
             }
             else if (label.side == 'L') {
-              labelElem.insertAdjacentHTML('afterbegin', label.label);
+              labelElem.insertBefore(text, inputElem);
             }
 
             field.appendChild(labelElem);
@@ -303,6 +353,25 @@
       if (inputElemCount == 1 && legendIsLabel) {
         legendElem.appendChild(labelElem || inputElem);
       }
+
+      // Following are for the removal button
+
+      removeButton = document.createElement('button');
+      removeButton.type = 'button';
+      removeButton.classList.add('close');
+      removeButton.attributes['data-dismiss'] = 'modal';
+      removeButton.attributes['aria-label'] = 'Remove';
+
+      removeSymbol = document.createElement('span');
+      removeSymbol.attributes['aria-hidden'] = 'true';
+      removeSymbol.innerHTML = '&times;';
+
+      removeButton.appendChild(removeSymbol);
+      removeButton.onclick = function (evt) {
+        field.remove();
+      }
+
+      field.appendChild(removeButton);
 
       return field;
     }

@@ -1,6 +1,7 @@
 package com.karacasoft.interestr.network;
 
 import com.karacasoft.interestr.network.models.Group;
+import com.karacasoft.interestr.network.models.User;
 
 import java.util.ArrayList;
 
@@ -11,6 +12,8 @@ import okhttp3.Response;
  */
 
 public interface InterestrAPI {
+
+    public void login(String username, String password, Callback<User> callback);
 
     public void getGroups(Callback<ArrayList<Group>> callback);
 

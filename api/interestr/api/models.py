@@ -65,17 +65,23 @@ class Group(BaseModel):
         else:
             return '/static/assets/img/group_default_icon.png'
 
-
 class Post(BaseModel):
     owner = models.ForeignKey(auth_models.User, related_name="posts", default=None, null=True)
     text = models.TextField(default='')
     group = models.ForeignKey(Group, related_name='posts', on_delete=models.CASCADE, default=None, null=True)
     data_template = models.ForeignKey('api.DataTemplate', related_name='posts', default=None, null=True)
     data = JSONField(default=None, null=True)
-
+     
     def __str__(self):
         return self.text
 
+class Comment(BaseModel):
+    owner = models.ForeignKey(auth_models.User, related_name="comments", default=None, null=True)
+    text = models.TextField(default='')
+    post = models.ForeignKey(Post, related_name='comments', on_delete=models.CASCADE, default=None, null=True)
+
+    def __str__(self):
+        return self.text
 
 class DataTemplate(BaseModel):
     name = models.CharField(max_length=40)

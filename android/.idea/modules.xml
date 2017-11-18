@@ -3,12 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/android.iml" filepath="$PROJECT_DIR$/android.iml" />
-      <module fileurl="file://$PROJECT_DIR$/app/build/generated/source/buildConfig/androidTest/androidTest.iml" filepath="$PROJECT_DIR$/app/build/generated/source/buildConfig/androidTest/androidTest.iml" />
-      <module fileurl="file://$PROJECT_DIR$/app/build/generated/source/r/androidTest/androidTest1.iml" filepath="$PROJECT_DIR$/app/build/generated/source/r/androidTest/androidTest1.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/app/build/generated/source/buildConfig/buildConfig.iml" filepath="$PROJECT_DIR$/app/build/generated/source/buildConfig/buildConfig.iml" />
-      <module fileurl="file://$PROJECT_DIR$/app/build/generated/source/r/r.iml" filepath="$PROJECT_DIR$/app/build/generated/source/r/r.iml" />
-      <module fileurl="file://$PROJECT_DIR$/app/build/intermediates/instant-run-support/debug/slice_4/slice_4.iml" filepath="$PROJECT_DIR$/app/build/intermediates/instant-run-support/debug/slice_4/slice_4.iml" />
     </modules>
   </component>
 </project>

@@ -39,7 +39,7 @@ public class GroupsFragment extends Fragment {
 
     private boolean detached = false;
 
-    private InterestrAPI.Callback groupsCallback = new InterestrAPI.Callback() {
+    private InterestrAPI.Callback<ArrayList<Group>> groupsCallback = new InterestrAPI.Callback<ArrayList<Group>>() {
         @Override
         public void onResult(InterestrAPIResult result) {
             if(detached) return;

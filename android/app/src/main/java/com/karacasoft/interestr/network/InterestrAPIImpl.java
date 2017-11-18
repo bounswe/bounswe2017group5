@@ -8,6 +8,7 @@ import android.util.Log;
 
 import com.karacasoft.interestr.R;
 import com.karacasoft.interestr.network.models.Group;
+import com.karacasoft.interestr.network.models.Token;
 import com.karacasoft.interestr.network.models.User;
 
 import org.json.JSONArray;
@@ -30,11 +31,13 @@ import okhttp3.ResponseBody;
 
 public class InterestrAPIImpl implements InterestrAPI {
 
+    private Token authToken;
+
     private static final String TAG = "InterestrAPI";
-private static final String API_HOME = "http://35.177.68.210/api/v1";
+    private static final String API_HOME = "http://35.177.96.220/api/v1";
 
     private static final String ENDPOINT_GROUPS = API_HOME + "/groups/";
-    private static final String ENDPOINT_LOGIN = API_HOME + "/users/";
+    private static final String ENDPOINT_LOGIN = API_HOME + "/login/";
 
     private static final String REQUEST_METHOD_GET = "GET";
     private static final String REQUEST_METHOD_POST = "POST";
@@ -48,19 +51,19 @@ private static final String API_HOME = "http://35.177.68.210/api/v1";
     private static OkHttpClient client;
 
     private Context mContext;
-    private Handler handler;
 
-    private HandlerThread networkThread;
+    private Handler handler;
     private Handler networkHandler;
 
     private ArrayList<APIJob> jobQueue = new ArrayList<>();
 
     public InterestrAPIImpl(Context context) {
         this.mContext = context;
-        handler = new Handler(Looper.getMainLooper());
 
-        networkThread = new HandlerThread("NETWORK_THREAD");
+        HandlerThread networkThread = new HandlerThread("NETWORK_THREAD");
         networkThread.start();
+
+        handler = new Handler(Looper.getMainLooper());
 
         networkHandler = new Handler(networkThread.getLooper());
     }
@@ -104,14 +107,50 @@ private static final String API_HOME = "http://35.177.68.210/api/v1";
         return getClient().newCall(request).execute();
     }
 
-
-
     private void runOnUiThread(Runnable runnable) {
         handler.post(runnable);
     }
 
+    public void authenticate(Token token) {
+        this.authToken = token;
+    }
+
     @Override
-    public void login(String username, String password, Callback<User> callback) {
+    public void login(String username, String password, Callback<Token> callback) {
+
+        JSONObject data = new JSONObject();
+
+        try {
+            data.put("username", username);
+            data.put("password", password);
+        } catch (JSONException e) {
+            // This should never happen.
+        }
+
+        APIJob<Token> job = new APIJob<Token>(REQUEST_METHOD_POST, ENDPOINT_LOGIN, data, callback) {
+            @Override
+            protected Token extractData(String data) {
+
+                Token token = null;
+
+                try {
+                    JSONObject obj = new JSONObject(data);
+
+                    token = new Token(obj.getString("token"));
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                return token;
+            }
+        };
+
+        jobQueue.add(job);
+        networkHandler.post(job);
+    }
+
+    @Override
+    public void signup(Callback<User> callback) {
 
     }
 
@@ -124,9 +163,9 @@ private static final String API_HOME = "http://35.177.68.210/api/v1";
                 ArrayList<Group> groups = new ArrayList<>();
 
                 try {
-                    JSONArray array = null;
+                    JSONObject object = new JSONObject(data);
 
-                    array = new JSONArray(data);
+                    JSONArray array = object.getJSONArray("results");
 
                     for (int i = 0; i < array.length(); i++) {
                         JSONObject obj = array.getJSONObject(i);
@@ -205,9 +244,9 @@ private static final String API_HOME = "http://35.177.68.210/api/v1";
 
         private synchronized void returnCallback(boolean error, T retObj, String errorMessage) {
             if(error) {
-                callback.onError(errorMessage);
+                runOnUiThread(() -> callback.onError(errorMessage));
             } else {
-                callback.onResult(new InterestrAPIResult<>(retObj));
+                runOnUiThread(() -> callback.onResult(new InterestrAPIResult<>(retObj)));
             }
         }
 

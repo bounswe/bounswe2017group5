@@ -18,10 +18,12 @@ class TagSerializer(serializers.ModelSerializer):
 class GroupSerializer(serializers.ModelSerializer):
     data_templates = DataTemplateSerializer(many=True, read_only=True)
     tags = TagSerializer(many=True, read_only=True)
+    members = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
+    moderators = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
 
     class Meta:
         model = core_models.Group
-        fields = ('id', 'name', 'created', 'updated', 'size', 'members', 'moderators', 'picture', 'data_templates',
+        fields = ('id', 'name', 'created', 'updated', 'size', 'members', 'location', 'description', 'moderators', 'picture', 'data_templates',
                   'tags', )
 class CommentSerializer(serializers.ModelSerializer):
 

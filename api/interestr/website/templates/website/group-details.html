@@ -108,7 +108,7 @@
             var btn = document.getElementById('leaveJoinButton');
 
             function refresh_button() {
-              btn.innerHTML = buttonText[isJoined];
+              btn.textContent = buttonText[isJoined];
               if (!isJoined) {
                 btn.classList.add("btn-warning");
               }
@@ -123,7 +123,7 @@
             function leave_join_group() {
               if (!btn.disabled) {
                 btn.disabled = true;
-                btn.innerHTML = buttonTextPending[isJoined];
+                btn.textContent = buttonTextPending[isJoined];
 
                 $.ajax({
                   method: isJoined ? 'DELETE' : 'PUT',
@@ -139,24 +139,21 @@
       </div>
 
       <div class="group-detail-content-create-block">
-        <div class="dropdown">
-          <button class="btn btn-round dropdown-toggle" type="button" id="group-detail-content-block-dropdown"
-            data-toggle="dropdown">
-            Default
-            <b class="caret"></b>
-          </button>
-          <ul class="dropdown-menu" role="menu" aria-labelledby="group-detail-content-block-dropdown">
-            <li><a href="#">Default</a></li>
-            <li><a href="#">Music Shop</a></li>
-            <li class="divider"></li>
-            <li><a href="#" data-toggle="modal" data-target="#createTemplateModal">+ Add new...</a></li>
-          </ul>
-        </div>
+        <select id="templateSelection" class="custom-select">
+          <option selected>Default</option>
+          {% for template in group.data_templates.all %}
+            <option value="{{ template.id }}">{{ template.name }}</option>
+          {% endfor %}
+        </select>       
+
+        <button class="btn btn-primary btn-round dropdown-toggle" type="button" data-toggle="modal" data-target="#createTemplateModal">Create New</button>
+        <button class="btn btn-success btn-round dropdown-toggle" type="button" data-toggle="modal" data-target="#createTemplateModal">Extend This</button>
+        <button class="btn btn-danger btn-round dropdown-toggle" type="button" data-toggle="modal" data-target="#createTemplateModal">Edit This</button>
 
         <form method="POST" class="group-detail-content-form">
           {% csrf_token %}
           {{ form.non_field_errors }}
-          <div class="form-group">
+          <div id="formFields" class="form-group">
             <label for="name">Text: </label>
             <input type="text" class="form-control" id="text" name="{{ post_create_form.text.name }}" placeholder="Text of the post">
             {{ form.text.errors }}
@@ -219,7 +216,7 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Dismiss</button>
-          <button type="button" class="btn btn-primary">Create!</button>
+          <button id="templateSubmitButton" type="button" class="btn btn-primary">Create!</button>
         </div>
       </div>
     </div>
@@ -233,12 +230,19 @@
     var removeButton;
     var removeSymbol;
     var editTextInput;
+    var editTextInputInitial;
     var modal;
+    var submitButton;
+    var templateName;
+    var templateSelection;
 
     modal = document.getElementById('createTemplateModal');
     fields = document.getElementById('templateFields');
+    submitButton = document.getElementById('templateSubmitButton');
+    templateName = document.getElementById('templateName');
+    templateSelection = document.getElementById('templateSelection');
 
-    function createInputElement(type) {
+    function type2Input(type) {
       var el;
 
       if (type == 'textarea') {
@@ -252,17 +256,23 @@
       return el;
     }
 
+    function input2type(input) {
+      return input.tagName == 'TEXTAREA' ? 'textarea' : input.type;
+    }
+
     function replaceInputWithSpan() {
       if (editTextInput) {
-        var span = makeChangableSpan(editTextInput.value);
+        var span = makeChangableSpan(editTextInput.value || editTextInputInitial);
         editTextInput.parentNode.replaceChild(span, editTextInput);
 
         editTextInput = null;
+
+        modal.focus();
       }
     }
 
-    modal.onclick = function (evt) {
-      if (evt.target != editTextInput) {
+    modal.onclick = function (event) {
+      if (event.target != editTextInput) {
         replaceInputWithSpan();
       }
     };
@@ -270,11 +280,13 @@
     function replaceSpanWithInput(span) {
       replaceInputWithSpan();
 
+      editTextInputInitial = span.textContent;
+
       editTextInput = document.createElement('input');
       editTextInput.type = 'text';
-      editTextInput.value = span.innerHTML;
+      editTextInput.value = editTextInputInitial;
 
-      editTextInput.onkeypress = function (evt) {
+      editTextInput.onkeypress = function (event) {
         if (event.key == 'Enter') replaceInputWithSpan(editTextInput);
       };
 
@@ -283,166 +295,158 @@
       editTextInput.select();
     }
 
-    function makeChangableSpan(str) {
+    function makeChangableSpan(str, editable = true) {
       var span = document.createElement('span');
-      span.innerHTML = str;
-      span.onclick = function (evt) {
-        replaceSpanWithInput(span);
-        evt.stopPropagation();
-      };
+      span.textContent = str;
+
+      if (editable) {
+        span.onclick = function (event) {
+          replaceSpanWithInput(span);
+          event.stopPropagation();
+        };
+        // span.onkeydown = function (event) {
+        //   if (event.key == 'Enter') replaceInputWithSpan(span);
+        // }
+        span.tabIndex = '1';
+      }
 
       return span;
     }
 
-    function createTemplateField(type, inputs, legend = 'Field legend', legendIsLabel = false) {
-      var field;
-      var legendElem;
+    function createTemplateField(editable, type, inputs, legend = 'Field legend') {
       var input;
-      var inputElem;
-      var inputElemCount;
       var label;
+      var inputElemCount;
+      
+      var fieldElem;
+      var legendElem;
+      var inputElem;
       var labelElem;
       var text;
+      var inputContainer;
 
-      field = document.createElement('div');
-      field.classList.add('form-group', 'row');
-      field.attributes['data-template-type'] = type;
+      fieldElem = document.createElement('div');
+      fieldElem.classList.add('form-group', 'row');
+      fieldElem.attributes['data-template-type'] = type;
 
-      if (legendIsLabel) {
-        legendElem = document.createElement('label');
-        legendElem.classList.add('col-form-label');
-      }
-      else {
-        legendElem = document.createElement('legend');
-        legendElem.classList.add('col-form-legend');
-      }
-      
-      legendElem.classList.add('col-sm-2');
-      legendElem.appendChild(makeChangableSpan(legend));
-      field.appendChild(legendElem);
+      legendElem = document.createElement('label');
+      legendElem.classList.add('col-form-legend', 'col-sm-2');
+      legendElem.appendChild(makeChangableSpan(legend, editable));
+      fieldElem.appendChild(legendElem);
 
-      inputElems = [];
+      inputElemCount = 0;
 
+      inputContainer = document.createElement('div');
       for (input of inputs) {
-        for (label of input.labels) {
-          inputElem = createInputElement(input.type);
+        inputElem = type2Input(input.type);
 
-          if (label.label) {
-            labelElem = document.createElement('label');
-            labelElem.appendChild(inputElem);
-
-            text = makeChangableSpan(label.label);
-
-            if (label.side == 'R') {
-              labelElem.appendChild(text);
-            }
-            else if (label.side == 'L') {
-              labelElem.insertBefore(text, inputElem);
-            }
-
-            field.appendChild(labelElem);
+        if (input.label) {
+          labelElem = document.createElement('label');
+          labelElem.appendChild(inputElem);
+        
+          text = makeChangableSpan(input.label, editable);
+          if (input.side == 'R') {
+            labelElem.appendChild(text);
           }
-          else {
-            field.appendChild(inputElem);
+          else if (input.side == 'L') {
+            labelElem.insertBefore(text, inputElem);
           }
 
-          inputElemCount++;
+          inputContainer.appendChild(labelElem);
         }
+        else {
+          inputContainer.appendChild(inputElem);
+        }
+
+        inputElemCount++;
+      }
+      fieldElem.appendChild(inputContainer);
+
+      function uniqueID() {
+        var id = '_' + Math.random().toString(36).substr(2, 9);
+
+        return document.getElementById(id) == null ? id : uniqueID();
       }
 
-      if (inputElemCount == 1 && legendIsLabel) {
-        legendElem.appendChild(labelElem || inputElem);
+      if (inputElemCount == 1) {
+        (/*labelElem || */inputElem).id = legendElem.htmlFor = uniqueID();
       }
 
       // Following are for the removal button
+      if (editable) {
+        removeButton = document.createElement('button');
+        removeButton.type = 'button';
+        removeButton.classList.add('close');
+        removeButton.attributes['data-dismiss'] = 'modal';
+        removeButton.attributes['aria-label'] = 'Remove';
 
-      removeButton = document.createElement('button');
-      removeButton.type = 'button';
-      removeButton.classList.add('close');
-      removeButton.attributes['data-dismiss'] = 'modal';
-      removeButton.attributes['aria-label'] = 'Remove';
+        removeSymbol = document.createElement('span');
+        removeSymbol.attributes['aria-hidden'] = 'true';
+        removeSymbol.innerHTML = '&times;';
 
-      removeSymbol = document.createElement('span');
-      removeSymbol.attributes['aria-hidden'] = 'true';
-      removeSymbol.innerHTML = '&times;';
+        removeButton.appendChild(removeSymbol);
+        removeButton.onclick = function (event) {
+          fieldElem.remove();
+        }
 
-      removeButton.appendChild(removeSymbol);
-      removeButton.onclick = function (evt) {
-        field.remove();
+        fieldElem.appendChild(removeButton);
       }
 
-      field.appendChild(removeButton);
-
-      return field;
+      return fieldElem;
     }
 
-    createCheckboxField.type = 'checkbox';
     function createCheckboxField(legend = 'A question?', label = 'Agree') {
-      return createTemplateField(this.type,
+      return createTemplateField(true, this.type,
         [
           {
             type: 'checkbox',
-            labels:
-            [
-              {
-                label: label,
-                side: 'R'
-              }
-            ]
+            label: label,
+            side: 'R'
           }
         ],
         legend);
     }
 
-    createMultiselField.type = 'multiple-selection';
     function createMultiselField(legend = 'There are...', labels = ['Birds', 'Trees', 'Fountains']) {
-      return createTemplateField(this.type,
-        [
+      return createTemplateField(true, this.type,
+        labels.map(
+          label =>
           {
-            type: 'checkbox',
-            labels: labels.map(
-              label =>
-              {
-                return {
-                  label: label,
-                  side: 'R'
-                };
-              })
+            return {
+              type: 'checkbox',
+              label: label,
+              side: 'R'
+            };
           }
-        ],
+        ),
         legend);
     }
 
-    createTextareaField.type = 'textarea';
     function createTextareaField(legend = 'Your feedback') {
-      return createTemplateField(this.type,
+      return createTemplateField(true, this.type,
         [
           {
             type: 'textarea',
-            labels:
-            [
-              {
-                label: false
-              }
-            ]
+            label: false
           }
         ],
-        legend,
-        true);
+        legend);
     }
 
     templateFieldTypes = {};
 
-    function registerTemplateField(creator, friendlyName) {
-      templateFieldTypes[creator.type] = {
+    function registerTemplateField(type, creator, friendlyName) {
+      templateFieldTypes[type] = {
         friendlyName: friendlyName,
         creator: creator
       };
+
+      creator.type = type;
     }
 
-    registerTemplateField(createCheckboxField, 'Checkbox');
-    registerTemplateField(createMultiselField, 'Multiple Selection');
-    registerTemplateField(createTextareaField, 'Text Area');
+    registerTemplateField('checkbox', createCheckboxField, 'Checkbox');
+    registerTemplateField('multisel', createMultiselField, 'Multiple Selection');
+    registerTemplateField('textarea', createTextareaField, 'Text Area');
 
     dropdown = document.getElementById('newFieldDropdown')
 
@@ -451,14 +455,118 @@
       dropdownItem.classList.add('dropdown-item');
       dropdownItem.type = 'button';
 
-      dropdownItem.innerHTML = templateFieldTypes[type].friendlyName;
+      dropdownItem.textContent = templateFieldTypes[type].friendlyName;
       dropdownItem.onclick = function (event) {
-        fields.appendChild(templateFieldTypes[type].creator());
+        var field = templateFieldTypes[type].creator();
+        fields.appendChild(field);
+        field.firstChild.firstChild.focus();
       }
 
       dropdown.appendChild(dropdownItem);
     }
 
+    function toJSON() {
+      var field;
+      var fieldObject;
+      var fieldElem;
+      var templateObject;
+      var i, j;
+      var input;
+      var labelIndex;
+
+      templateObject = {
+        name: templateName.value,
+        group: '{{ group.id }}',
+        user: '{{ user.id }}',
+        fields: []
+      };
+
+      for (field of fields.childNodes) {
+        fieldObject = {
+          type: field.attributes['data-template-type'],
+          legend: field.childNodes[0].textContent,
+          inputs: []
+        };
+
+        for (fieldElem of field.childNodes[1].childNodes) {
+          if (fieldElem.tagName == 'LABEL') {
+            labelIndex = (fieldElem.childNodes[1] == 'SPAN') * 1;
+
+            input = {
+              type: input2type(fieldElem.childNodes[1 - labelIndex]),
+              label: fieldElem.childNodes[labelIndex].textContent,
+              side: labelIndex == 0 ? 'L' : 'R',
+            };
+          }
+          else {
+            input = {
+              type: input2type(fieldElem),
+              label: false
+            };
+          }
+
+          fieldObject.inputs.push(input);
+        }
+
+        templateObject.fields.push(fieldObject);
+      }
+      
+      return templateObject;
+    }
+
+    function fromJSON(templateObject) {
+      
+    }
+
+    submitButton.onclick = function (event) {
+      var data;
+
+      if (!submitButton.disabled) {
+        submitButton.disabled = true;
+
+        replaceInputWithSpan();
+        data = toJSON();
+        data.csrfmiddlewaretoken = '{{ csrf_token }}';
+        data.fields = JSON.stringify(data.fields);
+
+        $.ajax({
+          method: 'POST',
+          url: '{% url "api:datatemplates" %}',
+          data: data
+        }).done(function (msg) {
+          location.reload();
+        }).fail(function (msg) {
+          alert(msg.responseText);
+        }).always(function (msg) {
+          submitButton.disabled = false;
+        });
+      }
+    }
+
+    function updateTemplate() {
+      var templateID = templateSelection.value;
+      $.ajax({
+        method: 'GET',
+        url: '{% url "api:datatemplatedetail" 12345 %}'.replace(/12345/, templateID.toString())
+      }).done(function (templateData) {
+        var formFields;
+        var field;
+
+        if (templateData.group == {{ group.id }}) {
+          formFields = document.getElementById('formFields');
+          
+          while (formFields.firstChild) {
+            formFields.removeChild(formFields.firstChild);
+          }
+
+          for (field of templateData.fields) {
+            formFields.appendChild(createTemplateField(false, field.type, field.inputs, field.legend));
+          }
+        }
+      });
+    }
+
+    templateSelection.onchange = updateTemplate;
 
     /*
 

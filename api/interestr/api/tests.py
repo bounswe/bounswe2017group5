@@ -52,56 +52,64 @@ class PostTests(TestCase):
 
 
 class GroupTests(TestCase):
+
     def setUp(self):
         self.client = APIClient()
-        self.user_pass = 'Qq12341234'
-        self.test_user1 = User.objects.create_user('user', 'e@mail.com', self.user_pass)
-        self.test_user2 = User.objects.create_user('iser', 'g@mail.com', self.user_pass)
-        self.test_group = Group.objects.create(name="grupce", description="boyband")
+        self.test_user1 = User.objects.create_user('user', 'e@mail.com', '1234')
+        self.test_user2 = User.objects.create_user('iser', 'g@mail.com', '4321')
+        self.test_group = Group.objects.create(name = "grupce", description="boyband")
 
     def test_1_add_users_to_group(self):
-        self.client.login(username='user', password=self.user_pass)
-        response = self.client.put('/api/v1/users/groups/1/', follow=True)
-        self.assertEqual(response.status_code, 200)
+        self.client.login(username= 'user', password='1234')
+        test_group_id = self.test_group.id
+        test_url = '/api/v1/users/groups/' + str(test_group_id) + '/'
+        response = self.client.put(test_url, follow=True)
         json_response = json.loads(response.content)
+
+        self.assertEqual(response.status_code, 200)
         self.assertEqual(json_response['name'], 'grupce')
         self.assertEqual(json_response['size'], 1)
 
-        self.client.login(username='iser', password=self.user_pass)
-        response = self.client.put('/api/v1/users/groups/1/', follow=True)
+        self.client.login(username= 'iser', password='4321')
+        response = self.client.put(test_url, follow=True)
         json_response = json.loads(response.content)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(json_response['name'], 'grupce')
         self.assertEqual(json_response['size'], 2)
 
     def test_2_add_existing_user_to_group(self):
-        self.client.login(username='user', password=self.user_pass)
-        response = self.client.put('/api/v1/users/groups/2/', follow=True)
-        response = self.client.put('/api/v1/users/groups/2/', follow=True)
+        self.test_group.members.add(self.test_user1)
+        self.client.login(username= 'user', password='1234')
+        test_group_id = self.test_group.id
+        test_url = '/api/v1/users/groups/' + str(test_group_id) + '/'
+        response = self.client.put(test_url, follow=True)
         self.assertEqual(response.status_code, 410)
 
-    def test_3_add_users_to_group(self):
+    def test_3_remove_users_to_group(self):
         # add 2 users, remove the last one.
-        self.client.login(username='user', password=self.user_pass)
-        response = self.client.put('/api/v1/users/groups/3/', follow=True)
-        self.client.login(username='iser', password=self.user_pass)
-        response = self.client.put('/api/v1/users/groups/3/', follow=True)
-        response = self.client.delete('/api/v1/users/groups/3/', follow=True)
+        self.test_group.members.add(self.test_user1)
+        self.test_group.members.add(self.test_user2)
+        test_group_id = self.test_group.id
+        test_url = '/api/v1/users/groups/' + str(test_group_id) + '/'       
+        
+        self.client.login(username= 'user', password='1234')
+        response = self.client.delete(test_url, follow=True)
         self.assertEqual(response.status_code, 200)
         json_response = json.loads(response.content)
         self.assertEqual(json_response['name'], 'grupce')
         self.assertEqual(json_response['size'], 1)
 
+
     def test_4_remove_nonexistant_users_from_group(self):
-        # add user1
-        self.client.login(username='user', password=self.user_pass)
-        self.client.put('/api/v1/users/groups/4/', follow=True)
+        #adds 1 user, tries to remove the other.
+        self.test_group.members.add(self.test_user1)
+        test_group_id = self.test_group.id
+        test_url = '/api/v1/users/groups/' + str(test_group_id) + '/'       
 
-        # try to remove user2
-        self.client.login(username='iser', password=self.user_pass)
-        response = self.client.delete('/api/v1/users/groups/4/', follow=True)
+        self.client.login(username= 'iser', password='4321')
+        response = self.client.delete(test_url, follow=True)
 
-        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.status_code, 410)
 
 
 class DataTemplateTests(TestCase):

@@ -61,14 +61,14 @@ class GroupTests(TestCase):
 
     def test_1_add_users_to_group(self):
         self.client.login(username='user', password=self.user_pass)
-        response = self.client.put('/api/v1/users/groups/1/', follow=True)
+        response = self.client.put('/api/v1/users/groups/'+ str(self.test_group.id) +'/', follow=True)
         self.assertEqual(response.status_code, 200)
         json_response = json.loads(response.content)
         self.assertEqual(json_response['name'], 'grupce')
         self.assertEqual(json_response['size'], 1)
 
         self.client.login(username='iser', password=self.user_pass)
-        response = self.client.put('/api/v1/users/groups/1/', follow=True)
+        response = self.client.put('/api/v1/users/groups/'+ str(self.test_group.id) +'/', follow=True)
         json_response = json.loads(response.content)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(json_response['name'], 'grupce')
@@ -76,17 +76,17 @@ class GroupTests(TestCase):
 
     def test_2_add_existing_user_to_group(self):
         self.client.login(username='user', password=self.user_pass)
-        response = self.client.put('/api/v1/users/groups/2/', follow=True)
-        response = self.client.put('/api/v1/users/groups/2/', follow=True)
+        response = self.client.put('/api/v1/users/groups/'+ str(self.test_group.id) +'/', follow=True)
+        response = self.client.put('/api/v1/users/groups/'+ str(self.test_group.id) +'/', follow=True)
         self.assertEqual(response.status_code, 410)
 
     def test_3_add_users_to_group(self):
         # add 2 users, remove the last one.
         self.client.login(username='user', password=self.user_pass)
-        response = self.client.put('/api/v1/users/groups/3/', follow=True)
+        response = self.client.put('/api/v1/users/groups/'+ str(self.test_group.id) +'/', follow=True)
         self.client.login(username='iser', password=self.user_pass)
-        response = self.client.put('/api/v1/users/groups/3/', follow=True)
-        response = self.client.delete('/api/v1/users/groups/3/', follow=True)
+        response = self.client.put('/api/v1/users/groups/'+ str(self.test_group.id) +'/', follow=True)
+        response = self.client.delete('/api/v1/users/groups/'+ str(self.test_group.id) +'/', follow=True)
         self.assertEqual(response.status_code, 200)
         json_response = json.loads(response.content)
         self.assertEqual(json_response['name'], 'grupce')
@@ -95,13 +95,13 @@ class GroupTests(TestCase):
     def test_4_remove_nonexistant_users_from_group(self):
         # add user1
         self.client.login(username='user', password=self.user_pass)
-        self.client.put('/api/v1/users/groups/4/', follow=True)
+        self.client.put('/api/v1/users/groups/'+ str(self.test_group.id) +'/', follow=True)
 
         # try to remove user2
         self.client.login(username='iser', password=self.user_pass)
-        response = self.client.delete('/api/v1/users/groups/4/', follow=True)
+        response = self.client.delete('/api/v1/users/groups/'+ str(self.test_group.id) +'/', follow=True)
 
-        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.status_code, 410)
 
 
 class DataTemplateTests(TestCase):

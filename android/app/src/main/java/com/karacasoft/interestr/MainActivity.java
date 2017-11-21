@@ -16,6 +16,7 @@ import android.view.MenuItem;
 
 import com.karacasoft.interestr.network.models.Group;
 import com.karacasoft.interestr.pages.groups.GroupsFragment;
+import com.karacasoft.interestr.pages.login.LoginFragment;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
@@ -51,7 +52,7 @@ public class MainActivity extends AppCompatActivity
         // Fragment operations
         FragmentManager fm = getSupportFragmentManager();
         fm.beginTransaction()
-                .replace(R.id.content, GroupsFragment.newInstance(1))
+                .replace(R.id.content, LoginFragment.newInstance(1))
                 .commit();
 
 

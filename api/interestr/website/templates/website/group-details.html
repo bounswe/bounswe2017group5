@@ -128,7 +128,6 @@
 
       <div class="group-detail-content-create-block">
         <select id="templateSelection" class="custom-select">
-          <option selected>Default</option>
           {% for template in group.data_templates.all %}
             <option value="{{ template.id }}">{{ template.name }}</option>
           {% endfor %}
@@ -141,10 +140,12 @@
         <form method="POST" class="group-detail-content-form">
           {% csrf_token %}
           {{ form.non_field_errors }}
-          <div id="formFields" class="form-group">
-            <label for="name">Text: </label>
-            <input type="text" class="form-control" id="text" name="{{ post_create_form.text.name }}" placeholder="Text of the post">
-            {{ form.text.errors }}
+          <div id="formFields">
+            <div class="form-group">
+              <label for="name">Text: </label>
+              <input type="text" class="form-control" id="text" name="{{ post_create_form.text.name }}" placeholder="Text of the post">
+              {{ form.text.errors }}
+            </div>
           </div>
 
           <div class="text-right">
@@ -223,29 +224,56 @@
     var submitButton;
     var templateName;
     var templateSelection;
+    var defaultTemplateOption;
+    var formFields;
+    var defaultTemplateFields;
 
     modal = document.getElementById('createTemplateModal');
     fields = document.getElementById('templateFields');
     submitButton = document.getElementById('templateSubmitButton');
     templateName = document.getElementById('templateName');
     templateSelection = document.getElementById('templateSelection');
+    formFields = document.getElementById('formFields');
 
-    function type2Input(type) {
+    function type2Input(type, options) {
       var el;
+      var opt;
+      var optEl;
 
       if (type == 'textarea') {
         el = document.createElement('textarea');
+        el.classList.add('form-control');
+      }
+      else if (type == 'select') {
+        el = document.createElement('select');
+        for (opt of options) {
+          optEl = document.createElement('option');
+          optEl.textContent = opt;
+
+          el.appendChild(optEl);
+        }
       }
       else {
         el = document.createElement('input');
         el.type = type;
+        if (type == 'checkbox') {
+          el.classList.add('form-check-input');
+        }
       }
 
       return el;
     }
 
     function input2type(input) {
-      return input.tagName == 'TEXTAREA' ? 'textarea' : input.type;
+      inputTag = input.tagName.toLowerCase();
+
+      switch (inputTag) {
+        case 'textarea':
+        case 'select':
+          return inputTag;
+        default:
+          return input.type;
+      }
     }
 
     function replaceInputWithSpan() {
@@ -324,7 +352,16 @@
 
       inputElemCount = 0;
 
+/*
+<div class="form-group" id="formFields">
+            <label for="name">Text: </label>
+            <input name="text" class="form-control" id="text" type="text" placeholder="Text of the post">
+            
+          </div>
+*/
+
       inputContainer = document.createElement('div');
+      inputContainer.classList.add('col-sm-10');
       for (input of inputs) {
         inputElem = type2Input(input.type);
 
@@ -384,7 +421,7 @@
     }
 
     function createCheckboxField(legend = 'A question?', label = 'Agree') {
-      return createTemplateField(true, this.type,
+      return createTemplateField(true, createCheckboxField.type,
         [
           {
             type: 'checkbox',
@@ -396,7 +433,7 @@
     }
 
     function createMultiselField(legend = 'There are...', labels = ['Birds', 'Trees', 'Fountains']) {
-      return createTemplateField(true, this.type,
+      return createTemplateField(true, createMultiselField.type,
         labels.map(
           label =>
           {
@@ -411,7 +448,7 @@
     }
 
     function createTextareaField(legend = 'Your feedback') {
-      return createTemplateField(true, this.type,
+      return createTemplateField(true, createTextareaField.type,
         [
           {
             type: 'textarea',
@@ -453,57 +490,45 @@
       dropdown.appendChild(dropdownItem);
     }
 
-    function toJSON() {
-      var field;
-      var fieldObject;
-      var fieldElem;
-      var templateObject;
-      var i, j;
-      var input;
-      var labelIndex;
+    function input2JSON(input) {
+      var si;
 
-      templateObject = {
+      if (input.tagName == 'LABEL') {
+        si = (input.childNodes[1].tagName == 'SPAN') * 1;
+
+        return {
+          type: input2type(input.childNodes[1 - si]),
+          label: input.childNodes[si].textContent,
+          side: si == 0 ? 'L' : 'R',
+        };
+      }
+      else {
+        return {
+          type: input2type(input),
+          label: false
+        };
+      }
+    }
+
+    function field2JSON(field) {
+      return {
+        type: field.attributes['data-template-type'],
+        legend: field.childNodes[0].textContent,
+        inputs: Array.from(field.childNodes[1].childNodes).map(
+            input => input2JSON(input)
+          )
+      };
+    }
+
+    function toJSON() {
+      return {
         name: templateName.value,
         group: '{{ group.id }}',
         user: '{{ user.id }}',
-        fields: []
+        fields: Array.from(fields.childNodes).map(
+            field => field2JSON(field)
+          )
       };
-
-      for (field of fields.childNodes) {
-        fieldObject = {
-          type: field.attributes['data-template-type'],
-          legend: field.childNodes[0].textContent,
-          inputs: []
-        };
-
-        for (fieldElem of field.childNodes[1].childNodes) {
-          if (fieldElem.tagName == 'LABEL') {
-            labelIndex = (fieldElem.childNodes[1] == 'SPAN') * 1;
-
-            input = {
-              type: input2type(fieldElem.childNodes[1 - labelIndex]),
-              label: fieldElem.childNodes[labelIndex].textContent,
-              side: labelIndex == 0 ? 'L' : 'R',
-            };
-          }
-          else {
-            input = {
-              type: input2type(fieldElem),
-              label: false
-            };
-          }
-
-          fieldObject.inputs.push(input);
-        }
-
-        templateObject.fields.push(fieldObject);
-      }
-      
-      return templateObject;
-    }
-
-    function fromJSON(templateObject) {
-      
     }
 
     submitButton.onclick = function (event) {
@@ -531,31 +556,46 @@
       }
     }
 
+    function updateFormFields(fields) {
+      var field;
+
+      while (formFields.firstChild) {
+        formFields.removeChild(formFields.firstChild);
+      }
+
+      for (field of fields) {
+        formFields.appendChild(createTemplateField(false, field.type, field.inputs, field.legend));
+      }
+    }
+
     function updateTemplate() {
       var templateID = templateSelection.value;
-      $.ajax({
-        method: 'GET',
-        url: '{% url "api:datatemplatedetail" 12345 %}'.replace(/12345/, templateID.toString())
-      }).done(function (templateData) {
-        var formFields;
-        var field;
 
-        if (templateData.group == {{ group.id }}) {
-          formFields = document.getElementById('formFields');
-          
-          while (formFields.firstChild) {
-            formFields.removeChild(formFields.firstChild);
+      if (templateID == defaultTemplateOption.value) {
+        updateFormFields(defaultTemplateFields);
+      }
+      else {
+        $.ajax({
+          method: 'GET',
+          url: '{% url "api:datatemplatedetail" 12345 %}'.replace(/12345/, templateID.toString())
+        }).done(function (templateData) {
+          if (templateData.group == {{ group.id }}) {            
+            updateFormFields(templateData.fields);
           }
-
-          for (field of templateData.fields) {
-            formFields.appendChild(createTemplateField(false, field.type, field.inputs, field.legend));
-          }
-        }
-      });
+        });
+      }
     }
 
     templateSelection.onchange = updateTemplate;
 
+    defaultTemplateOption = document.createElement('option');
+    defaultTemplateOption.value = '-1';
+    defaultTemplateOption.textContent = 'Default';
+
+    templateSelection.insertBefore(defaultTemplateOption, templateSelection.firstChild);
+    templateSelection.selectedIndex = 0;
+
+    defaultTemplateFields = [field2JSON(templateFieldTypes['textarea'].creator('Text'))];
     /*
 
 <button class="dropdown-item" type="button">Action</button>

@@ -19,8 +19,8 @@ urlpatterns = [
     url(r'^data_templates/$', views.DataTemplateList.as_view(), name='datatemplates'),
     url(r'^data_templates/(?P<pk>\d+)/$', views.DataTemplateDetail.as_view(), name='datatemplatedetail'),
     url(r'^groups/$', views.GroupList.as_view(), name='groups'),
-    url(r'^groups/(?P<pk>\d+)/$', views.GroupDetail.as_view(), name='groupDetail'),
+    url(r'^groups/(?P<pk>\d+)/$', views.GroupDetail.as_view(), name='groupdetail'),
 
-    url(r'^users/groups/(?P<pk>\d+)/$', views.memberGroupOperation, name='groupOperation'),
+    url(r'^users/groups/(?P<pk>\d+)/$', views.MemberGroupOperation.as_view(), name='groupoperation'),
     url(r'^search_wiki/$', views.search_wikidata),
 ]

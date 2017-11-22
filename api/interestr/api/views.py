@@ -4,7 +4,11 @@ from __future__ import unicode_literals
 from rest_framework.authtoken.models import Token
 from rest_framework import generics
 from rest_framework.decorators import api_view
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
+
 from django.shortcuts import render
+
 
 from django.http import HttpResponse, JsonResponse
 
@@ -181,42 +185,26 @@ class CommentDetail(generics.RetrieveUpdateDestroyAPIView):
 
 ### Detail Views END
 
-@api_view(['PUT', 'DELETE'])
-def memberGroupOperation(request, pk):
-    """
-    Removes or adds the authenticated user from/to the group
-    whose id is pk.
-    """
-    #check auth
-    try:
+class MemberGroupOperation(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def put(self, request, pk):
         group = core_models.Group.objects.get(pk=pk)
-    except core_models.Group.DoesNotExist:
-        return HttpResponse(status=404)
-
-    # get authenticated user.
-    user = request.user
-    if not user.is_authenticated():
-        return HttpResponse(status=403)
-
-    if request.method == 'PUT':
-        if group.members.filter(id=user.id).count() == 1:
-            # handle, user is already a member.
+        # handle, user is already a member.
+        if group.members.filter(id=request.user.id).count() == 1:
             return HttpResponse(status=410)
-        else:
-            group.members.add(user)
-            group.save()
-            serializer = core_serializers.GroupSerializer(group)
-            return JsonResponse(serializer.data)
+        group.members.add(request.user);    group.save()
+        serializer = core_serializers.GroupSerializer(group)
+        return JsonResponse(serializer.data)
 
-    elif request.method == 'DELETE':
-        if group.members.filter(id=user.id).count() == 0:
-            # handle, user isn't a member to begin with.
+    def delete(self, request, pk):
+        group = core_models.Group.objects.get(pk=pk)
+        # handle, user isn't a member to begin with.
+        if group.members.filter(id=request.user.id).count() == 0:
             return HttpResponse(status=410)
-        else:
-            group.members.remove(user)
-            group.save()
-            serializer = core_serializers.GroupSerializer(group)
-            return JsonResponse(serializer.data)
+        group.members.remove(request.user); group.save()
+        serializer = core_serializers.GroupSerializer(group)
+        return JsonResponse(serializer.data)
 
 @api_view(['GET'])
 def search_wikidata(request, limit=15):

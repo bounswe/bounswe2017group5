@@ -227,5 +227,7 @@ def recommend_groups(user, limit=2):
     candidates = [group for group in groups if group not in users_groups]
     candidates = sorted(candidates, key=lambda group: total_distance(group, users_groups))
 
+    limit = min(len(candidates),limit)
+
     return candidates[:limit]
 

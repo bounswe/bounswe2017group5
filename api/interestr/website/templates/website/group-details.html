@@ -112,7 +112,7 @@
 
                 $.ajax({
                   method: isJoined ? 'DELETE' : 'PUT',
-                  url: '{% url "api:groupOperation" group.id %}',
+                  url: '{% url "api:groupoperation" group.id %}',
                   beforeSend: function(xhr) {
                     xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
                   }

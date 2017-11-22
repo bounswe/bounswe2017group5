@@ -209,3 +209,23 @@ def search_wikidata(request, limit=15):
     data = [{k:tag_data[k] for k in fields if k in tag_data} for tag_data in data]
 
     return JsonResponse({"resuts":data})
+
+
+def recommend_groups(user, limit=2):
+    def distance(group1, group2):
+        members1 = group1.members.all().values_list('id', flat=True)
+        members2 = group2.members.all().values_list('id', flat=True)
+        
+        return len(members1) + len(members2) - 2*len(members1 & members2)
+
+    def total_distance(group, group_list):
+        return sum(list(map(lambda group2: distance(group,group2), group_list)))
+    
+    groups = core_models.Group.objects.all()
+    users_groups = user.joined_groups.all()
+
+    candidates = [group for group in groups if group not in users_groups]
+    candidates = sorted(candidates, key=lambda group: total_distance(group, users_groups))
+
+    return candidates[:limit]
+

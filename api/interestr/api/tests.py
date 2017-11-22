@@ -9,6 +9,9 @@ from .models import Post
 from .models import Group
 from .models import DataTemplate
 
+from .views import recommend_groups
+
+
 from rest_framework.authtoken.models import Token
 
 import json
@@ -136,6 +139,46 @@ class DataTemplateTests(TestCase):
         self.assertEqual(response.status_code, 204)
         response = self.client.get('/api/v1/data_templates/' + str(self.test_data_template.id) + '/')
         self.assertEqual(response.status_code, 404)
+
+class RecommendationTests(TestCase):
+    def setUp(self):
+        self.test_user1 = User.objects.create_user('ramazan', 'ramazan@wow.com', 'wowpass123')
+        self.test_user2 = User.objects.create_user('murat', 'murat@wow.com', 'wowpass123')
+        self.test_user3 = User.objects.create_user('mahmut', 'mahmut@wow.com', 'wowpass123')
+        self.test_user4 = User.objects.create_user('enes', 'enes@wow.com', 'wowpass123')
+        self.test_user5 = User.objects.create_user('orbay', 'orbay@wow.com', 'wowpass123')
+
+        self.test_group1 = Group.objects.create(name="Chess Fans", description="All about chess.")
+        self.test_group2 = Group.objects.create(name="Classic Music Lovers", description="Every thing related to classic music.")
+        self.test_group3 = Group.objects.create(name="History Junkies", description="History is simply past.")
+        self.test_group4 = Group.objects.create(name="Amateur Basketball", description="Keep the amateur spirit.")
+        self.test_group5 = Group.objects.create(name="Heavy Lifting", description="Let's lift!")
+
+        self.test_group1.members.add(self.test_user1, self.test_user4)
+        self.test_group2.members.add(self.test_user1, self.test_user2)
+
+    def test_length(self):
+        recommendations=recommend_groups(self.test_user3, 4)
+        self.assertEqual(len(recommendations), 4)
+
+    def test_type(self):
+        recommendations=recommend_groups(self.test_user3, 3)
+        for recommendation in recommendations:
+            self.assertEqual(recommendation.__class__.__name__,"Group")
+    
+    def test_quality(self):
+        self.test_group3.members.add(self.test_user2, self.test_user4)
+        self.test_group4.members.add(self.test_user3, self.test_user5)
+        self.test_group5.members.add(self.test_user1, self.test_user5)
+
+        recommendations=recommend_groups(self.test_user4, 3)
+        best_recommendations = [self.test_group2,self.test_group5,self.test_group4]
+        for i in range(3):
+            self.assertEqual(recommendations[i],best_recommendations[i])
+
+
+
+
 
 
 class ApiDocTests(TestCase):

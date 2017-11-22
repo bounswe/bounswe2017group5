@@ -47,10 +47,10 @@ class Group(BaseModel):
     name = models.CharField(max_length=40)
     description = models.TextField(blank=True, default='')
     location = models.TextField(blank=True, default='')
-    tags = models.ManyToManyField(Tag, related_name='groups')
+    tags = models.ManyToManyField(Tag, blank=True, related_name='groups')
     is_private = models.BooleanField(blank=True, default=False)
-    members = models.ManyToManyField(auth_models.User, related_name='joined_groups')
-    moderators = models.ManyToManyField(auth_models.User, related_name='moderated_groups')
+    members = models.ManyToManyField(auth_models.User, blank=True, related_name='joined_groups')
+    moderators = models.ManyToManyField(auth_models.User, blank=True, related_name='moderated_groups')
     picture = models.ImageField(blank=True, null=True)
 
     def __str__(self):

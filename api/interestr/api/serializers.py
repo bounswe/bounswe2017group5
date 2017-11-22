@@ -21,8 +21,9 @@ class GroupSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = core_models.Group
-        fields = ('id', 'name', 'created', 'updated', 'size', 'members', 'moderators', 'picture', 'data_templates',
-                  'tags', )
+        fields = ('id', 'name', 'created', 'updated', 'size', 'members',
+         'moderators', 'picture', 'data_templates', 'tags', )
+        read_only_fields = ('members', 'moderators',)
 
 class UserSerializer(serializers.ModelSerializer):
     joined_groups = GroupSerializer(many=True, read_only=True)

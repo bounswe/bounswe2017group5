@@ -11,6 +11,9 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.karacasoft.interestr.R;
+import com.karacasoft.interestr.network.InterestrAPI;
+import com.karacasoft.interestr.network.InterestrAPIImpl;
+import com.karacasoft.interestr.network.InterestrAPIResult;
 import com.karacasoft.interestr.network.models.User;
 
 import java.util.ArrayList;
@@ -27,6 +30,8 @@ public class SignUpFragment extends Fragment {
     private TextView message;
     private View root;
     private ArrayList<User> users ;
+    private OnSignupSuccessfulListener onSignupSuccessfulListener;
+    private InterestrAPI api;
 
     public SignUpFragment() {
         // Required empty public constructor
@@ -49,7 +54,8 @@ public class SignUpFragment extends Fragment {
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        validated(username.getText().toString(),email.getText().toString(),pass1.getText().toString(),pass2.getText().toString());
+                        api.signup(username.getText().toString(),email.getText().toString(),
+                                pass1.getText().toString(),pass2.getText().toString(),signupCallBack);
                         }
                 }
         );
@@ -57,26 +63,34 @@ public class SignUpFragment extends Fragment {
         return root;
     }
 
-    private boolean validated(String username,String email, String pass1, String pass2){
-        if (users.contains(new User(username))){//not sure
-            message.setText("username is already taken.");
-        }else if(!isEmailValid((CharSequence) email)){
-            message.setText("invalid email.");
-        }else if(pass1.length()<8){
-            message.setText("password is too short.");
-        }else if(!pass1.equals(pass2)){
-            message.setText("passwords does not match.");
-        }else{
-            User newUser = new User(username,pass1,email);
-            message.setText("User is successfully registered.");
-            users.add(newUser);
-            return true;
-        }
-        return false;
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        api = new InterestrAPIImpl(getContext());
     }
 
-    private boolean isEmailValid(CharSequence email) {
-        return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches();
+    public static SignUpFragment newInstance(int columnCount) {
+        SignUpFragment fragment = new SignUpFragment();
+        Bundle args = new Bundle();
+        return fragment;
+    }
+
+    private InterestrAPI.Callback<User> signupCallBack = new InterestrAPI.Callback<User>() {
+        @Override
+        public void onResult(InterestrAPIResult<User> result) {
+            if(onSignupSuccessfulListener!=null){
+                onSignupSuccessfulListener.onSignupSuccessful(result.get());
+            }
+        }
+
+        @Override
+        public void onError(String error_message) {
+
+        }
+    };
+
+    public interface OnSignupSuccessfulListener{
+        void onSignupSuccessful(User user);
     }
 
 }

@@ -150,8 +150,8 @@ public class InterestrAPIImpl implements InterestrAPI {
     }
 
     @Override
-    public void signup(Callback<User> callback) {
-
+    public void signup(String username, String email, String pass1, String pass2,Callback<User> callback) {
+        //TODO
     }
 
     @Override

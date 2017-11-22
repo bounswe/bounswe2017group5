@@ -10,6 +10,10 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.karacasoft.interestr.R;
+import com.karacasoft.interestr.network.InterestrAPI;
+import com.karacasoft.interestr.network.InterestrAPIImpl;
+import com.karacasoft.interestr.network.InterestrAPIResult;
+import com.karacasoft.interestr.network.models.Token;
 import com.karacasoft.interestr.network.models.User;
 
 import java.util.ArrayList;
@@ -25,7 +29,9 @@ public class LoginFragment extends Fragment {
     private TextView message;
     private View root;
     private ArrayList<User> users;
+    private OnLoginSuccessfulListener onLoginSuccessfulListener;
 
+    private InterestrAPI api;
 
     public LoginFragment() {
         // Required empty public constructor
@@ -46,7 +52,8 @@ public class LoginFragment extends Fragment {
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        validated(username.getText().toString(),password.getText().toString());
+                        //validated(username.getText().toString(),password.getText().toString());
+                        api.login(username.getText().toString(),password.getText().toString(),loginCallBack);
                     }
                 }
         );
@@ -59,15 +66,32 @@ public class LoginFragment extends Fragment {
         Bundle args = new Bundle();
         return fragment;
     }
-
-
-    private boolean validated(String username, String password){
-        if (users.contains(new User(username,password))){//not sure if this check is correct? //TODO check
-            message.setText("");
-            return true;
-        }else{
-            message.setText("invalid username or password!");
-            return false;
-        }
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        api = new InterestrAPIImpl(getContext());
     }
+
+    private InterestrAPI.Callback<Token>  loginCallBack = new InterestrAPI.Callback<Token>() {
+        @Override
+        public void onResult(InterestrAPIResult<Token> result) {
+            if(onLoginSuccessfulListener != null) {
+                onLoginSuccessfulListener.onLoginSuccessful(result.get());
+            }
+        }
+
+        @Override
+        public void onError(String error_message) {
+
+        }
+    };
+
+    public void setOnLoginSuccessfulListener(OnLoginSuccessfulListener onLoginSuccessfulListener) {
+        this.onLoginSuccessfulListener = onLoginSuccessfulListener;
+    }
+
+    public interface OnLoginSuccessfulListener{
+        void onLoginSuccessful(Token token);
+    }
+
 }

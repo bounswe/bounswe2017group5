@@ -15,12 +15,16 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.karacasoft.interestr.network.models.Group;
+import com.karacasoft.interestr.network.models.Token;
+import com.karacasoft.interestr.network.models.User;
 import com.karacasoft.interestr.pages.groups.GroupsFragment;
 import com.karacasoft.interestr.pages.login.LoginFragment;
+import com.karacasoft.interestr.pages.newsfeed.NewsFeedFragment;
+import com.karacasoft.interestr.pages.signup.SignUpFragment;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
-        GroupsFragment.OnListFragmentInteractionListener{
+        GroupsFragment.OnListFragmentInteractionListener,LoginFragment.OnLoginSuccessfulListener,SignUpFragment.OnSignupSuccessfulListener{
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,7 +58,6 @@ public class MainActivity extends AppCompatActivity
         fm.beginTransaction()
                 .replace(R.id.content, LoginFragment.newInstance(1))
                 .commit();
-
 
     }
 
@@ -118,5 +121,22 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onListFragmentInteraction(Group item) {
 
+    }
+
+    @Override
+    public void onLoginSuccessful(Token token) {
+        FragmentManager fm = getSupportFragmentManager();
+        fm.beginTransaction()
+                .replace(R.id.content, NewsFeedFragment.newInstance(1))
+                .commit();
+    }
+
+
+    @Override
+    public void onSignupSuccessful(User user) {
+        FragmentManager fm = getSupportFragmentManager();
+        fm.beginTransaction()
+                .replace(R.id.content,LoginFragment.newInstance(1))
+                .commit();
     }
 }

@@ -85,8 +85,7 @@ class GroupTests(TestCase):
         response = self.client.put(test_url, follow=True)
         self.assertEqual(response.status_code, 410)
 
-    def test_3_remove_users_to_group(self):
-        # add 2 users, remove the last one.
+    def test_3_remove_users_from_group(self):
         self.test_group.members.add(self.test_user1)
         self.test_group.members.add(self.test_user2)
         test_group_id = self.test_group.id
@@ -101,7 +100,6 @@ class GroupTests(TestCase):
 
 
     def test_4_remove_nonexistant_users_from_group(self):
-        #adds 1 user, tries to remove the other.
         self.test_group.members.add(self.test_user1)
         test_group_id = self.test_group.id
         test_url = '/api/v1/users/groups/' + str(test_group_id) + '/'       

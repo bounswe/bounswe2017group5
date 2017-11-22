@@ -56,7 +56,7 @@ public class MainActivity extends AppCompatActivity
         // Fragment operations
         FragmentManager fm = getSupportFragmentManager();
         fm.beginTransaction()
-                .replace(R.id.content, LoginFragment.newInstance(1))
+                .replace(R.id.content, LoginFragment.newInstance())
                 .commit();
 
     }
@@ -136,7 +136,7 @@ public class MainActivity extends AppCompatActivity
     public void onSignupSuccessful(User user) {
         FragmentManager fm = getSupportFragmentManager();
         fm.beginTransaction()
-                .replace(R.id.content,LoginFragment.newInstance(1))
+                .replace(R.id.content,LoginFragment.newInstance())
                 .commit();
     }
 }

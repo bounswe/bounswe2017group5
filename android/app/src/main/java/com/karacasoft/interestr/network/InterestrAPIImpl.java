@@ -118,14 +118,17 @@ public class InterestrAPIImpl implements InterestrAPI {
 
     @Override
     public void login(String username, String password, Callback<Token> callback) {
-
+        Log.d("APIImpl login","login is called");
         JSONObject data = new JSONObject();
 
         try {
             data.put("username", username);
             data.put("password", password);
+            Log.d("APIImpl login","login data are put successfully");
+
         } catch (JSONException e) {
             // This should never happen.
+            Log.d("APIImpl login","this just happened, login JSON error");
         }
 
         APIJob<Token> job = new APIJob<Token>(REQUEST_METHOD_POST, ENDPOINT_LOGIN, data, callback) {

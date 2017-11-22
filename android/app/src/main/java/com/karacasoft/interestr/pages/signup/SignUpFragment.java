@@ -8,7 +8,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 
 import com.karacasoft.interestr.R;
 import com.karacasoft.interestr.network.InterestrAPI;
@@ -27,7 +26,6 @@ public class SignUpFragment extends Fragment {
     private EditText pass1;
     private EditText pass2;
     private Button signup;
-    private TextView message;
     private View root;
     private ArrayList<User> users ;
     private OnSignupSuccessfulListener onSignupSuccessfulListener;
@@ -48,7 +46,6 @@ public class SignUpFragment extends Fragment {
         pass1 = root.findViewById(R.id.etPass);
         pass2= root.findViewById(R.id.etConfirmPass);
         signup= root.findViewById(R.id.btnSignup);
-        message= root.findViewById(R.id.tvSignupMsg);
 
         signup.setOnClickListener(
                 new View.OnClickListener() {
@@ -69,9 +66,10 @@ public class SignUpFragment extends Fragment {
         api = new InterestrAPIImpl(getContext());
     }
 
-    public static SignUpFragment newInstance(int columnCount) {
+    public static SignUpFragment newInstance() {
         SignUpFragment fragment = new SignUpFragment();
         Bundle args = new Bundle();
+        fragment.setArguments(args);
         return fragment;
     }
 

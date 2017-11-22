@@ -84,6 +84,26 @@ class DataTemplate(BaseModel):
                              null=True)
     fields = JSONField()
 
+[
+    {
+        "label" : "wow",
+        "type" : "checkbox",
+    },
+    {
+        "label" : "Choose one:",
+        "type" : "multiple-select",
+        "selections" : [
+            "0" : "Choice 1",
+            "1" : "Choice 2",
+            "2" : "Choice 3",
+        ]
+    },
+    {
+        "label" : "Birthday",
+        "type" : "date",
+    }
+]
+
     def __str__(self):
         return self.name
 

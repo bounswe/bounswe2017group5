@@ -21,6 +21,8 @@ public interface InterestrAPI {
 
     public void getGroupDetail(int group_id, Callback<Group> callback);
 
+    public void authenticate(Token token);
+
     public interface Callback<T extends Object> {
         public void onResult(InterestrAPIResult<T> result);
         public void onError(String error_message);

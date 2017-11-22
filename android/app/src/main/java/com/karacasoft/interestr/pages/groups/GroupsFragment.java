@@ -16,6 +16,7 @@ import com.karacasoft.interestr.network.InterestrAPI;
 import com.karacasoft.interestr.network.InterestrAPIImpl;
 import com.karacasoft.interestr.network.InterestrAPIResult;
 import com.karacasoft.interestr.network.models.Group;
+import com.karacasoft.interestr.network.models.Token;
 
 import java.util.ArrayList;
 
@@ -125,7 +126,6 @@ public class GroupsFragment extends Fragment {
         detached = false;
 
         api.getGroups(groupsCallback);
-
     }
 
     @Override

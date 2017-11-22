@@ -111,6 +111,7 @@ public class InterestrAPIImpl implements InterestrAPI {
         handler.post(runnable);
     }
 
+    @Override
     public void authenticate(Token token) {
         this.authToken = token;
     }

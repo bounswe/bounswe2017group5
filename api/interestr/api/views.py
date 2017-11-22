@@ -17,6 +17,8 @@ from .pagination import PostLimitOffsetPagination
 from .pagination import UserLimitOffsetPagination
 from .pagination import DataTemplateLimitOffSetPagination
 
+from django.db.models import Q
+
 from django.views.decorators.csrf import csrf_exempt
 
 import urllib
@@ -31,9 +33,17 @@ class UserList(generics.ListAPIView):
     """
     Return a list of all the existing users.
     """
-    queryset = auth_models.User.objects.all()
     serializer_class = core_serializers.UserSerializer
     pagination_class = UserLimitOffsetPagination
+
+    def get_queryset(self, *args, **kwargs):
+        query_list = auth_models.User.objects.all()
+        query = self.request.GET.get("q")
+        if query:
+            query_list = query_list.filter(
+                Q(username__icontains=query)
+            ).distinct()
+        return query_list
 
 class GroupList(generics.ListCreateAPIView):
     """
@@ -43,9 +53,17 @@ class GroupList(generics.ListCreateAPIView):
     post:
     Create a new group instance.
     """
-    queryset = core_models.Group.objects.all()
     serializer_class = core_serializers.GroupSerializer
     pagination_class = GroupLimitOffsetPagination
+
+    def get_queryset(self, *args, **kwargs):
+        query_list = core_models.Group.objects.all()
+        query = self.request.GET.get("q")
+        if query:
+            query_list = query_list.filter(
+                Q(name__icontains=query)
+            ).distinct()
+        return query_list
 
 class DataTemplateList(generics.ListCreateAPIView):
     """

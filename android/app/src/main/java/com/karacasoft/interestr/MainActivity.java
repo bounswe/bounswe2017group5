@@ -17,6 +17,7 @@ import android.view.MenuItem;
 import com.karacasoft.interestr.network.models.Group;
 import com.karacasoft.interestr.network.models.Token;
 import com.karacasoft.interestr.network.models.User;
+import com.karacasoft.interestr.pages.data_templates.DataTemplateCreatorFragment;
 import com.karacasoft.interestr.pages.groups.GroupsFragment;
 import com.karacasoft.interestr.pages.login.LoginFragment;
 import com.karacasoft.interestr.pages.newsfeed.NewsFeedFragment;
@@ -24,7 +25,9 @@ import com.karacasoft.interestr.pages.signup.SignUpFragment;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
-        GroupsFragment.OnListFragmentInteractionListener,LoginFragment.OnLoginSuccessfulListener,SignUpFragment.OnSignupSuccessfulListener{
+        GroupsFragment.OnListFragmentInteractionListener,
+        LoginFragment.OnLoginSuccessfulListener,
+        SignUpFragment.OnSignupSuccessfulListener{
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

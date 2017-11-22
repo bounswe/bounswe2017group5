@@ -9,7 +9,7 @@ import java.util.ArrayList;
 
 public class Template implements Serializable {
     private String name;
-    private ArrayList<TemplateField> fields;
+    private ArrayList<TemplateField> fields = new ArrayList<>();
 
     public String getName() {
         return name;

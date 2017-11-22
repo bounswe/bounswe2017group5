@@ -12,6 +12,8 @@ import android.widget.Button;
 
 import com.karacasoft.interestr.R;
 import com.karacasoft.interestr.pages.data_templates.data.Template;
+import com.karacasoft.interestr.pages.data_templates.data.TemplateField;
+import com.karacasoft.interestr.pages.data_templates.data.dummy.DummyValues;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -26,6 +28,8 @@ public class DataTemplateCreatorFragment extends Fragment {
 
     private Template template;
     private boolean createNewTemplate;
+
+    private DataTemplateRecyclerViewAdapter fieldListAdapter;
 
     public DataTemplateCreatorFragment() {
         // Required empty public constructor
@@ -60,9 +64,10 @@ public class DataTemplateCreatorFragment extends Fragment {
 
         if(args != null) {
             if(args.getBoolean(ARG_CREATE_NEW_TEMPLATE)) {
-                this.template = new Template();
+                this.template = DummyValues.getDummyTemplate();
+            } else {
+                this.template = (Template) args.getSerializable(ARG_TEMPLATE);
             }
-
         }
     }
 
@@ -72,12 +77,11 @@ public class DataTemplateCreatorFragment extends Fragment {
         View v = inflater.inflate(R.layout.fragment_data_template_creator, container, false);
 
         fieldList = v.findViewById(R.id.fields_list);
+        fieldListAdapter = new DataTemplateRecyclerViewAdapter(template.getFields());
+
+        fieldList.setAdapter(fieldListAdapter);
 
         return v;
-    }
-
-    public void renderTemplate() {
-
     }
 
 }

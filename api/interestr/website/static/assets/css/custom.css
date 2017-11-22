@@ -190,3 +190,20 @@ small {
   width: 64px;
   height: 64px;
 }
+
+
+.flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.template-input-container {
+  display: flex;
+  justify-content: space-between;
+  flex-flow: row wrap;
+}
+
+.template-input-container label:not(:last-child) {
+  margin-right: 5px;
+}

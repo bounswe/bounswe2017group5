@@ -158,10 +158,16 @@ class RecommendationTests(TestCase):
         self.test_group2.members.add(self.test_user1, self.test_user2)
 
     def test_length(self):
+        self.test_group5.members.add(self.test_user5, self.test_user4)
+        self.test_group4.members.add(self.test_user5, self.test_user2)
+        
         recommendations=recommend_groups(self.test_user3, 4)
         self.assertEqual(len(recommendations), 4)
 
     def test_type(self):
+        self.test_group5.members.add(self.test_user5, self.test_user4)
+        self.test_group4.members.add(self.test_user5, self.test_user3)
+
         recommendations=recommend_groups(self.test_user3, 3)
         for recommendation in recommendations:
             self.assertEqual(recommendation.__class__.__name__,"Group")
@@ -170,15 +176,12 @@ class RecommendationTests(TestCase):
         self.test_group3.members.add(self.test_user2, self.test_user4)
         self.test_group4.members.add(self.test_user3, self.test_user5)
         self.test_group5.members.add(self.test_user1, self.test_user5)
-
+        
         recommendations=recommend_groups(self.test_user4, 3)
+        # as user3 has two co-members in group2, one in group5, zero in group4
         best_recommendations = [self.test_group2,self.test_group5,self.test_group4]
         for i in range(3):
             self.assertEqual(recommendations[i],best_recommendations[i])
-
-
-
-
 
 
 class ApiDocTests(TestCase):

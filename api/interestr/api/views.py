@@ -212,21 +212,35 @@ def search_wikidata(request, limit=15):
 
 
 def recommend_groups(user, limit=2):
+    """
+    Returns recommended groups on the basis of the other groups of the 
+    users that the given user has a common group.
+    """
     def distance(group1, group2):
+        """
+        Calculates the distance between groups based on how much they 
+        'agree' on their members
+        """
         members1 = group1.members.all().values_list('id', flat=True)
         members2 = group2.members.all().values_list('id', flat=True)
         
         return len(members1) + len(members2) - 2*len(members1 & members2)
 
     def total_distance(group, group_list):
+        """
+        Sum of all distances a group has to groups from a list
+        """
         return sum(list(map(lambda group2: distance(group,group2), group_list)))
     
     groups = core_models.Group.objects.all()
     users_groups = user.joined_groups.all()
 
+    #list of groups that the user is not a member of.
     candidates = [group for group in groups if group not in users_groups]
+    #sort candidate groups according to their similarities to users current groups
     candidates = sorted(candidates, key=lambda group: total_distance(group, users_groups))
 
+    #in case there are not enough candidates as the requested number
     limit = min(len(candidates),limit)
 
     return candidates[:limit]

@@ -647,6 +647,7 @@
 
     function selectTemplate(id, name) {
       selectedTemplate = { id: id, name: name };
+      currentTemplateText.textContent = name;
       if (id == '-1') {
         updateFormFields(defaultTemplateFields);
       }
@@ -657,7 +658,6 @@
         }).done(function (templateData) {
           currentFields = templateData.fields;
           if (templateData.group == {{ group.id }}) {
-            currentTemplateText.textContent = templateData.name;
             updateFormFields(templateData.fields);
           }
         });

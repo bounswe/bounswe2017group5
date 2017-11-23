@@ -1,4 +1,4 @@
-package com.karacasoft.interestr.pages.data_templates.data;
+package com.karacasoft.interestr.pages.datatemplates.data;
 
 import java.io.Serializable;
 import java.util.ArrayList;

@@ -1,4 +1,4 @@
-package com.karacasoft.interestr.pages.data_templates;
+package com.karacasoft.interestr.pages.datatemplates;
 
 
 import android.os.Bundle;
@@ -11,9 +11,8 @@ import android.view.ViewGroup;
 import android.widget.Button;
 
 import com.karacasoft.interestr.R;
-import com.karacasoft.interestr.pages.data_templates.data.Template;
-import com.karacasoft.interestr.pages.data_templates.data.TemplateField;
-import com.karacasoft.interestr.pages.data_templates.data.dummy.DummyValues;
+import com.karacasoft.interestr.pages.datatemplates.data.Template;
+import com.karacasoft.interestr.pages.datatemplates.data.dummy.DummyValues;
 
 /**
  * A simple {@link Fragment} subclass.

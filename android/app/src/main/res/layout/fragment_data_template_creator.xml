@@ -4,7 +4,7 @@
     android:id="@+id/data_template_creator_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.karacasoft.interestr.pages.data_templates.DataTemplateCreatorFragment">
+    tools:context="com.karacasoft.interestr.pages.datatemplates.DataTemplateCreatorFragment">
 
     <EditText
         android:id="@+id/template_name"

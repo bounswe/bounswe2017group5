@@ -1,7 +1,7 @@
-package com.karacasoft.interestr.pages.data_templates.data.dummy;
+package com.karacasoft.interestr.pages.datatemplates.data.dummy;
 
-import com.karacasoft.interestr.pages.data_templates.data.Template;
-import com.karacasoft.interestr.pages.data_templates.data.TemplateField;
+import com.karacasoft.interestr.pages.datatemplates.data.Template;
+import com.karacasoft.interestr.pages.datatemplates.data.TemplateField;
 
 /**
  * Created by karacasoft on 23.11.2017.

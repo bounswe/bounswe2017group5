@@ -73,6 +73,7 @@ public class GroupsFragment extends Fragment {
     public static GroupsFragment newInstance(int columnCount) {
         GroupsFragment fragment = new GroupsFragment();
         Bundle args = new Bundle();
+        Log.d("Group Fragment","new group fragment instance created");
         args.putInt(ARG_COLUMN_COUNT, columnCount);
         fragment.setArguments(args);
         return fragment;

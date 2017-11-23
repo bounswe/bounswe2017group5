@@ -2,9 +2,7 @@ package com.karacasoft.interestr;
 
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
-import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -17,10 +15,11 @@ import android.view.MenuItem;
 import com.karacasoft.interestr.network.models.Group;
 import com.karacasoft.interestr.network.models.Token;
 import com.karacasoft.interestr.network.models.User;
-import com.karacasoft.interestr.pages.data_templates.DataTemplateCreatorFragment;
+import com.karacasoft.interestr.pages.datatemplates.DataTemplateCreatorFragment;
 import com.karacasoft.interestr.pages.groups.GroupsFragment;
 import com.karacasoft.interestr.pages.login.LoginFragment;
 import com.karacasoft.interestr.pages.newsfeed.NewsFeedFragment;
+import com.karacasoft.interestr.pages.search.SearchFragment;
 import com.karacasoft.interestr.pages.signup.SignUpFragment;
 
 public class MainActivity extends AppCompatActivity
@@ -59,7 +58,7 @@ public class MainActivity extends AppCompatActivity
         // Fragment operations
         FragmentManager fm = getSupportFragmentManager();
         fm.beginTransaction()
-                .replace(R.id.content, LoginFragment.newInstance())
+                .replace(R.id.content, DataTemplateCreatorFragment.newInstance())
                 .commit();
 
     }
@@ -92,6 +91,15 @@ public class MainActivity extends AppCompatActivity
         if (id == R.id.action_settings) {
             return true;
         }
+        if (id ==R.id.action_search){
+            //redirect to search page
+            FragmentManager fm = getSupportFragmentManager();
+            fm.beginTransaction()
+                    .replace(R.id.content, SearchFragment.newInstance())
+                    .addToBackStack(null)
+                    .commit();
+            return true;
+        }
 
         return super.onOptionsItemSelected(item);
     }
@@ -102,8 +110,12 @@ public class MainActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_camera) {
-            // Handle the camera action
+        if (id == R.id.nav_groups) {
+            // redirect to groups page
+            FragmentManager fm = getSupportFragmentManager();
+            fm.beginTransaction()
+                    .replace(R.id.content, GroupsFragment.newInstance(1))
+                    .commit();
         } else if (id == R.id.nav_gallery) {
 
         } else if (id == R.id.nav_slideshow) {

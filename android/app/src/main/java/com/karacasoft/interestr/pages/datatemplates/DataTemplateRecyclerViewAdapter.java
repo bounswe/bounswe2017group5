@@ -1,4 +1,4 @@
-package com.karacasoft.interestr.pages.data_templates;
+package com.karacasoft.interestr.pages.datatemplates;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -6,11 +6,10 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.karacasoft.interestr.R;
-import com.karacasoft.interestr.pages.data_templates.data.Template;
-import com.karacasoft.interestr.pages.data_templates.data.TemplateField;
-import com.karacasoft.interestr.pages.data_templates.view_holders.BooleanFieldViewHolder;
-import com.karacasoft.interestr.pages.data_templates.view_holders.FieldViewHolder;
-import com.karacasoft.interestr.pages.data_templates.view_holders.ShortTextFieldViewHolder;
+import com.karacasoft.interestr.pages.datatemplates.data.TemplateField;
+import com.karacasoft.interestr.pages.datatemplates.view_holders.BooleanFieldViewHolder;
+import com.karacasoft.interestr.pages.datatemplates.view_holders.FieldViewHolder;
+import com.karacasoft.interestr.pages.datatemplates.view_holders.ShortTextFieldViewHolder;
 
 import java.util.ArrayList;
 

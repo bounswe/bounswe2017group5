@@ -1,4 +1,4 @@
-package com.karacasoft.interestr.pages.data_templates.view_holders;
+package com.karacasoft.interestr.pages.datatemplates.view_holders;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.View;

@@ -680,7 +680,7 @@
           showCancelButton: true,
           confirmButtonText: 'Yes, remove it!'
         }).then(function (result) {
-            if (result) {
+            if (result.value) {
                 $.ajax({
                   method: 'DELETE',
                   url: '{% url "api:datatemplatedetail" 12345 %}'.replace(/12345/, selectedTemplate.id.toString()),

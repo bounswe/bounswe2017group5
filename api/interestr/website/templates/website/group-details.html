@@ -117,8 +117,7 @@
                     xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
                   }
                 }).done(function (msg) {
-                  isJoined = 1 - isJoined;
-                  refresh_button();
+                  location.reload();
                 });
               }
             }
@@ -401,6 +400,15 @@
         if (input.label) {
           labelElem = document.createElement(editable ? 'div' : 'label');
           labelElem.classList.add('template-input-label');
+
+          if (input.type == 'checkbox') {
+            labelElem.classList.add('checkbox');
+            var checkboxIcons = document.createElement('span');
+            checkboxIcons.classList.add('icons');
+            checkboxIcons.innerHTML = '<span class="first-icon fa fa-square-o"></span><span class="second-icon fa fa-check-square-o">';
+            labelElem.appendChild(checkboxIcons);
+            $(inputElem).data('toggle', 'checkbox');
+          }
           labelElem.appendChild(inputElem);
 
           text = makeChangableSpan(input.label, editable);
@@ -427,9 +435,9 @@
       if (type == 'multisel' && editable) {
           var createOptionBtn =  document.createElement('div');
           createOptionBtn.attributes['data-ignore-on-submit'] = true;
-          createOptionBtn.textContent = '+ New Option';
+          createOptionBtn.textContent = '+';
           createOptionBtn.classList.add('btn', 'btn-primary');
-          createOptionBtn.style = 'height:40px;width:122px;flex:none;transform:translateY(50%);';
+          createOptionBtn.style = 'height:40px;width:44px;flex:none;';
           createOptionBtn.onclick = function(e) {
               inputContainer.removeChild(createOptionBtn);
               appendInput({
@@ -563,20 +571,17 @@
       var si;
 
       if (input.tagName == 'LABEL') {
-        si = (input.childNodes[1].tagName == 'SPAN') * 1;
-
         return {
-          type: input2type(input.childNodes[1 - si]),
-          label: input.childNodes[si].textContent,
+          type: input2type(input.querySelector('input')),
+          label: $(input).find('span').last().text(),
           side: si == 0 ? 'L' : 'R',
         };
       }
-      else {
-        return {
-          type: input2type(input),
-          label: false
-        };
-      }
+
+      return {
+        type: input2type(input),
+        label: false
+      };
     }
 
     function field2JSON(field) {
@@ -607,8 +612,10 @@
         submitButton.disabled = true;
 
         replaceInputWithSpan();
+        templateFields.classList.add('hidden');
         $("div.template-input-label").each((i, label) => {
           var realLabel = document.createElement('label');
+          realLabel.classList.add('template-input-label');
           realLabel.innerHTML = label.innerHTML;
           $(label).replaceWith(realLabel);
         });
@@ -626,7 +633,15 @@
         }).done(function (msg) {
           location.reload();
         }).fail(function (msg) {
-          alert(msg.responseText);
+          $("label.template-input-label").each((i, label) => {
+            var divLabel = document.createElement('div');
+            divLabel.classList.add('template-input-label', 'checkbox');
+            divLabel.innerHTML = label.innerHTML;
+            $(label).replaceWith(divLabel);
+          });
+          templateFields.classList.remove('hidden');
+          console.error(msg);
+          swal("Oops...", 'Unexpected error, couldn\'t create the template.', "error");
         }).always(function (msg) {
           submitButton.disabled = false;
         });

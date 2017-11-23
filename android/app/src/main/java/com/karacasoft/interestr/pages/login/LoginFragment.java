@@ -1,5 +1,6 @@
 package com.karacasoft.interestr.pages.login;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -72,6 +73,20 @@ public class LoginFragment extends Fragment {
         api = new InterestrAPIImpl(getContext());
     }
 
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+
+        onLoginSuccessfulListener = (OnLoginSuccessfulListener) getActivity();
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+
+        onLoginSuccessfulListener = null;
+    }
+
     private InterestrAPI.Callback<Token>  loginCallBack = new InterestrAPI.Callback<Token>() {
         @Override
         public void onResult(InterestrAPIResult<Token> result) {
@@ -79,13 +94,13 @@ public class LoginFragment extends Fragment {
             if(onLoginSuccessfulListener != null) {
                 onLoginSuccessfulListener.onLoginSuccessful(result.get());
                 Log.d("LoginFragment Callback","login listener returns not empty response");
-
+                onLoginSuccessfulListener.onLoginSuccessful(result.get());
             }
         }
 
         @Override
         public void onError(String error_message) {
-
+            Log.d("LoginFragment Error", error_message);
         }
     };
 

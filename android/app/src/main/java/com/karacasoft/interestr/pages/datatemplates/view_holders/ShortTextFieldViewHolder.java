@@ -26,4 +26,8 @@ public class ShortTextFieldViewHolder extends FieldViewHolder {
         btnRemove = itemView.findViewById(R.id.btn_remove);
     }
 
+    @Override
+    public String toString() {
+        return super.toString() + "0:" + fieldName.getText().toString();
+    }
 }

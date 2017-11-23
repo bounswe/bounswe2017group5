@@ -11,7 +11,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 
+import com.getbase.floatingactionbutton.FloatingActionsMenu;
 import com.karacasoft.interestr.network.models.Group;
 import com.karacasoft.interestr.network.models.Token;
 import com.karacasoft.interestr.network.models.User;
@@ -28,34 +30,77 @@ public class MainActivity extends AppCompatActivity
         LoginFragment.OnLoginSuccessfulListener,
         SignUpFragment.OnSignupSuccessfulListener{
 
+    public static final String ACTION_ADD_SHORT_TEXT = "short_text";
+    public static final String ACTION_ADD_BOOLEAN = "boolean";
+
+    private OnFabClickedListener listener;
+    private OnFamActionClickedListener onFamActionClickedListener;
+
+    private void setupFloatingActionsMenu(FloatingActionsMenu menu) {
+        com.getbase.floatingactionbutton.FloatingActionButton buttonAddShortText =
+                new com.getbase.floatingactionbutton.FloatingActionButton(getBaseContext());
+        buttonAddShortText.setTitle("Short Text");
+        buttonAddShortText.setIcon(R.drawable.ic_short_text_white_24dp);
+        buttonAddShortText.setOnClickListener((view) -> {
+            if(onFamActionClickedListener != null) {
+                onFamActionClickedListener.onFamActionClicked(ACTION_ADD_SHORT_TEXT);
+            }
+        });
+
+        com.getbase.floatingactionbutton.FloatingActionButton buttonAddBooleanField =
+                new com.getbase.floatingactionbutton.FloatingActionButton(getBaseContext());
+        buttonAddBooleanField.setTitle("Check Box");
+        buttonAddBooleanField.setIcon(R.drawable.ic_check_box_white_24dp);
+        buttonAddBooleanField.setOnClickListener((view) -> {
+            onFamActionClickedListener.onFamActionClicked(ACTION_ADD_BOOLEAN);
+        });
+
+        menu.addButton(buttonAddShortText);
+        menu.addButton(buttonAddBooleanField);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-//        fab.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-//                        .setAction("Action", null).show();
-//            }
-//        });
+        FloatingActionButton fab = findViewById(R.id.fab);
+        fab.setOnClickListener(view -> {
+            if(listener != null) {
+                listener.onFabClicked();
+            }
+        });
         fab.hide();
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+
+
+        FloatingActionsMenu fam = findViewById(R.id.fam);
+        setupFloatingActionsMenu(fam);
+        fam.setVisibility(View.GONE);
+
+
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
 
         // Fragment operations
+//        FragmentManager fm = getSupportFragmentManager();
+//        DataTemplateCreatorFragment fragment = DataTemplateCreatorFragment.newInstance();
+//
+//        fm.beginTransaction()
+//                .replace(R.id.content, fragment)
+//                .commit();
+//
+//        onFamActionClickedListener = fragment;
+
         FragmentManager fm = getSupportFragmentManager();
         fm.beginTransaction()
                 .replace(R.id.content, DataTemplateCreatorFragment.newInstance())
@@ -65,7 +110,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
@@ -128,7 +173,7 @@ public class MainActivity extends AppCompatActivity
 
         }
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
@@ -142,7 +187,7 @@ public class MainActivity extends AppCompatActivity
     public void onLoginSuccessful(Token token) {
         FragmentManager fm = getSupportFragmentManager();
         fm.beginTransaction()
-                .replace(R.id.content, NewsFeedFragment.newInstance(1))
+                .replace(R.id.content, new NewsFeedFragment())
                 .commit();
     }
 
@@ -153,5 +198,13 @@ public class MainActivity extends AppCompatActivity
         fm.beginTransaction()
                 .replace(R.id.content,LoginFragment.newInstance())
                 .commit();
+    }
+
+    public interface OnFabClickedListener {
+        void onFabClicked();
+    }
+
+    public interface OnFamActionClickedListener {
+        void onFamActionClicked(String action);
     }
 }

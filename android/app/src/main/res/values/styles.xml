@@ -22,4 +22,10 @@
         <item name="contentScrim">?attr/colorPrimary</item>
     </style>
 
+    <style name="menu_labels_style">
+        <item name="android:background">#40000000</item>
+        <item name="android:textColor">#ffffff</item>
+        <item name="android:padding">2dp</item>
+    </style>
+
 </resources>

@@ -22,9 +22,12 @@ import java.util.ArrayList;
 public class DataTemplateRecyclerViewAdapter extends RecyclerView.Adapter<FieldViewHolder> {
 
     private ArrayList<TemplateField> fields;
+    private DataTemplateCreatorFragment.OnDataTemplateFieldRemoveListener onDataTemplateFieldClickListener;
 
-    public DataTemplateRecyclerViewAdapter(ArrayList<TemplateField> fields) {
+    public DataTemplateRecyclerViewAdapter(ArrayList<TemplateField> fields,
+                                           DataTemplateCreatorFragment.OnDataTemplateFieldRemoveListener onDataTemplateFieldClickListener) {
         this.fields = fields;
+        this.onDataTemplateFieldClickListener = onDataTemplateFieldClickListener;
     }
 
     @Override
@@ -76,16 +79,28 @@ public class DataTemplateRecyclerViewAdapter extends RecyclerView.Adapter<FieldV
     private void configureShortTextViewHolder(TemplateField field, ShortTextFieldViewHolder viewHolder) {
         if(field.getName() != null) {
             viewHolder.fieldName.setText(field.getName());
+        } else {
+            viewHolder.fieldName.setText("");
         }
         if(field.getHint() != null) {
             viewHolder.fieldHint.setText(field.getHint());
+        } else {
+            viewHolder.fieldHint.setText("");
         }
+        viewHolder.btnRemove.setOnClickListener((view) -> {
+            onDataTemplateFieldClickListener.onDataTemplateFieldRemove(field);
+        });
     }
 
     private void configureBooleanViewHolder(TemplateField field, BooleanFieldViewHolder viewHolder) {
         if(field.getName() != null) {
             viewHolder.fieldName.setText(field.getName());
+        } else {
+            viewHolder.fieldName.setText("");
         }
+        viewHolder.btnRemove.setOnClickListener((view) -> {
+            onDataTemplateFieldClickListener.onDataTemplateFieldRemove(field);
+        });
     }
 
     @Override

@@ -136,7 +136,8 @@ public class InterestrAPIImpl implements InterestrAPI {
             protected Token extractData(String data) {
 
                 Token token = null;
-
+                Log.d("APIImpl login","login extract data");
+                Log.d("APIImpl login",data);
                 try {
                     JSONObject obj = new JSONObject(data);
 
@@ -332,7 +333,11 @@ public class InterestrAPIImpl implements InterestrAPI {
         public void run() {
             beforeRequest();
 
+            Log.d("APIImpl request","Sending request");
+
             performRequest();
+
+            Log.d("APIImpl request","Sent request");
 
             afterRequest();
         }

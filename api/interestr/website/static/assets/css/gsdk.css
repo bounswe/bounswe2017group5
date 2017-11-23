@@ -1,17 +1,17 @@
 /*!
-    
+
  =========================================================
  * Get Shit Done Kit - v1.4.1.0
  =========================================================
- 
+
  * Product Page: http://www.creative-tim.com/product/get-shit-done-kit
  * Copyright 2017 Creative Tim (http://www.creative-tim.com)
  * Licensed under MIT (https://github.com/timcreative/get-shit-done/blob/master/LICENSE.md)
- 
+
  =========================================================
- 
+
  * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
- 
+
  */
 
 /*      light colors         */
@@ -950,7 +950,7 @@ input.ct-red + span + label + span.switch-right {
 .checkbox,
 .radio {
   margin-bottom: 12px;
-  padding-left: 32px;
+  padding-left: 25px;
   position: relative;
   -webkit-transition: color 0.25s linear;
   transition: color 0.25s linear;
@@ -959,7 +959,7 @@ input.ct-red + span + label + span.switch-right {
   line-height: 1.5;
   color: #333333; }
 
-.checkbox input,
+.checkbox input[type="checkbox"],
 .radio input {
   outline: none !important;
   display: none; }

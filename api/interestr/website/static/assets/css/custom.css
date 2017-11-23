@@ -207,3 +207,7 @@ small {
 .template-input-container label:not(:last-child) {
   margin-right: 5px;
 }
+
+div.col-form-legend, div.template-input-label {
+  font-weight: bold;
+}

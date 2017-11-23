@@ -129,7 +129,7 @@
       <div class="group-detail-content-create-block">
         <div class="dropdown">
           <button class="btn btn-round dropdown-toggle" type="button" id="group-detail-content-block-dropdown" data-toggle="dropdown">
-            Default
+            <span id="currentTemplateText">Default</span>
             <b class="caret"></b>
             <ul class="dropdown-menu" role="menu" aria-labelledby="group-detail-content-block-dropdown">
               <li><a href="#" onclick="selectTemplate('-1', 'Default')">Default</a></li>
@@ -230,12 +230,14 @@
     var templateName;
     var formFields;
     var defaultTemplateFields;
+    var currentTemplateText;
 
     modal = document.getElementById('createTemplateModal');
     fields = document.getElementById('templateFields');
     submitButton = document.getElementById('templateSubmitButton');
     templateName = document.getElementById('templateName');
     formFields = document.getElementById('formFields');
+    currentTemplateText = document.getElementById('currentTemplateText');
 
     function createTemplateOnClick() {
         isUpdatingTemplate = false;
@@ -648,6 +650,7 @@
         }).done(function (templateData) {
           currentFields = templateData.fields;
           if (templateData.group == {{ group.id }}) {
+            currentTemplateText.textContent = templateData.name;
             updateFormFields(templateData.fields);
           }
         });

@@ -86,6 +86,16 @@ class TagList(generics.ListCreateAPIView):
     queryset = core_models.Tag.objects.all()
     serializer_class = core_serializers.TagSerializer
 
+class CommentList(generics.ListCreateAPIView):
+    """
+    get:
+    Return a list of all the existing comments.
+
+    post:
+    Create a new data comment instance.
+    """
+    queryset = core_models.Comment.objects.all()
+    serializer_class = core_serializers.CommentSerializer
 
 ### List Views END
 
@@ -157,6 +167,20 @@ class TagDetail(generics.RetrieveUpdateDestroyAPIView):
     """
     queryset = core_models.Tag.objects.all()
     serializer_class = core_serializers.TagSerializer
+
+class CommentDetail(generics.RetrieveUpdateDestroyAPIView):
+    """
+    get:
+    Return the details of the comment with the given id.
+
+    update:
+    Update the comment detail with the given id.
+
+    delete:
+    Delete the comment detail with the given id.
+    """
+    queryset = core_models.Comment.objects.all()
+    serializer_class = core_serializers.CommentSerializer
 
 
 ### Detail Views END

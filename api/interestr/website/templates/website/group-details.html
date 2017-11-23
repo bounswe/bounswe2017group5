@@ -16,7 +16,7 @@
       </a>
     </li>
     <li class="dropdown">
-      <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{ user.username }}<b class="caret"></b></a>
+      <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown">{{ user.username }}<b class="caret"></b></a>
       <ul class="dropdown-menu">
         <li><a href="{% url 'website:news' %}">News Feed</a></li>
         <li><a href="{% url 'website:groups' %}">Groups</a></li>
@@ -128,16 +128,16 @@
 
       <div class="group-detail-content-create-block">
         <div class="dropdown">
-          <button class="btn btn-round dropdown-toggle" type="button" id="group-detail-content-block-dropdown" data-toggle="dropdown">
+          <button class="btn btn-round dropdown-toggle" type="button" id="group-detail-content-block-dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             <span id="currentTemplateText">Default</span>
             <b class="caret"></b>
-            <ul class="dropdown-menu" role="menu" aria-labelledby="group-detail-content-block-dropdown">
-              <li><a href="#" onclick="selectTemplate('-1', 'Default')">Default</a></li>
+          </button>
+          <ul class="dropdown-menu" role="menu" aria-labelledby="group-detail-content-block-dropdown">
+              <li><a href="javascript:void(0);" onclick="selectTemplate('-1', 'Default')">Default</a></li>
               {% for template in group.data_templates.all %}
-                <li id="dropdown-select-template-{{template.id}}"><a href="#" onclick="selectTemplate('{{ template.id }}', '{{ template.name }}')">{{ template.name }}</a></li>
+                <li id="dropdown-select-template-{{template.id}}"><a href="javascript:void(0);" onclick="selectTemplate('{{ template.id }}', '{{ template.name }}')">{{ template.name }}</a></li>
               {% endfor %}
             </ul>
-          </button>
 
           <button class="btn btn-round btn-success" type="button" data-toggle="modal" data-target="#createTemplateModal" onclick="createTemplateOnClick(event)">Create New</button>
           <button class="btn btn-round" type="button" data-toggle="modal" data-target="#createTemplateModal" onclick="editTemplateOnClick(event)">Edit This</button>
@@ -171,7 +171,7 @@
           <p>{{ post.text }}</p>
         </div>
         <div class="comments">
-          <a class="text-muted" href="#">0 Comments</a>
+          <a class="text-muted" href="javascript:void(0);">0 Comments</a>
         </div>
       </div>
       {% endfor %}
@@ -326,6 +326,7 @@
       editTextInputInitial = span.textContent;
 
       editTextInput = document.createElement('input');
+      editTextInput.size = span.textContent.length;
       editTextInput.style ='z-index:123';
       editTextInput.value = editTextInputInitial;
 
@@ -373,7 +374,7 @@
       fieldElem.style = 'margin-right: 0px;';
       fieldElem.attributes['data-template-type'] = type;
 
-      legendElem = document.createElement('label');
+      legendElem = document.createElement(editable ? 'div' : 'label');
       legendElem.style = 'z-index:123';
       legendElem.classList.add('col-form-legend', 'col-sm-2');
       legendElem.appendChild(makeChangableSpan(legend, editable));
@@ -396,7 +397,8 @@
         inputElem = type2Input(input.type);
 
         if (input.label) {
-          labelElem = document.createElement('label');
+          labelElem = document.createElement(editable ? 'div' : 'label');
+          labelElem.classList.add('template-input-label');
           labelElem.appendChild(inputElem);
 
           text = makeChangableSpan(input.label, editable);
@@ -543,7 +545,7 @@
     for (const type in templateFieldTypes) {
       dropdownItem = document.createElement('li');
       dropdownItemInner = document.createElement('a');
-      dropdownItemInner.href = '#';
+      dropdownItemInner.href = 'javascript:void(0);';
       dropdownItemInner.textContent = templateFieldTypes[type].friendlyName;
       dropdownItemInner.onclick = function (event) {
         var field = templateFieldTypes[type].creator();
@@ -603,6 +605,11 @@
         submitButton.disabled = true;
 
         replaceInputWithSpan();
+        $("div.template-input-label").each((i, label) => {
+          var realLabel = document.createElement('label');
+          realLabel.innerHTML = label.innerHTML;
+          $(label).replaceWith(realLabel);
+        });
         data = toJSON();
         data.csrfmiddlewaretoken = '{{ csrf_token }}';
         data.fields = JSON.stringify(data.fields);

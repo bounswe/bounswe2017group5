@@ -240,6 +240,8 @@
     currentTemplateText = document.getElementById('currentTemplateText');
 
     function createTemplateOnClick() {
+        templateName.value = '';
+        templateFields.innerHTML = '';
         isUpdatingTemplate = false;
         document.getElementById('createTemplateModalLabel').textContent = 'Create a template';
         submitButton.textContent = 'Create!';

@@ -231,8 +231,8 @@ class SignUpView(APIView):
                 email = request.data['email'],
                 username = request.data['username'],
                 password = request.data['password'] )
-            uzer = auth_models.User.objects.get(username = request.data['username'])
-            out_serializer = core_serializers.UserSerializer(uzer)
+            user_to_send = auth_models.User.objects.get(username = request.data['username'])
+            out_serializer = core_serializers.UserSerializer(user_to_send)
             return JsonResponse(out_serializer.data)
         else:
             return JsonResponse(serialized._errors)

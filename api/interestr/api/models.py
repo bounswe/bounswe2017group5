@@ -34,6 +34,15 @@ class ChoiceEnum(Enum):
 
 # Models START
 
+class ProfilePage(BaseModel):
+    name = models.CharField(max_length=30)
+    surname = models.CharField(max_length=30)
+    date_of_birth = models.DateField(blank=True)
+    location = models.TextField(blank=True, default='')
+    interests = models.TextField(blank=True, default='')
+    user = models.OneToOneField(auth_models.User, on_delete=models.CASCADE)
+
+
 class Tag(BaseModel):
     label = models.CharField(max_length=40)
     url = models.URLField()
@@ -42,6 +51,7 @@ class Tag(BaseModel):
 
     def __str__(self):
         return self.label+'('+self.concepturi+')'
+
 
 class Group(BaseModel):
     name = models.CharField(max_length=40, unique=True)
@@ -65,6 +75,7 @@ class Group(BaseModel):
         else:
             return '/static/assets/img/group_default_icon.png'
 
+
 class Post(BaseModel):
     owner = models.ForeignKey(auth_models.User, related_name="posts", default=None)
     text = models.TextField(default='')
@@ -75,6 +86,7 @@ class Post(BaseModel):
     def __str__(self):
         return self.text
 
+
 class Comment(BaseModel):
     owner = models.ForeignKey(auth_models.User, related_name="comments", default=None)
     text = models.TextField(default='', blank=True)
@@ -82,6 +94,7 @@ class Comment(BaseModel):
 
     def __str__(self):
         return self.text
+
 
 class DataTemplate(BaseModel):
     name = models.CharField(max_length=40)
@@ -92,5 +105,6 @@ class DataTemplate(BaseModel):
 
     def __str__(self):
         return self.name
+
 
 # Models END

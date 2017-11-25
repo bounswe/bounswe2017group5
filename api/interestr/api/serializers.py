@@ -50,3 +50,5 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = auth_models.User
         fields = ('id', 'username', 'email', 'joined_groups', 'moderated_groups', 'data_templates', 'posts', 'comments', )
+
+    

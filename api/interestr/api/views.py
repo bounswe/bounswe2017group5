@@ -235,5 +235,5 @@ class SignUpView(APIView):
             out_serializer = core_serializers.UserSerializer(user_to_send)
             return JsonResponse(out_serializer.data)
         else:
-            return JsonResponse(serialized._errors)
+            return JsonResponse(serialized._errors, status=417)
 

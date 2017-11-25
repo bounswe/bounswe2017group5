@@ -16,6 +16,9 @@ urlpatterns = [
     url(r'^comments/$', views.CommentList.as_view(), name='comments'),
     url(r'^comments/(?P<pk>\d+)/$', views.CommentDetail.as_view(), name='commentdetail'),
 
+    url(r'^profile_pages/$', views.ProfilePageList.as_view(), name='profilepages'),
+    url(r'^profile_pages/(?P<pk>\d+)/$', views.ProfilePageDetail.as_view(), name='profilepages'),
+
     url(r'^data_templates/$', views.DataTemplateList.as_view(), name='datatemplates'),
     url(r'^data_templates/(?P<pk>\d+)/$', views.DataTemplateDetail.as_view(), name='datatemplatedetail'),
     url(r'^groups/$', views.GroupList.as_view(), name='groups'),

@@ -97,6 +97,17 @@ class CommentList(generics.ListCreateAPIView):
     queryset = core_models.Comment.objects.all()
     serializer_class = core_serializers.CommentSerializer
 
+class ProfilePageList(generics.ListCreateAPIView):
+    """
+    get:
+    Return a list of all the existing profile pages.
+
+    post:
+    Create a new profile page instance.
+    """
+    queryset = core_models.ProfilePage.objects.all()
+    serializer_class = core_serializers.ProfilePageSerializer
+
 ### List Views END
 
 ### Detail Views BEGIN
@@ -182,6 +193,16 @@ class CommentDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = core_models.Comment.objects.all()
     serializer_class = core_serializers.CommentSerializer
 
+class ProfilePageDetail(generics.RetrieveUpdateAPIView):
+    """
+    get:
+    Return the details of the comment with the given id.
+
+    update:
+    Update the comment detail with the given id.
+    """
+    queryset = core_models.ProfilePage.objects.all()
+    serializer_class = core_serializers.ProfilePageSerializer
 
 ### Detail Views END
 

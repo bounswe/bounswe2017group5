@@ -190,3 +190,35 @@ small {
   width: 64px;
   height: 64px;
 }
+
+
+.flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.template-input-container {
+  display: flex;
+  align-items: center;
+  flex-flow: row wrap;
+}
+
+.template-input-label.checkbox {
+  margin-top: 0 !important;
+}
+
+.template-input-container > *:not(:last-child) {
+  margin-right: 20px;
+}
+
+div.col-form-legend, div.template-input-label {
+  font-weight: bold;
+}
+
+.hidden {
+  width: 0 !important;
+  height: 0 !important;
+  opacity: 0 !important;
+  overflow: hidden !important;
+}

@@ -16,7 +16,7 @@
       </a>
     </li>
     <li class="dropdown">
-      <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{ user.username }}<b class="caret"></b></a>
+      <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown">{{ user.username }}<b class="caret"></b></a>
       <ul class="dropdown-menu">
         <li><a href="{% url 'website:news' %}">News Feed</a></li>
         <li><a href="{% url 'website:groups' %}">Groups</a></li>
@@ -93,7 +93,7 @@
             var btn = document.getElementById('leaveJoinButton');
 
             function refresh_button() {
-              btn.innerHTML = buttonText[isJoined];
+              btn.textContent = buttonText[isJoined];
               if (!isJoined) {
                 btn.classList.add("btn-warning");
               }
@@ -108,7 +108,7 @@
             function leave_join_group() {
               if (!btn.disabled) {
                 btn.disabled = true;
-                btn.innerHTML = buttonTextPending[isJoined];
+                btn.textContent = buttonTextPending[isJoined];
 
                 $.ajax({
                   method: isJoined ? 'DELETE' : 'PUT',
@@ -117,8 +117,7 @@
                     xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
                   }
                 }).done(function (msg) {
-                  isJoined = 1 - isJoined;
-                  refresh_button();
+                  location.reload();
                 });
               }
             }
@@ -128,25 +127,26 @@
 
       <div class="group-detail-content-create-block">
         <div class="dropdown">
-          <button class="btn btn-round dropdown-toggle" type="button" id="group-detail-content-block-dropdown"
-            data-toggle="dropdown">
-            Default
+          <button class="btn btn-round dropdown-toggle" type="button" id="group-detail-content-block-dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <span id="currentTemplateText">Default</span>
             <b class="caret"></b>
           </button>
           <ul class="dropdown-menu" role="menu" aria-labelledby="group-detail-content-block-dropdown">
-            <li><a href="#">Default</a></li>
-            <li><a href="#">Music Shop</a></li>
-            <li><a href="#"><strong>Add Template...</strong></a></li>
-          </ul>
+              <li><a href="javascript:void(0);" onclick="selectTemplate('-1', 'Default')">Default</a></li>
+              {% for template in group.data_templates.all %}
+                <li id="dropdown-select-template-{{template.id}}"><a href="javascript:void(0);" onclick="selectTemplate('{{ template.id }}', '{{ template.name }}')">{{ template.name }}</a></li>
+              {% endfor %}
+            </ul>
+
+          <button class="btn btn-round btn-success" type="button" data-toggle="modal" data-target="#createTemplateModal" onclick="createTemplateOnClick(event)">Create New</button>
+          <button class="btn btn-round" type="button" data-toggle="modal" data-target="#createTemplateModal" onclick="editTemplateOnClick(event)">Edit This</button>
+          <button class="btn btn-round btn-danger" onclick="removeCurrentTemplate()">Remove This</button>
         </div>
 
         <form method="POST" class="group-detail-content-form">
           {% csrf_token %}
           {{ form.non_field_errors }}
-          <div class="form-group">
-            <label for="name">Text: </label>
-            <input type="text" class="form-control" id="text" name="{{ post_create_form.text.name }}" placeholder="Text of the post">
-            {{ form.text.errors }}
+          <div id="formFields">
           </div>
 
           <div class="text-right">
@@ -170,11 +170,552 @@
           <p>{{ post.text }}</p>
         </div>
         <div class="comments">
-          <a class="text-muted" href="#">0 Comments</a>
+          <a class="text-muted" href="javascript:void(0);">0 Comments</a>
         </div>
       </div>
       {% endfor %}
     </div>
   </div>
+
+  <!-- Modal -->
+  <div class="modal fade" id="createTemplateModal" tabindex="-1" role="dialog" aria-labelledby="createTemplateModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="createTemplateModalLabel">Create a template</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form>
+            <div class="form-group row">
+              <label for="templateName" class="col-sm-2 col-form-label">Name</label>
+              <div class="col-sm-10">
+                <input type="text" class="form-control" id="templateName" value="">
+              </div>
+            </div>
+            <div id="templateFields"></div>
+            <div class="dropdown">
+              <button class="btn btn-primary dropdown-toggle" type="button" id="newFieldDropdownButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                + New Field
+              </button>
+              <ul class="dropdown-menu" id="newFieldDropdown" aria-labelledby="newFieldDropdownButton"></ul>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Dismiss</button>
+          <button id="templateSubmitButton" type="button" class="btn btn-primary">Create!</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="text/javascript">
+    var isUpdatingTemplate = false;
+    var fields;
+    var templateFieldTypes;
+    var dropdownItem;
+    var dropdown;
+    var removeButton;
+    var removeSymbol;
+    var editTextInput;
+    var editTextInputInitial;
+    var modal;
+    var submitButton;
+    var selectedTemplate;
+    var currentFields;
+    var templateName;
+    var formFields;
+    var defaultTemplateFields;
+    var currentTemplateText;
+
+    modal = document.getElementById('createTemplateModal');
+    fields = document.getElementById('templateFields');
+    submitButton = document.getElementById('templateSubmitButton');
+    templateName = document.getElementById('templateName');
+    formFields = document.getElementById('formFields');
+    currentTemplateText = document.getElementById('currentTemplateText');
+
+    function createTemplateOnClick() {
+        templateName.value = '';
+        templateFields.innerHTML = '';
+        isUpdatingTemplate = false;
+        document.getElementById('createTemplateModalLabel').textContent = 'Create a template';
+        submitButton.textContent = 'Create!';
+    }
+
+    function editTemplateOnClick(e) {
+        if (selectedTemplate.id == '-1') {
+            swal('Sorry...', 'You can\'t edit the default template.', 'error');
+            e.stopPropagation();
+            e.preventDefault();
+            return;
+        }
+        isUpdatingTemplate = true;
+        templateName.value = selectedTemplate.name;
+        document.getElementById('createTemplateModalLabel').textContent = 'Update the template';
+        submitButton.textContent = 'Update!';
+        updateCreateFormFields(currentFields);
+    }
+
+    function type2Input(type, options) {
+      var el;
+      var opt;
+      var optEl;
+
+      switch (type) {
+          case 'textarea':
+              el = document.createElement('textarea');
+              el.classList.add('form-control');
+              break;
+          case 'select':
+              el = document.createElement('select');
+              for (var opt of options) {
+                optEl = document.createElement('option');
+                optEl.textContent = opt;
+
+                el.appendChild(optEl);
+              }
+              break;
+          default:
+              el = document.createElement('input');
+              el.type = type;
+              el.className = 'form-control';
+              if (type == 'checkbox') {
+                el.classList.add('form-check-input');
+              }
+              break;
+      }
+
+      return el;
+    }
+
+    function input2type(input) {
+      inputTag = input.tagName.toLowerCase();
+
+      switch (inputTag) {
+        case 'textarea':
+        case 'select':
+          return inputTag;
+        default:
+          return input.type;
+      }
+    }
+
+    function replaceInputWithSpan() {
+      if (editTextInput) {
+        var span = makeChangableSpan(editTextInput.value || editTextInputInitial);
+        editTextInput.parentNode.replaceChild(span, editTextInput);
+
+        editTextInput = null;
+
+        modal.focus();
+      }
+    }
+
+    modal.onclick = function (event) {
+      if (event.target != editTextInput) {
+        replaceInputWithSpan();
+      }
+    };
+
+    function replaceSpanWithInput(span) {
+      replaceInputWithSpan();
+
+      editTextInputInitial = span.textContent;
+
+      editTextInput = document.createElement('input');
+      editTextInput.size = span.textContent.length;
+      editTextInput.style ='z-index:123';
+      editTextInput.value = editTextInputInitial;
+
+      editTextInput.onkeypress = function (event) {
+        if (event.key == 'Enter') replaceInputWithSpan(editTextInput);
+      };
+
+      span.parentNode.replaceChild(editTextInput, span);
+      editTextInput.focus();
+      editTextInput.select();
+    }
+
+    function makeChangableSpan(str, editable = true) {
+      var span = document.createElement('span');
+      span.textContent = str;
+
+      if (editable) {
+        span.onclick = function (event) {
+          replaceSpanWithInput(span);
+          event.stopPropagation();
+        };
+        // span.onkeydown = function (event) {
+        //   if (event.key == 'Enter') replaceInputWithSpan(span);
+        // }
+        span.tabIndex = '1';
+      }
+
+      return span;
+    }
+
+    function createTemplateField(editable, type, inputs, legend = 'Field legend') {
+      var input;
+      var label;
+      var inputElemCount;
+
+      var fieldElem;
+      var legendElem;
+      var inputElem;
+      var labelElem;
+      var text;
+      var inputContainer;
+
+      fieldElem = document.createElement('div');
+      fieldElem.classList.add('form-group', 'row', 'flex-center');
+      fieldElem.style = 'margin-right: 0px;';
+      fieldElem.attributes['data-template-type'] = type;
+
+      legendElem = document.createElement(editable ? 'div' : 'label');
+      legendElem.style = 'z-index:123';
+      legendElem.classList.add('col-form-legend', 'col-sm-2');
+      legendElem.appendChild(makeChangableSpan(legend, editable));
+      fieldElem.appendChild(legendElem);
+
+      inputElemCount = 0;
+
+/*
+<div class="form-group" id="formFields">
+            <label for="name">Text: </label>
+            <input name="text" class="form-control" id="text" type="text" placeholder="Text of the post">
+
+          </div>
+*/
+
+      inputContainer = document.createElement('div');
+      inputContainer.classList.add('col-sm-10', 'template-input-container');
+
+      function appendInput(input) {
+        inputElem = type2Input(input.type);
+
+        if (input.label) {
+          labelElem = document.createElement(editable ? 'div' : 'label');
+          labelElem.classList.add('template-input-label');
+
+          if (input.type == 'checkbox') {
+            labelElem.classList.add('checkbox');
+            var checkboxIcons = document.createElement('span');
+            checkboxIcons.classList.add('icons');
+            checkboxIcons.innerHTML = '<span class="first-icon fa fa-square-o"></span><span class="second-icon fa fa-check-square-o">';
+            labelElem.appendChild(checkboxIcons);
+            $(inputElem).data('toggle', 'checkbox');
+          }
+          labelElem.appendChild(inputElem);
+
+          text = makeChangableSpan(input.label, editable);
+          if (input.side == 'R') {
+            labelElem.appendChild(text);
+          }
+          else if (input.side == 'L') {
+            labelElem.insertBefore(text, inputElem);
+          }
+
+          inputContainer.appendChild(labelElem);
+        }
+        else {
+          inputContainer.appendChild(inputElem);
+        }
+
+        inputElemCount++;
+      }
+
+      for (var input of inputs) {
+        appendInput(input);
+      }
+
+      if (type == 'multisel' && editable) {
+          var createOptionBtn =  document.createElement('div');
+          createOptionBtn.attributes['data-ignore-on-submit'] = true;
+          createOptionBtn.textContent = '+';
+          createOptionBtn.classList.add('btn', 'btn-primary');
+          createOptionBtn.style = 'height:40px;width:44px;flex:none;';
+          createOptionBtn.onclick = function(e) {
+              inputContainer.removeChild(createOptionBtn);
+              appendInput({
+                type: 'checkbox',
+                label: 'new',
+                side: 'R'
+              });
+              inputContainer.appendChild(createOptionBtn);
+          };
+          inputContainer.appendChild(createOptionBtn);
+      }
+
+      fieldElem.appendChild(inputContainer);
+
+      function uniqueID() {
+        var id = '_' + Math.random().toString(36).substr(2, 9);
+
+        return document.getElementById(id) == null ? id : uniqueID();
+      }
+
+      if (inputElemCount == 1) {
+        (/*labelElem || */inputElem).id = legendElem.htmlFor = uniqueID();
+      }
+
+      // Following are for the removal button
+      if (editable) {
+        removeButton = document.createElement('button');
+        removeButton.type = 'button';
+        removeButton.classList.add('close');
+        removeButton.attributes['data-dismiss'] = 'modal';
+        removeButton.attributes['aria-label'] = 'Remove';
+
+        removeSymbol = document.createElement('span');
+        removeSymbol.attributes['aria-hidden'] = 'true';
+        removeSymbol.innerHTML = '&times;';
+
+        removeButton.appendChild(removeSymbol);
+        removeButton.onclick = function (event) {
+          fieldElem.remove();
+        }
+
+        fieldElem.appendChild(removeButton);
+      }
+
+      return fieldElem;
+    }
+
+    function createInputField(legend = 'An input?', label = 'Input') {
+      return createTemplateField(true, this.type,
+        [
+          {
+            type: this.type,
+            side: 'R'
+          }
+        ],
+        legend);
+    }
+
+    function createCheckboxField(legend = 'A question?', label = 'Agree') {
+      return createTemplateField(true, this.type,
+        [
+          {
+            type: 'checkbox',
+            label: label,
+            side: 'R'
+          }
+        ],
+        legend);
+    }
+
+    function createMultiselField(legend = 'There are...', labels = ['Birds']) {
+      return createTemplateField(true, this.type,
+        labels.map(
+          label =>
+          {
+            return {
+              type: 'checkbox',
+              label: label,
+              side: 'R'
+            };
+          }
+        ),
+        legend);
+    }
+
+    function createTextareaField(legend = 'Your feedback') {
+      return createTemplateField(true, this.type,
+        [
+          {
+            type: 'textarea',
+            label: false
+          }
+        ],
+        legend);
+    }
+
+    templateFieldTypes = {};
+
+    function registerTemplateField(type, creator, friendlyName) {
+      templateFieldTypes[type] = {
+        friendlyName: friendlyName,
+        creator: creator.bind({ type: type })
+      };
+    }
+
+    registerTemplateField('checkbox', createCheckboxField, 'Checkbox');
+    registerTemplateField('multisel', createMultiselField, 'Multiple Selection');
+    registerTemplateField('textarea', createTextareaField, 'Text Area');
+    ['text', 'number', 'date', 'email', 'url', 'tel'].forEach(function(inputType) {
+        registerTemplateField(inputType, createInputField, inputType[0].toUpperCase() + inputType.substring(1));
+    });
+
+    dropdown = document.getElementById('newFieldDropdown');
+
+    for (const type in templateFieldTypes) {
+      dropdownItem = document.createElement('li');
+      dropdownItemInner = document.createElement('a');
+      dropdownItemInner.href = 'javascript:void(0);';
+      dropdownItemInner.textContent = templateFieldTypes[type].friendlyName;
+      dropdownItemInner.onclick = function (event) {
+        var field = templateFieldTypes[type].creator();
+        fields.appendChild(field);
+        field.firstChild.firstChild.focus();
+      };
+
+      dropdownItem.appendChild(dropdownItemInner);
+      dropdown.appendChild(dropdownItem);
+    }
+
+    function input2JSON(input) {
+      var si;
+
+      if (input.tagName == 'LABEL') {
+        return {
+          type: input2type(input.querySelector('input')),
+          label: $(input).find('span').last().text(),
+          side: si == 0 ? 'L' : 'R',
+        };
+      }
+
+      return {
+        type: input2type(input),
+        label: false
+      };
+    }
+
+    function field2JSON(field) {
+      return {
+        type: field.attributes['data-template-type'],
+        legend: field.childNodes[0].textContent,
+        inputs: Array.from(field.childNodes[1].childNodes)
+            .filter(node => !node.attributes['data-ignore-on-submit'])
+            .map(input => input2JSON(input))
+      };
+    }
+
+    function toJSON() {
+      return {
+        name: templateName.value,
+        group: '{{ group.id }}',
+        user: '{{ user.id }}',
+        fields: Array.from(fields.childNodes).map(
+            field => field2JSON(field)
+          )
+      };
+    }
+
+    submitButton.onclick = function (event) {
+      var data;
+
+      if (!submitButton.disabled) {
+        submitButton.disabled = true;
+
+        replaceInputWithSpan();
+        templateFields.classList.add('hidden');
+        $("div.template-input-label").each((i, label) => {
+          var realLabel = document.createElement('label');
+          realLabel.classList.add('template-input-label');
+          realLabel.innerHTML = label.innerHTML;
+          $(label).replaceWith(realLabel);
+        });
+        data = toJSON();
+        data.csrfmiddlewaretoken = '{{ csrf_token }}';
+        data.fields = JSON.stringify(data.fields);
+
+        $.ajax({
+          method: isUpdatingTemplate ? 'PUT' : 'POST',
+          url: isUpdatingTemplate
+              ? '{% url "api:datatemplatedetail" 12345 %}'.replace(/12345/, selectedTemplate.id.toString())
+              : '{% url "api:datatemplates" %}',
+          data: data,
+          beforeSend: (xhr) => { xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken')); }
+        }).done(function (msg) {
+          location.reload();
+        }).fail(function (msg) {
+          $("label.template-input-label").each((i, label) => {
+            var divLabel = document.createElement('div');
+            divLabel.classList.add('template-input-label', 'checkbox');
+            divLabel.innerHTML = label.innerHTML;
+            $(label).replaceWith(divLabel);
+          });
+          templateFields.classList.remove('hidden');
+          console.error(msg);
+          swal("Oops...", 'Unexpected error, couldn\'t create the template.', "error");
+        }).always(function (msg) {
+          submitButton.disabled = false;
+        });
+      }
+    }
+
+    function updateFormFields(fieldObjects) {
+      formFields.innerHTML = '';
+      for (var field of fieldObjects) {
+        formFields.appendChild(createTemplateField(false, field.type, field.inputs, field.legend));
+      }
+    }
+
+    function updateCreateFormFields(fieldObjects) {
+        fields.innerHTML = '';
+        for (var field of fieldObjects) {
+          fields.appendChild(createTemplateField(true, field.type, field.inputs, field.legend));
+        }
+    }
+
+    function selectTemplate(id, name) {
+      selectedTemplate = { id: id, name: name };
+      currentTemplateText.textContent = name;
+      if (id == '-1') {
+        updateFormFields(defaultTemplateFields);
+      }
+      else {
+        $.ajax({
+          method: 'GET',
+          url: '{% url "api:datatemplatedetail" 12345 %}'.replace(/12345/, id.toString())
+        }).done(function (templateData) {
+          currentFields = templateData.fields;
+          if (templateData.group == {{ group.id }}) {
+            updateFormFields(templateData.fields);
+          }
+        });
+      }
+    }
+
+    defaultTemplateFields = [field2JSON(templateFieldTypes['text'].creator('Text'))];
+    selectTemplate('-1', 'Default');
+
+    function removeCurrentTemplate() {
+        if (selectedTemplate.id == '-1') {
+            swal('Sorry...', 'You can\'t remove the default template.', 'error')
+            return;
+        }
+
+        swal({
+          title: 'Are you sure?',
+          text: "You won't be able to revert this!",
+          type: 'warning',
+          showCancelButton: true,
+          confirmButtonText: 'Yes, remove it!'
+        }).then(function (result) {
+            if (result.value) {
+                $.ajax({
+                  method: 'DELETE',
+                  url: '{% url "api:datatemplatedetail" 12345 %}'.replace(/12345/, selectedTemplate.id.toString()),
+                  beforeSend: (xhr) => { xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken')); }
+                }).done(() => {
+                  var dropdownNode = document.getElementById('dropdown-select-template-' + selectedTemplate.id);
+                  dropdownNode.parentNode.removeChild(dropdownNode);
+                  selectTemplate('-1', 'Default');
+                  swal(
+                    'Removed!',
+                    'The template has been successfully removed.',
+                    'success'
+                  );
+                }).fail((xhr, status, err) => swal('Oops...', 'Unexpected error, couldn\'t remove the template.', 'error'));
+            }
+        });
+    }
+
+  </script>
 
 {% endblock content %}

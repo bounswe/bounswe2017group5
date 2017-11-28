@@ -11,6 +11,7 @@ public class TemplateField implements Serializable {
     public enum Type {
         SHORT_TEXT,
         LONG_TEXT,
+        EMAIL,
         NUMERIC,
         BOOLEAN,
         MULTIPLE_CHOICE

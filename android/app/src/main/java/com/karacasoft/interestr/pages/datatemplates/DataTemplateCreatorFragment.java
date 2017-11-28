@@ -110,7 +110,7 @@ public class DataTemplateCreatorFragment extends Fragment {
     private void setupFloatingActionsMenu(FloatingActionMenu menu) {
         FloatingActionButton buttonAddShortText =
                 new FloatingActionButton(getContext());
-        buttonAddShortText.setLabelText("Short Text");
+        buttonAddShortText.setLabelText(getString(R.string.short_text));
         buttonAddShortText.setImageResource(R.drawable.ic_short_text_white_24dp);
         buttonAddShortText.setOnClickListener((view) -> {
             TemplateField field = new TemplateField();
@@ -124,7 +124,7 @@ public class DataTemplateCreatorFragment extends Fragment {
 
         FloatingActionButton buttonAddBooleanField =
                 new FloatingActionButton(getContext());
-        buttonAddBooleanField.setLabelText("Check Box");
+        buttonAddBooleanField.setLabelText(getString(R.string.check_box));
         buttonAddBooleanField.setImageResource(R.drawable.ic_check_box_white_24dp);
         buttonAddBooleanField.setOnClickListener((view) -> {
             TemplateField field = new TemplateField();
@@ -136,8 +136,75 @@ public class DataTemplateCreatorFragment extends Fragment {
             fieldListAdapter.notifyItemInserted(index);
         });
 
+
+        FloatingActionButton buttonAddLongTextField =
+                new FloatingActionButton(getContext());
+        buttonAddLongTextField.setLabelText(getString(R.string.long_text));
+        buttonAddLongTextField.setImageResource(R.drawable.ic_long_text_white_24dp);
+        buttonAddLongTextField.setOnClickListener((view) -> {
+            TemplateField field = new TemplateField();
+            field.setType(TemplateField.Type.LONG_TEXT);
+
+            int index = template.getFields().size();
+            template.getFields().add(field);
+
+            fieldListAdapter.notifyItemInserted(index);
+        });
+
+
+
+        FloatingActionButton buttonAddEmailField =
+                new FloatingActionButton(getContext());
+        buttonAddEmailField.setLabelText(getString(R.string.email));
+        buttonAddEmailField.setImageResource(R.drawable.ic_email_white_24dp);
+        buttonAddEmailField.setOnClickListener((view) -> {
+            TemplateField field = new TemplateField();
+            field.setType(TemplateField.Type.EMAIL);
+
+            int index = template.getFields().size();
+            template.getFields().add(field);
+
+            fieldListAdapter.notifyItemInserted(index);
+        });
+
+
+        FloatingActionButton buttonAddNumericField =
+                new FloatingActionButton(getContext());
+        buttonAddNumericField.setLabelText(getString(R.string.numeric));
+        buttonAddNumericField.setImageResource(R.drawable.ic_numeric_white_24dp);
+        buttonAddNumericField.setOnClickListener((view) -> {
+            TemplateField field = new TemplateField();
+            field.setType(TemplateField.Type.NUMERIC);
+
+            int index = template.getFields().size();
+            template.getFields().add(field);
+
+            fieldListAdapter.notifyItemInserted(index);
+        });
+
+
+        FloatingActionButton buttonAddMultipleChoiceField =
+                new FloatingActionButton(getContext());
+        buttonAddMultipleChoiceField.setLabelText(getString(R.string.multiple_choice));
+        buttonAddMultipleChoiceField.setImageResource(R.drawable.ic_list_black_24dp);
+        buttonAddMultipleChoiceField.setOnClickListener((view) -> {
+            TemplateField field = new TemplateField();
+            field.setType(TemplateField.Type.MULTIPLE_CHOICE);
+
+            int index = template.getFields().size();
+            template.getFields().add(field);
+
+            fieldListAdapter.notifyItemInserted(index);
+        });
+
         menu.addMenuButton(buttonAddShortText);
         menu.addMenuButton(buttonAddBooleanField);
+        menu.addMenuButton(buttonAddLongTextField);
+        menu.addMenuButton(buttonAddEmailField);
+        menu.addMenuButton(buttonAddNumericField);
+        menu.addMenuButton(buttonAddMultipleChoiceField);
+
+
     }
 
     @Override

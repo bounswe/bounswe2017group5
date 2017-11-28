@@ -16,4 +16,11 @@
     <string name="password">Password</string>
     <string name="username">Username</string>
     <string name="a_mistake">A mistake?</string>
+    <string name="search">Search</string>
+    <string name="short_text">Short Text</string>
+    <string name="check_box">Check Box</string>
+    <string name="long_text">Long Text</string>
+    <string name="email">Email</string>
+    <string name="numeric">Numeric</string>
+    <string name="multiple_choice">Multiple Choice</string>
 </resources>

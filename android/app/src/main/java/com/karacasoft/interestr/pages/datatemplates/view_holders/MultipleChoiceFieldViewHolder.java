@@ -1,5 +1,6 @@
 package com.karacasoft.interestr.pages.datatemplates.view_holders;
 
+import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -8,24 +9,29 @@ import android.widget.TextView;
 import com.karacasoft.interestr.R;
 
 /**
- * Created by karacasoft on 23.11.2017.
+ * Created by karacasoft on 28.11.2017.
  */
 
-public class ShortTextFieldViewHolder extends FieldViewHolder {
+public class MultipleChoiceFieldViewHolder extends FieldViewHolder {
 
-    public static final int SHORT_TEXT_VIEW_HOLDER_TYPE = 0;
+    public static final int MULTIPLE_CHOICE_VIEW_HOLDER_TYPE = 5;
 
     public TextView fieldType;
     public EditText fieldName;
-    public EditText fieldHint;
+
+    public RecyclerView choiceList;
+    public Button btnAddItem;
+
     public Button btnRemove;
 
-
-    public ShortTextFieldViewHolder(View itemView) {
+    public MultipleChoiceFieldViewHolder(View itemView) {
         super(itemView);
+
         fieldType = itemView.findViewById(R.id.field_type);
         fieldName = itemView.findViewById(R.id.field_name);
-        fieldHint = itemView.findViewById(R.id.field_placeholder);
+
+        choiceList = itemView.findViewById(R.id.choices_list);
+        btnAddItem = itemView.findViewById(R.id.add_choice);
         btnRemove = itemView.findViewById(R.id.btn_remove);
     }
 
@@ -33,4 +39,6 @@ public class ShortTextFieldViewHolder extends FieldViewHolder {
     public String toString() {
         return super.toString() + "0:" + fieldName.getText().toString();
     }
+
+
 }

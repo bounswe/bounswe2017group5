@@ -64,13 +64,8 @@ public class SignUpFragment extends Fragment {
         signup= root.findViewById(R.id.btnSignup);
 
         signup.setOnClickListener(
-                new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        api.signup(username.getText().toString(),email.getText().toString(),
-                                pass1.getText().toString(),pass2.getText().toString(),signupCallBack);
-                        }
-                }
+                (view)-> api.signup(username.getText().toString(),email.getText().toString(),
+                        pass1.getText().toString(),pass2.getText().toString(),signupCallBack)
         );
 
         return root;

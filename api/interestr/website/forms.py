@@ -33,12 +33,12 @@ class RegisterForm(UserCreationForm):
 		return user
 
 class CreateGroupForm(forms.ModelForm):
-	name = forms.CharField()
-	description = forms.CharField(widget = forms.Textarea)
-	tags = forms.CharField(required=False)
-	location = forms.CharField(required=False)
-	is_private = forms.BooleanField(required=False)
-	picture = forms.ImageField(required=False)
+	name = forms.CharField(widget = forms.TextInput(attrs={'placeholder': 'Name of the group', 'class':"form-control"}))
+	description = forms.CharField(widget = forms.Textarea(attrs={'placeholder': 'Description', 'class':"form-control"}))
+	tags = forms.CharField(required=False, widget = forms.Select(attrs={'placeholder': 'Tags', 'class':"form-control", 'id': 'create-group-tag-select'}))
+	location = forms.CharField(required=False, widget = forms.TextInput(attrs={'placeholder': 'Location', 'class':"form-control"}))
+	is_private = forms.BooleanField(required=False, widget = forms.CheckboxInput())
+	picture = forms.ImageField(required=False, widget = forms.FileInput())
 
 	class Meta:
 		model = Group

@@ -32,8 +32,7 @@ public class MainActivity extends AppCompatActivity
         FloatingActionsMenuHandler,
         FloatingActionButtonHandler,
         ErrorHandler,
-        ToolbarHandler {
-        ErrorHandler,
+        ToolbarHandler,
         MenuHandler {
 
     private FloatingActionButton fab;

@@ -33,9 +33,13 @@
     <div class="col-md-8">
       <h1>Create A Group</h1>
       <hr>
-      <form method='POST' enctype="multipart/form-data">
+      <form method='POST'>
 
       {% csrf_token %}
+
+      {% if form.errors %}
+        {{ form.errors }}
+      {% endif %}
 
       {% for field in form %}
         <div class="form-group">

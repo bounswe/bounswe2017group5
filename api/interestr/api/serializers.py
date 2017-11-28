@@ -38,7 +38,7 @@ class PostSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = core_models.Post
-        fields = ('id', 'owner', 'group', 'data_template', 'data', 'created', 'updated',)
+        fields = ('id', 'owner', 'group', 'data_template', 'data', 'comments', 'created', 'updated',)
 
 class UserSerializer(serializers.ModelSerializer):
     joined_groups = GroupSerializer(many=True, read_only=True)

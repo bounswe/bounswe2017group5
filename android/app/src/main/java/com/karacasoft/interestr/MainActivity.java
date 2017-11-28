@@ -33,10 +33,14 @@ public class MainActivity extends AppCompatActivity
         FloatingActionButtonHandler,
         ErrorHandler,
         ToolbarHandler {
+        ErrorHandler,
+        MenuHandler {
 
     private FloatingActionButton fab;
     private FloatingActionMenu fam;
     private Toolbar toolbar;
+
+    private Menu menu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,7 +92,9 @@ public class MainActivity extends AppCompatActivity
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
+        this.menu = menu;
+
+        getMenuInflater().inflate(R.menu.main_no_login, menu);
         return true;
     }
 
@@ -102,8 +108,7 @@ public class MainActivity extends AppCompatActivity
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             return true;
-        }
-        if (id ==R.id.action_search){
+        } else if (id ==R.id.action_search){
             //redirect to search page
             FragmentManager fm = getSupportFragmentManager();
             fm.beginTransaction()
@@ -182,7 +187,7 @@ public class MainActivity extends AppCompatActivity
     public void onSignupSuccessful(User user) {
         FragmentManager fm = getSupportFragmentManager();
         fm.beginTransaction()
-                .replace(R.id.content,LoginFragment.newInstance())
+                .replace(R.id.content, LoginFragment.newInstance())
                 .commit();
     }
 
@@ -236,5 +241,15 @@ public class MainActivity extends AppCompatActivity
     @Override
     public Toolbar getToolbar() {
         return toolbar;
+    }
+
+    @Override
+    public void changeMenu(int id) {
+        getMenuInflater().inflate(id, menu);
+    }
+
+    @Override
+    public Menu getMenu() {
+        return this.menu;
     }
 }

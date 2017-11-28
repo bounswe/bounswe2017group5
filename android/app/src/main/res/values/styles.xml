@@ -19,6 +19,7 @@
 
     <style name="InterestrTheme" parent="AppTheme.NoActionBar">
         <item name="android:buttonStyle">@style/InterestrTheme.ButtonStyle</item>
+        <item name="android:textViewStyle">@style/InterestrTheme.Text</item>
     </style>
 
     <style name="SizeSpecificCollapsingToolbarLayout">
@@ -35,5 +36,13 @@
         <item name="android:background">@drawable/button_bg_dark</item>
         <item name="android:textColor">@color/button_text_color</item>
     </style>
-    
+
+    <style name="InterestrTheme.Text">
+    </style>
+
+    <style name="InterestrTheme.TextEmphasis" parent="InterestrTheme.Text">
+        <item name="android:textAllCaps">true</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
 </resources>

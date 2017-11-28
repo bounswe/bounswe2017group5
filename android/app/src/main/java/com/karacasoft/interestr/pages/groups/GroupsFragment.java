@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.github.clans.fab.FloatingActionButton;
+import com.karacasoft.interestr.ErrorHandler;
 import com.karacasoft.interestr.FloatingActionButtonHandler;
 import com.karacasoft.interestr.FloatingActionsMenuHandler;
 import com.karacasoft.interestr.R;
@@ -65,6 +66,7 @@ public class GroupsFragment extends Fragment {
             Log.e("Groups Fragment", "Hata olmuş, lel :" + error_message);
         }
     };
+    private ErrorHandler errorHandler;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -127,6 +129,8 @@ public class GroupsFragment extends Fragment {
             throw new RuntimeException(context.toString()
                     + " must implement OnGroupsListItemClickedListener");
         }
+
+        errorHandler = (ErrorHandler) context;
 
         fabHandler = (FloatingActionButtonHandler) context;
         famHandler = (FloatingActionsMenuHandler) context;

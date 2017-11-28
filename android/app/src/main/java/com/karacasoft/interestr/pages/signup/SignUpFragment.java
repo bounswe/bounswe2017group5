@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 
+import com.karacasoft.interestr.ErrorHandler;
 import com.karacasoft.interestr.FloatingActionButtonHandler;
 import com.karacasoft.interestr.FloatingActionsMenuHandler;
 import com.karacasoft.interestr.R;
@@ -36,6 +37,7 @@ public class SignUpFragment extends Fragment {
 
     private FloatingActionsMenuHandler famHandler;
     private FloatingActionButtonHandler fabHandler;
+    private ErrorHandler errorHandler;
 
     public static SignUpFragment newInstance() {
         SignUpFragment fragment = new SignUpFragment();
@@ -83,13 +85,14 @@ public class SignUpFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
+
+        errorHandler = (ErrorHandler) context;
+
         fabHandler = (FloatingActionButtonHandler) context;
         famHandler = (FloatingActionsMenuHandler) context;
 
         fabHandler.hideFloatingActionButton();
         famHandler.hideFloatingActionsMenu();
-
-
     }
 
     private InterestrAPI.Callback<User> signupCallBack = new InterestrAPI.Callback<User>() {
@@ -102,7 +105,7 @@ public class SignUpFragment extends Fragment {
 
         @Override
         public void onError(String error_message) {
-
+            errorHandler.onError(error_message);
         }
     };
 

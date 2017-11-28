@@ -11,4 +11,9 @@
     <string name="no_response_from_server">No response from server</string>
     <string name="network_error">Network error. Make sure that you are connected to the internet.</string>
     <string name="no_data_returned">No data returned.</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="login">Login</string>
+    <string name="password">Password</string>
+    <string name="username">Username</string>
+    <string name="a_mistake">A mistake?</string>
 </resources>

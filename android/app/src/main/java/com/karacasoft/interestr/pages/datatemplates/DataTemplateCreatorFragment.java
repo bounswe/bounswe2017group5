@@ -16,6 +16,7 @@ import android.widget.Button;
 
 import com.github.clans.fab.FloatingActionButton;
 import com.github.clans.fab.FloatingActionMenu;
+import com.karacasoft.interestr.ErrorHandler;
 import com.karacasoft.interestr.FloatingActionButtonHandler;
 import com.karacasoft.interestr.FloatingActionsMenuHandler;
 import com.karacasoft.interestr.R;
@@ -41,6 +42,8 @@ public class DataTemplateCreatorFragment extends Fragment {
 
     private FloatingActionsMenuHandler famHandler;
     private FloatingActionButtonHandler fabHandler;
+
+    private ErrorHandler errorHandler;
 
     public DataTemplateCreatorFragment() {
         // Required empty public constructor
@@ -143,12 +146,12 @@ public class DataTemplateCreatorFragment extends Fragment {
         try {
             fabHandler = (FloatingActionButtonHandler) context;
             famHandler = (FloatingActionsMenuHandler) context;
+
+            errorHandler = (ErrorHandler) context;
         } catch (ClassCastException e) {
             // Added to debug stuff
             e.printStackTrace();
         }
-        fabHandler = (FloatingActionButtonHandler) context;
-        famHandler = (FloatingActionsMenuHandler) context;
 
         fabHandler.hideFloatingActionButton();
         famHandler.hideFloatingActionsMenu();

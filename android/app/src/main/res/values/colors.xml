@@ -4,6 +4,9 @@
     <color name="colorPrimaryDark">#af4c00</color>
     <color name="colorAccent">#6200ea</color>
 
+    <color name="colorDarkButton">#333333</color>
+
+
     <color name="button_text_color_enabled">#ffffff</color>
     <color name="button_text_color_disabled">#aaaaaa</color>
     <color name="button_text_color_pressed">#000000</color>

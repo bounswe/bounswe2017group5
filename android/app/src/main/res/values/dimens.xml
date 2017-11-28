@@ -7,6 +7,6 @@
     <dimen name="fab_margin">8dp</dimen>
     <dimen name="text_margin">8dp</dimen>
 
-    <dimen name="rounded_button_radius">10dp</dimen>
+    <dimen name="rounded_button_radius">3dp</dimen>
 
 </resources>

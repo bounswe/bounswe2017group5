@@ -13,6 +13,7 @@ import android.view.MenuItem;
 
 import com.github.clans.fab.FloatingActionButton;
 import com.github.clans.fab.FloatingActionMenu;
+import com.karacasoft.interestr.errorhandling.ErrorDialogFragment;
 import com.karacasoft.interestr.network.models.Group;
 import com.karacasoft.interestr.network.models.Token;
 import com.karacasoft.interestr.network.models.User;
@@ -26,10 +27,11 @@ import com.karacasoft.interestr.pages.signup.SignUpFragment;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
         GroupsFragment.OnGroupsListItemClickedListener,
-        LoginFragment.OnLoginSuccessfulListener,
+        LoginFragment.OnLoginFragmentInteractionListener,
         SignUpFragment.OnSignupSuccessfulListener,
         FloatingActionsMenuHandler,
-        FloatingActionButtonHandler {
+        FloatingActionButtonHandler,
+        ErrorHandler {
 
     private FloatingActionButton fab;
     private FloatingActionMenu fam;
@@ -165,6 +167,15 @@ public class MainActivity extends AppCompatActivity
                 .commit();
     }
 
+    @Override
+    public void onSignUpPressed() {
+        FragmentManager fm = getSupportFragmentManager();
+        fm.beginTransaction()
+                .replace(R.id.content, SignUpFragment.newInstance())
+                .addToBackStack(null)
+                .commit();
+    }
+
 
     @Override
     public void onSignupSuccessful(User user) {
@@ -208,4 +219,17 @@ public class MainActivity extends AppCompatActivity
     public FloatingActionButton getFloatingActionButton() {
         return fab;
     }
+
+    @Override
+    public void onError(Throwable t) {
+        ErrorDialogFragment errorDialogFragment = ErrorDialogFragment.ErrorDialogFragment(t.getMessage());
+        errorDialogFragment.show(getSupportFragmentManager(), "ErrorDialog:" + t.toString());
+    }
+
+    @Override
+    public void onError(String errorMessage) {
+        ErrorDialogFragment errorDialogFragment = ErrorDialogFragment.ErrorDialogFragment(errorMessage);
+        errorDialogFragment.show(getSupportFragmentManager(), "ErrorDialog:" + errorMessage);
+    }
+
 }

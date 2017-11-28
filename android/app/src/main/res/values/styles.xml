@@ -26,9 +26,14 @@
         <item name="contentScrim">?attr/colorPrimary</item>
     </style>
 
-    <style name="InterestrTheme.ButtonStyle" parent="Widget.AppCompat.Button.Colored">
+    <style name="InterestrTheme.ButtonStyle" parent="Widget.AppCompat.Button">
         <item name="android:background">@drawable/button_bg</item>
+        <item name="android:textColor">@color/button_text_color</item>
+    </style>
 
+    <style name="InterestrTheme.ButtonStyleDark" parent="Widget.AppCompat.Button">
+        <item name="android:background">@drawable/button_bg_dark</item>
+        <item name="android:textColor">@color/button_text_color</item>
     </style>
     
 </resources>

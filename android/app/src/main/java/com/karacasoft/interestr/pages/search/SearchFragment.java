@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageButton;
 
+import com.karacasoft.interestr.ErrorHandler;
 import com.karacasoft.interestr.R;
 import com.karacasoft.interestr.network.InterestrAPI;
 import com.karacasoft.interestr.network.InterestrAPIImpl;
@@ -31,6 +32,8 @@ public class SearchFragment extends Fragment {
     private RecyclerView searchResultList;
     private ImageButton btnSearch;
     private EditText etSearch;
+    
+    private ErrorHandler errorHandler;
 
     public SearchFragment() {
         // Required empty public constructor
@@ -58,5 +61,12 @@ public class SearchFragment extends Fragment {
         btnSearch =root.findViewById(R.id.imgBtnSearch);
         searchResultList = root.findViewById(R.id.searchResultList);
         return root;
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+
+        errorHandler = (ErrorHandler) context;
     }
 }

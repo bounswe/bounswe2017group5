@@ -40,10 +40,10 @@ class Tag(BaseModel):
     label = models.CharField(max_length=40)
     url = models.URLField()
     concepturi = models.URLField(unique=True)
-    description = models.TextField()
+    description = models.TextField(blank=True, null=True)
 
     def __str__(self):
-        return self.label+'('+self.concepturi+')'
+        return self.label +' (' + self.concepturi + ')'
 
 class Group(BaseModel):
     name = models.CharField(max_length=40, unique=True)

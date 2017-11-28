@@ -1,27 +1,31 @@
 package com.karacasoft.interestr.pages.datatemplates;
 
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
-import com.karacasoft.interestr.MainActivity;
+import com.github.clans.fab.FloatingActionButton;
+import com.github.clans.fab.FloatingActionMenu;
+import com.karacasoft.interestr.FloatingActionButtonHandler;
+import com.karacasoft.interestr.FloatingActionsMenuHandler;
 import com.karacasoft.interestr.R;
 import com.karacasoft.interestr.pages.datatemplates.data.Template;
 import com.karacasoft.interestr.pages.datatemplates.data.TemplateField;
-import com.karacasoft.interestr.pages.datatemplates.data.dummy.DummyValues;
 
 /**
  * A simple {@link Fragment} subclass.
  */
-public class DataTemplateCreatorFragment extends Fragment implements MainActivity.OnFamActionClickedListener{
+public class DataTemplateCreatorFragment extends Fragment {
 
     public static final String ARG_TEMPLATE = "arg_template";
     public static final String ARG_CREATE_NEW_TEMPLATE = "arg_create_new_template";
@@ -34,6 +38,10 @@ public class DataTemplateCreatorFragment extends Fragment implements MainActivit
 
     private DataTemplateRecyclerViewAdapter fieldListAdapter;
     private OnDataTemplateFieldRemoveListener onDataTemplateFieldClickListener;
+
+    private FloatingActionsMenuHandler famHandler;
+    private FloatingActionButtonHandler fabHandler;
+
     public DataTemplateCreatorFragment() {
         // Required empty public constructor
     }
@@ -67,7 +75,7 @@ public class DataTemplateCreatorFragment extends Fragment implements MainActivit
 
         if(args != null) {
             if(args.getBoolean(ARG_CREATE_NEW_TEMPLATE)) {
-                this.template = DummyValues.getDummyTemplate();
+                this.template = new Template();
             } else {
                 this.template = (Template) args.getSerializable(ARG_TEMPLATE);
             }
@@ -96,23 +104,62 @@ public class DataTemplateCreatorFragment extends Fragment implements MainActivit
         return v;
     }
 
-    public void setOnDataTemplateFieldClickListener(OnDataTemplateFieldRemoveListener onDataTemplateFieldClickListener) {
-        this.onDataTemplateFieldClickListener = onDataTemplateFieldClickListener;
+    private void setupFloatingActionsMenu(FloatingActionMenu menu) {
+        FloatingActionButton buttonAddShortText =
+                new FloatingActionButton(getContext());
+        buttonAddShortText.setLabelText("Short Text");
+        buttonAddShortText.setImageResource(R.drawable.ic_short_text_white_24dp);
+        buttonAddShortText.setOnClickListener((view) -> {
+            TemplateField field = new TemplateField();
+            field.setType(TemplateField.Type.SHORT_TEXT);
+
+            int index = template.getFields().size();
+            template.getFields().add(field);
+
+            fieldListAdapter.notifyItemInserted(index);
+        });
+
+        FloatingActionButton buttonAddBooleanField =
+                new FloatingActionButton(getContext());
+        buttonAddBooleanField.setLabelText("Check Box");
+        buttonAddBooleanField.setImageResource(R.drawable.ic_check_box_white_24dp);
+        buttonAddBooleanField.setOnClickListener((view) -> {
+            TemplateField field = new TemplateField();
+            field.setType(TemplateField.Type.BOOLEAN);
+
+            int index = template.getFields().size();
+            template.getFields().add(field);
+
+            fieldListAdapter.notifyItemInserted(index);
+        });
+
+        menu.addMenuButton(buttonAddShortText);
+        menu.addMenuButton(buttonAddBooleanField);
     }
 
-
     @Override
-    public void onFamActionClicked(String action) {
-        TemplateField field = new TemplateField();
-        if(action.equals(MainActivity.ACTION_ADD_SHORT_TEXT)) {
-            field.setType(TemplateField.Type.SHORT_TEXT);
-        } else if(action.equals(MainActivity.ACTION_ADD_BOOLEAN)) {
-            field.setType(TemplateField.Type.BOOLEAN);
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        try {
+            fabHandler = (FloatingActionButtonHandler) context;
+            famHandler = (FloatingActionsMenuHandler) context;
+        } catch (ClassCastException e) {
+            // Added to debug stuff
+            e.printStackTrace();
         }
-        int index = template.getFields().size();
-        template.getFields().add(field);
+        fabHandler = (FloatingActionButtonHandler) context;
+        famHandler = (FloatingActionsMenuHandler) context;
 
-        fieldListAdapter.notifyItemInserted(index);
+        fabHandler.hideFloatingActionButton();
+        famHandler.hideFloatingActionsMenu();
+
+        famHandler.clearFloatingActionsMenu();
+        setupFloatingActionsMenu(famHandler.getFloatingActionsMenu());
+        famHandler.showFloatingActionsMenu();
+    }
+
+    public void setOnDataTemplateFieldClickListener(OnDataTemplateFieldRemoveListener onDataTemplateFieldClickListener) {
+        this.onDataTemplateFieldClickListener = onDataTemplateFieldClickListener;
     }
 
     public interface OnDataTemplateFieldRemoveListener {

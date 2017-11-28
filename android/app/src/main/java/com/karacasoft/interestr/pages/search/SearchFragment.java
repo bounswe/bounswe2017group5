@@ -27,7 +27,6 @@ import com.karacasoft.interestr.network.models.Token;
 public class SearchFragment extends Fragment {
 
     private View root;
-    private OnSearchFragmentInteractionListener mListener;
     private InterestrAPI api;
     private RecyclerView searchResultList;
     private ImageButton btnSearch;
@@ -59,37 +58,5 @@ public class SearchFragment extends Fragment {
         btnSearch =root.findViewById(R.id.imgBtnSearch);
         searchResultList = root.findViewById(R.id.searchResultList);
         return root;
-    }
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        if (context instanceof OnSearchFragmentInteractionListener) {
-            mListener = (OnSearchFragmentInteractionListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnSearchFragmentInteractionListener");
-        }
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        mListener = null;
-    }
-
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
-    public interface OnSearchFragmentInteractionListener {
-        // TODO: Update argument type and name
-        void onSearchFragmentInteraction(SearchResultItem token);
     }
 }

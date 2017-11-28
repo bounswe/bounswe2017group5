@@ -11,26 +11,28 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.github.clans.fab.FloatingActionButton;
+import com.karacasoft.interestr.FloatingActionButtonHandler;
+import com.karacasoft.interestr.FloatingActionsMenuHandler;
 import com.karacasoft.interestr.R;
 import com.karacasoft.interestr.network.InterestrAPI;
 import com.karacasoft.interestr.network.InterestrAPIImpl;
 import com.karacasoft.interestr.network.InterestrAPIResult;
 import com.karacasoft.interestr.network.models.Group;
-import com.karacasoft.interestr.network.models.Token;
 
 import java.util.ArrayList;
 
 /**
  * A fragment representing a list of Items.
  * <p/>
- * Activities containing this fragment MUST implement the {@link OnListFragmentInteractionListener}
+ * Activities containing this fragment MUST implement the {@link OnGroupsListItemClickedListener}
  * interface.
  */
 public class GroupsFragment extends Fragment {
 
     private static final String ARG_COLUMN_COUNT = "column-count";
     private int mColumnCount = 1;
-    private OnListFragmentInteractionListener mListener;
+    private OnGroupsListItemClickedListener mListener;
 
     private ArrayList<Group> dataset = new ArrayList<>();
     private RecyclerView recyclerView;
@@ -39,6 +41,9 @@ public class GroupsFragment extends Fragment {
     private InterestrAPI api;
 
     private boolean detached = false;
+
+    private FloatingActionButtonHandler fabHandler;
+    private FloatingActionsMenuHandler famHandler;
 
     private InterestrAPI.Callback<ArrayList<Group>> groupsCallback = new InterestrAPI.Callback<ArrayList<Group>>() {
         @Override
@@ -109,16 +114,28 @@ public class GroupsFragment extends Fragment {
         return view;
     }
 
+    private void setupFloatingActionButton(FloatingActionButton fab) {
+        fab.setImageResource(R.drawable.ic_add_white_24dp);
+    }
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof OnListFragmentInteractionListener) {
-            mListener = (OnListFragmentInteractionListener) context;
+        if (context instanceof OnGroupsListItemClickedListener) {
+            mListener = (OnGroupsListItemClickedListener) context;
         } else {
             throw new RuntimeException(context.toString()
-                    + " must implement OnListFragmentInteractionListener");
+                    + " must implement OnGroupsListItemClickedListener");
         }
+
+        fabHandler = (FloatingActionButtonHandler) context;
+        famHandler = (FloatingActionsMenuHandler) context;
+
+        fabHandler.hideFloatingActionButton();
+        famHandler.hideFloatingActionsMenu();
+
+        setupFloatingActionButton(fabHandler.getFloatingActionButton());
+        fabHandler.showFloatingActionButton();
     }
 
     @Override
@@ -139,6 +156,7 @@ public class GroupsFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
+
     }
 
     /**
@@ -151,7 +169,7 @@ public class GroupsFragment extends Fragment {
      * "http://developer.android.com/training/basics/fragments/communicating.html"
      * >Communicating with Other Fragments</a> for more information.
      */
-    public interface OnListFragmentInteractionListener {
+    public interface OnGroupsListItemClickedListener {
         void onListFragmentInteraction(Group item);
     }
 }

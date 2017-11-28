@@ -90,10 +90,7 @@ public class LoginFragment extends Fragment {
     private InterestrAPI.Callback<Token>  loginCallBack = new InterestrAPI.Callback<Token>() {
         @Override
         public void onResult(InterestrAPIResult<Token> result) {
-            Log.d("LoginFragment Callback","login callback is called");
             if(onLoginSuccessfulListener != null) {
-                onLoginSuccessfulListener.onLoginSuccessful(result.get());
-                Log.d("LoginFragment Callback","login listener returns not empty response");
                 onLoginSuccessfulListener.onLoginSuccessful(result.get());
             }
         }

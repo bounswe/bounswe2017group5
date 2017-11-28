@@ -25,23 +25,20 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <android.support.design.widget.FloatingActionButton
+    <com.github.clans.fab.FloatingActionButton
         android:id="@+id/fab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
-        android:layout_margin="@dimen/fab_margin"
-        app:srcCompat="@android:drawable/ic_dialog_email" />
+        android:layout_margin="@dimen/fab_margin" />
 
-    <com.getbase.floatingactionbutton.FloatingActionsMenu
+    <com.github.clans.fab.FloatingActionMenu
         android:id="@+id/fam"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
-        android:layout_margin="8dp"
-        app:fab_labelStyle="@style/menu_labels_style"
-        app:fab_labelsPosition="left">
+        android:layout_margin="@dimen/fab_margin">
 
-    </com.getbase.floatingactionbutton.FloatingActionsMenu>
+    </com.github.clans.fab.FloatingActionMenu>
 
 </android.support.design.widget.CoordinatorLayout>

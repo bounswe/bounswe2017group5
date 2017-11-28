@@ -1,7 +1,6 @@
 package com.karacasoft.interestr;
 
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.FragmentManager;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -11,9 +10,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 
-import com.getbase.floatingactionbutton.FloatingActionsMenu;
+import com.github.clans.fab.FloatingActionButton;
+import com.github.clans.fab.FloatingActionMenu;
 import com.karacasoft.interestr.network.models.Group;
 import com.karacasoft.interestr.network.models.Token;
 import com.karacasoft.interestr.network.models.User;
@@ -26,38 +25,14 @@ import com.karacasoft.interestr.pages.signup.SignUpFragment;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
-        GroupsFragment.OnListFragmentInteractionListener,
+        GroupsFragment.OnGroupsListItemClickedListener,
         LoginFragment.OnLoginSuccessfulListener,
-        SignUpFragment.OnSignupSuccessfulListener{
+        SignUpFragment.OnSignupSuccessfulListener,
+        FloatingActionsMenuHandler,
+        FloatingActionButtonHandler {
 
-    public static final String ACTION_ADD_SHORT_TEXT = "short_text";
-    public static final String ACTION_ADD_BOOLEAN = "boolean";
-
-    private OnFabClickedListener listener;
-    private OnFamActionClickedListener onFamActionClickedListener;
-
-    private void setupFloatingActionsMenu(FloatingActionsMenu menu) {
-        com.getbase.floatingactionbutton.FloatingActionButton buttonAddShortText =
-                new com.getbase.floatingactionbutton.FloatingActionButton(getBaseContext());
-        buttonAddShortText.setTitle("Short Text");
-        buttonAddShortText.setIcon(R.drawable.ic_short_text_white_24dp);
-        buttonAddShortText.setOnClickListener((view) -> {
-            if(onFamActionClickedListener != null) {
-                onFamActionClickedListener.onFamActionClicked(ACTION_ADD_SHORT_TEXT);
-            }
-        });
-
-        com.getbase.floatingactionbutton.FloatingActionButton buttonAddBooleanField =
-                new com.getbase.floatingactionbutton.FloatingActionButton(getBaseContext());
-        buttonAddBooleanField.setTitle("Check Box");
-        buttonAddBooleanField.setIcon(R.drawable.ic_check_box_white_24dp);
-        buttonAddBooleanField.setOnClickListener((view) -> {
-            onFamActionClickedListener.onFamActionClicked(ACTION_ADD_BOOLEAN);
-        });
-
-        menu.addButton(buttonAddShortText);
-        menu.addButton(buttonAddBooleanField);
-    }
+    private FloatingActionButton fab;
+    private FloatingActionMenu fam;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,20 +41,10 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = findViewById(R.id.fab);
-        fab.setOnClickListener(view -> {
-            if(listener != null) {
-                listener.onFabClicked();
-            }
-        });
-        fab.hide();
-
-
-
-        FloatingActionsMenu fam = findViewById(R.id.fam);
-        setupFloatingActionsMenu(fam);
-        fam.setVisibility(View.GONE);
-
+        fab = findViewById(R.id.fab);
+        fab.hide(false);
+        fam = findViewById(R.id.fam);
+        fam.hideMenu(false);
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -90,8 +55,7 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-
-        // Fragment operations
+//      Fragment operations
 //        FragmentManager fm = getSupportFragmentManager();
 //        DataTemplateCreatorFragment fragment = DataTemplateCreatorFragment.newInstance();
 //
@@ -103,7 +67,7 @@ public class MainActivity extends AppCompatActivity
 
         FragmentManager fm = getSupportFragmentManager();
         fm.beginTransaction()
-                .replace(R.id.content, DataTemplateCreatorFragment.newInstance())
+                .replace(R.id.content, LoginFragment.newInstance())
                 .commit();
 
     }
@@ -161,10 +125,20 @@ public class MainActivity extends AppCompatActivity
             fm.beginTransaction()
                     .replace(R.id.content, GroupsFragment.newInstance(1))
                     .commit();
+
         } else if (id == R.id.nav_gallery) {
+            DataTemplateCreatorFragment fragment = DataTemplateCreatorFragment.newInstance();
+
+            FragmentManager fm = getSupportFragmentManager();
+            fm.beginTransaction()
+                    .replace(R.id.content, fragment)
+                    .commit();
 
         } else if (id == R.id.nav_slideshow) {
-
+            FragmentManager fm = getSupportFragmentManager();
+            fm.beginTransaction()
+                    .replace(R.id.content, SignUpFragment.newInstance())
+                    .commit();
         } else if (id == R.id.nav_manage) {
 
         } else if (id == R.id.nav_share) {
@@ -200,11 +174,38 @@ public class MainActivity extends AppCompatActivity
                 .commit();
     }
 
-    public interface OnFabClickedListener {
-        void onFabClicked();
+    @Override
+    public FloatingActionMenu getFloatingActionsMenu() {
+        return fam;
     }
 
-    public interface OnFamActionClickedListener {
-        void onFamActionClicked(String action);
+    @Override
+    public void clearFloatingActionsMenu() {
+        fam.removeAllMenuButtons();
+    }
+
+    @Override
+    public void hideFloatingActionsMenu() {
+        fam.hideMenu(true);
+    }
+
+    @Override
+    public void showFloatingActionsMenu() {
+        fam.showMenu(true);
+    }
+
+    @Override
+    public void showFloatingActionButton() {
+        fab.show(true);
+    }
+
+    @Override
+    public void hideFloatingActionButton() {
+        fab.hide(true);
+    }
+
+    @Override
+    public FloatingActionButton getFloatingActionButton() {
+        return fab;
     }
 }

@@ -12,23 +12,22 @@ import com.karacasoft.interestr.network.models.Group;
 import com.karacasoft.interestr.pages.groups.GroupsFragment.*;
 import com.karacasoft.interestr.util.StringUtils;
 import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 
 import java.util.List;
 
 /**
  * {@link RecyclerView.Adapter} that can display a {@link com.karacasoft.interestr.network.models.Group}
- * and makes a call to the specified {@link OnListFragmentInteractionListener}.
+ * and makes a call to the specified {@link OnGroupsListItemClickedListener}.
  * TODO: Replace the implementation with code for your data type.
  */
 public class MyGroupRecyclerViewAdapter extends RecyclerView.Adapter<MyGroupRecyclerViewAdapter.ViewHolder> {
 
     private final List<Group> mValues;
-    private final OnListFragmentInteractionListener mListener;
+    private final OnGroupsListItemClickedListener mListener;
 
     private ImageLoader imageLoader;
 
-    public MyGroupRecyclerViewAdapter(List<Group> items, OnListFragmentInteractionListener listener) {
+    public MyGroupRecyclerViewAdapter(List<Group> items, OnGroupsListItemClickedListener listener) {
         mValues = items;
         mListener = listener;
         imageLoader = ImageLoader.getInstance();

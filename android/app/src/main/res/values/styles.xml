@@ -17,15 +17,18 @@
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
+    <style name="InterestrTheme" parent="AppTheme.NoActionBar">
+        <item name="android:buttonStyle">@style/InterestrTheme.ButtonStyle</item>
+    </style>
+
     <style name="SizeSpecificCollapsingToolbarLayout">
         <item name="layout_scrollFlags">scroll|exitUntilCollapsed</item>
         <item name="contentScrim">?attr/colorPrimary</item>
     </style>
 
-    <style name="menu_labels_style">
-        <item name="android:background">#40000000</item>
-        <item name="android:textColor">#ffffff</item>
-        <item name="android:padding">2dp</item>
-    </style>
+    <style name="InterestrTheme.ButtonStyle" parent="Widget.AppCompat.Button.Colored">
+        <item name="android:background">@drawable/button_bg</item>
 
+    </style>
+    
 </resources>

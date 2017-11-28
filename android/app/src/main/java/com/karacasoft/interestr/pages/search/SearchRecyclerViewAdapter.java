@@ -21,11 +21,9 @@ import java.util.List;
 public class SearchRecyclerViewAdapter extends RecyclerView.Adapter<SearchRecyclerViewAdapter.ViewHolder>{
     private List<SearchResultItem> searchResults;
     private ImageLoader imageLoader;
-    private SearchFragment.OnSearchFragmentInteractionListener listener;
 
-    public SearchRecyclerViewAdapter(List<SearchResultItem> searchResults, SearchFragment.OnSearchFragmentInteractionListener listener) {
+    public SearchRecyclerViewAdapter(List<SearchResultItem> searchResults) {
         this.searchResults = searchResults;
-        this.listener = listener;
         imageLoader = ImageLoader.getInstance();
     }
 
@@ -52,9 +50,7 @@ public class SearchRecyclerViewAdapter extends RecyclerView.Adapter<SearchRecycl
         holder.searchView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(listener!=null){
-                    listener.onSearchFragmentInteraction(holder.item);
-                }
+
             }
         });
     }
@@ -78,37 +74,37 @@ public class SearchRecyclerViewAdapter extends RecyclerView.Adapter<SearchRecycl
         }
     }
 
+    class SearchResultItem  {
+
+        private String text;
+        private String imageUrl;
+
+        public SearchResultItem(String text,String image) {
+            this.text = text;
+            this.imageUrl = image;
+        }
+
+        public SearchResultItem(String text){
+            this.text = text;
+            this.imageUrl = null;
+        }
+
+
+        public void setImage(String image) {
+            imageUrl = image;
+        }
+
+        public void setText(String text) {
+            this.text = text;
+        }
+
+        public String getImage() {
+            return imageUrl;
+        }
+
+        public String getText() {
+            return text;
+        }
+    }
 }
 
-class SearchResultItem  {
-
-    private String text;
-    private String imageUrl;
-
-    public SearchResultItem(String text,String image) {
-        this.text = text;
-        this.imageUrl = image;
-    }
-
-    public SearchResultItem(String text){
-        this.text = text;
-        this.imageUrl = null;
-    }
-
-
-    public void setImage(String image) {
-        imageUrl = image;
-    }
-
-    public void setText(String text) {
-        this.text = text;
-    }
-
-    public String getImage() {
-        return imageUrl;
-    }
-
-    public String getText() {
-        return text;
-    }
-}

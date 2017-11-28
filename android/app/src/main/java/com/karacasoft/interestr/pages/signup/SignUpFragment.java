@@ -1,6 +1,7 @@
 package com.karacasoft.interestr.pages.signup;
 
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -9,6 +10,8 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 
+import com.karacasoft.interestr.FloatingActionButtonHandler;
+import com.karacasoft.interestr.FloatingActionsMenuHandler;
 import com.karacasoft.interestr.R;
 import com.karacasoft.interestr.network.InterestrAPI;
 import com.karacasoft.interestr.network.InterestrAPIImpl;
@@ -30,6 +33,17 @@ public class SignUpFragment extends Fragment {
     private ArrayList<User> users ;
     private OnSignupSuccessfulListener onSignupSuccessfulListener;
     private InterestrAPI api;
+
+    private FloatingActionsMenuHandler famHandler;
+    private FloatingActionButtonHandler fabHandler;
+
+    public static SignUpFragment newInstance() {
+        SignUpFragment fragment = new SignUpFragment();
+        Bundle args = new Bundle();
+        fragment.setArguments(args);
+        return fragment;
+    }
+
 
     public SignUpFragment() {
         // Required empty public constructor
@@ -66,11 +80,16 @@ public class SignUpFragment extends Fragment {
         api = new InterestrAPIImpl(getContext());
     }
 
-    public static SignUpFragment newInstance() {
-        SignUpFragment fragment = new SignUpFragment();
-        Bundle args = new Bundle();
-        fragment.setArguments(args);
-        return fragment;
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        fabHandler = (FloatingActionButtonHandler) context;
+        famHandler = (FloatingActionsMenuHandler) context;
+
+        fabHandler.hideFloatingActionButton();
+        famHandler.hideFloatingActionsMenu();
+
+
     }
 
     private InterestrAPI.Callback<User> signupCallBack = new InterestrAPI.Callback<User>() {

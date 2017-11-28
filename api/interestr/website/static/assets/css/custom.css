@@ -138,6 +138,12 @@ small {
   justify-content: space-between;
 }
 
+.tag + .tag::before {
+  content: ", ";
+  margin-left: -3px;
+  margin-right: -2px;
+}
+
 .group-detail-header-block .footer .buttons {
   text-align: right;
 }

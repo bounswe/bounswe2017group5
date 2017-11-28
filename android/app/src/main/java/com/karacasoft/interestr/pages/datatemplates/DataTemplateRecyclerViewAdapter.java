@@ -1,11 +1,14 @@
 package com.karacasoft.interestr.pages.datatemplates;
 
+import android.support.design.widget.Snackbar;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.karacasoft.interestr.R;
+import com.karacasoft.interestr.pages.datatemplates.data.MultipleChoiceTemplateField;
 import com.karacasoft.interestr.pages.datatemplates.data.Template;
 import com.karacasoft.interestr.pages.datatemplates.data.TemplateField;
 import com.karacasoft.interestr.pages.datatemplates.view_holders.BooleanFieldViewHolder;
@@ -15,6 +18,8 @@ import com.karacasoft.interestr.pages.datatemplates.view_holders.LongTextFieldVi
 import com.karacasoft.interestr.pages.datatemplates.view_holders.MultipleChoiceFieldViewHolder;
 import com.karacasoft.interestr.pages.datatemplates.view_holders.NumericFieldViewHolder;
 import com.karacasoft.interestr.pages.datatemplates.view_holders.ShortTextFieldViewHolder;
+import com.karacasoft.interestr.pages.datatemplates.view_holders.multiple_choice.ChoiceItem;
+import com.karacasoft.interestr.pages.datatemplates.view_holders.multiple_choice.ChoiceItemDialog;
 
 import java.util.ArrayList;
 
@@ -29,8 +34,11 @@ public class DataTemplateRecyclerViewAdapter extends RecyclerView.Adapter<FieldV
     private ArrayList<TemplateField> fields;
     private DataTemplateCreatorFragment.OnDataTemplateFieldRemoveListener onDataTemplateFieldClickListener;
 
-    public DataTemplateRecyclerViewAdapter(ArrayList<TemplateField> fields,
+    private AppCompatActivity context;
+
+    public DataTemplateRecyclerViewAdapter(AppCompatActivity context, ArrayList<TemplateField> fields,
                                            DataTemplateCreatorFragment.OnDataTemplateFieldRemoveListener onDataTemplateFieldClickListener) {
+        this.context = context;
         this.fields = fields;
         this.onDataTemplateFieldClickListener = onDataTemplateFieldClickListener;
     }
@@ -117,11 +125,19 @@ public class DataTemplateRecyclerViewAdapter extends RecyclerView.Adapter<FieldV
         } else if(getItemViewType(position) == NumericFieldViewHolder.NUMERIC_VIEW_HOLDER_TYPE) {
             configureNumericFieldViewHolder(fields.get(position), (NumericFieldViewHolder) holder);
         } else if(getItemViewType(position) == MultipleChoiceFieldViewHolder.MULTIPLE_CHOICE_VIEW_HOLDER_TYPE) {
-            configureMultipleChoiceFieldViewHolder(fields.get(position), (MultipleChoiceFieldViewHolder) holder);
+            configureMultipleChoiceFieldViewHolder((MultipleChoiceTemplateField) fields.get(position),
+                    (MultipleChoiceFieldViewHolder) holder);
         }
     }
 
+    @Override
+    public void onViewRecycled(FieldViewHolder holder) {
+        holder.updateField();
+        super.onViewRecycled(holder);
+    }
+
     private void configureShortTextViewHolder(TemplateField field, ShortTextFieldViewHolder viewHolder) {
+        viewHolder.field = field;
         viewHolder.fieldType.setText(R.string.short_text);
         if(field.getName() != null) {
             viewHolder.fieldName.setText(field.getName());
@@ -139,6 +155,7 @@ public class DataTemplateRecyclerViewAdapter extends RecyclerView.Adapter<FieldV
     }
 
     private void configureBooleanViewHolder(TemplateField field, BooleanFieldViewHolder viewHolder) {
+        viewHolder.field = field;
         viewHolder.fieldType.setText(R.string.check_box);
         if(field.getName() != null) {
             viewHolder.fieldName.setText(field.getName());
@@ -151,6 +168,7 @@ public class DataTemplateRecyclerViewAdapter extends RecyclerView.Adapter<FieldV
     }
 
     private void configureLongTextViewHolder(TemplateField field, LongTextFieldViewHolder viewHolder) {
+        viewHolder.field = field;
         viewHolder.fieldType.setText(R.string.long_text);
         if(field.getName() != null) {
             viewHolder.fieldName.setText(field.getName());
@@ -163,6 +181,7 @@ public class DataTemplateRecyclerViewAdapter extends RecyclerView.Adapter<FieldV
     }
 
     private void configureEmailFieldViewHolder(TemplateField field, EmailFieldViewHolder viewHolder) {
+        viewHolder.field = field;
         viewHolder.fieldType.setText(R.string.email);
         if(field.getName() != null) {
             viewHolder.fieldName.setText(field.getName());
@@ -175,6 +194,7 @@ public class DataTemplateRecyclerViewAdapter extends RecyclerView.Adapter<FieldV
     }
 
     private void configureNumericFieldViewHolder(TemplateField field, NumericFieldViewHolder viewHolder) {
+        viewHolder.field = field;
         viewHolder.fieldType.setText(R.string.numeric);
         if(field.getName() != null) {
             viewHolder.fieldName.setText(field.getName());
@@ -186,7 +206,8 @@ public class DataTemplateRecyclerViewAdapter extends RecyclerView.Adapter<FieldV
         });
     }
 
-    private void configureMultipleChoiceFieldViewHolder(TemplateField field, MultipleChoiceFieldViewHolder viewHolder) {
+    private void configureMultipleChoiceFieldViewHolder(MultipleChoiceTemplateField field, MultipleChoiceFieldViewHolder viewHolder) {
+        viewHolder.field = field;
         viewHolder.fieldType.setText(R.string.multiple_choice);
         if(field.getName() != null) {
             viewHolder.fieldName.setText(field.getName());
@@ -194,11 +215,52 @@ public class DataTemplateRecyclerViewAdapter extends RecyclerView.Adapter<FieldV
             viewHolder.fieldName.setText("");
         }
 
-        // TODO configure list and button
+        viewHolder.clearItems();
+
+        for (String str : field.getChoices()) {
+            ChoiceItem item = new ChoiceItem();
+            item.setName(str);
+            viewHolder.addItem(item);
+        }
+
+        viewHolder.adapter.notifyDataSetChanged();
+
+        viewHolder.adapter.setOnChoiceClickedListener((index, item) -> {
+            ChoiceItemDialog dialog = ChoiceItemDialog.newInstance("");
+            dialog.setOnChoiceItemChangedListener((str) -> {
+                viewHolder.editItem(index, str);
+            });
+            dialog.show(context.getSupportFragmentManager(), "choiceItemDialog");
+        });
+
+        viewHolder.adapter.setOnChoiceDeleteClickedListener((index, item) -> {
+            viewHolder.removeItem(index);
+            Snackbar.make(viewHolder.itemView,
+                    String.format("%s %s", context.getString(R.string.removed_item), item.getName()), Snackbar.LENGTH_LONG)
+                    .setAction("Undo", view -> viewHolder.addItem(index, item)).show();
+        });
+
+        viewHolder.btnAddItem.setOnClickListener((view) -> {
+            ChoiceItemDialog dialog = ChoiceItemDialog.newInstance("");
+            dialog.setOnChoiceItemChangedListener((str) -> {
+                ChoiceItem item = new ChoiceItem();
+                item.setName(str);
+                viewHolder.addItem(item);
+            });
+            dialog.show(context.getSupportFragmentManager(), "choiceItemDialog");
+        });
 
         viewHolder.btnRemove.setOnClickListener((view) -> {
             onDataTemplateFieldClickListener.onDataTemplateFieldRemove(field);
         });
+    }
+
+    public Template getTemplate() {
+        Template t = new Template();
+
+        // TODO
+
+        return t;
     }
 
     @Override

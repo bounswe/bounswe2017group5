@@ -6,6 +6,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.karacasoft.interestr.R;
+import com.karacasoft.interestr.pages.datatemplates.data.TemplateField;
 
 /**
  * Created by karacasoft on 23.11.2017.
@@ -14,6 +15,8 @@ import com.karacasoft.interestr.R;
 public class BooleanFieldViewHolder extends FieldViewHolder {
 
     public static final int BOOLEAN_VIEW_HOLDER_TYPE = 1;
+
+    public TemplateField field;
 
     public TextView fieldType;
     public EditText fieldName;
@@ -24,6 +27,11 @@ public class BooleanFieldViewHolder extends FieldViewHolder {
         fieldType = itemView.findViewById(R.id.field_type);
         fieldName = itemView.findViewById(R.id.field_name);
         btnRemove = itemView.findViewById(R.id.btn_remove);
+    }
+
+    @Override
+    public void updateField() {
+        field.setName(fieldName.getText().toString());
     }
 
     @Override

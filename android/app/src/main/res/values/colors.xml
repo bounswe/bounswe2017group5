@@ -4,6 +4,8 @@
     <color name="colorPrimaryDark">#af4c00</color>
     <color name="colorAccent">#6200ea</color>
 
+    <color name="colorAccentDark">#4a148c</color>
+
     <color name="colorDarkButton">#333333</color>
 
 

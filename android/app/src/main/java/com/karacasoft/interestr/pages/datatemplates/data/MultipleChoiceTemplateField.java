@@ -8,7 +8,7 @@ import java.util.ArrayList;
 
 public class MultipleChoiceTemplateField extends TemplateField {
 
-    private ArrayList<String> choices;
+    private ArrayList<String> choices = new ArrayList<>();
 
     public final ArrayList<String> getChoices() {
         return choices;

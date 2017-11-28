@@ -1,6 +1,7 @@
 package com.karacasoft.interestr;
 
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -46,6 +47,7 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         toolbar = findViewById(R.id.toolbar);
+        toolbar.setTitle(R.string.app_name);
 
         fab = findViewById(R.id.fab);
         fab.hide(false);
@@ -251,4 +253,5 @@ public class MainActivity extends AppCompatActivity
     public Menu getMenu() {
         return this.menu;
     }
+
 }

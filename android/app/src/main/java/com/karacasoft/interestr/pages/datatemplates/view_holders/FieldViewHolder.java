@@ -7,10 +7,12 @@ import android.view.View;
  * Created by karacasoft on 23.11.2017.
  */
 
-public class FieldViewHolder extends RecyclerView.ViewHolder {
+public abstract class FieldViewHolder extends RecyclerView.ViewHolder {
 
     public FieldViewHolder(View itemView) {
         super(itemView);
     }
+
+    public abstract void updateField();
 
 }

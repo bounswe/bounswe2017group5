@@ -5,6 +5,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -19,7 +20,9 @@ import com.github.clans.fab.FloatingActionMenu;
 import com.karacasoft.interestr.ErrorHandler;
 import com.karacasoft.interestr.FloatingActionButtonHandler;
 import com.karacasoft.interestr.FloatingActionsMenuHandler;
+import com.karacasoft.interestr.MenuHandler;
 import com.karacasoft.interestr.R;
+import com.karacasoft.interestr.pages.datatemplates.data.MultipleChoiceTemplateField;
 import com.karacasoft.interestr.pages.datatemplates.data.Template;
 import com.karacasoft.interestr.pages.datatemplates.data.TemplateField;
 
@@ -44,6 +47,7 @@ public class DataTemplateCreatorFragment extends Fragment {
     private FloatingActionButtonHandler fabHandler;
 
     private ErrorHandler errorHandler;
+    private MenuHandler menuHandler;
 
     public DataTemplateCreatorFragment() {
         // Required empty public constructor
@@ -97,7 +101,7 @@ public class DataTemplateCreatorFragment extends Fragment {
         });
 
         fieldList = v.findViewById(R.id.fields_list);
-        fieldListAdapter = new DataTemplateRecyclerViewAdapter(template.getFields(), this.onDataTemplateFieldClickListener);
+        fieldListAdapter = new DataTemplateRecyclerViewAdapter((AppCompatActivity) getActivity(), template.getFields(), this.onDataTemplateFieldClickListener);
 
         fieldList.setLayoutManager(new LinearLayoutManager(getContext()));
         fieldList.setItemAnimator(new DefaultItemAnimator());
@@ -112,6 +116,8 @@ public class DataTemplateCreatorFragment extends Fragment {
                 new FloatingActionButton(getContext());
         buttonAddShortText.setLabelText(getString(R.string.short_text));
         buttonAddShortText.setImageResource(R.drawable.ic_short_text_white_24dp);
+        buttonAddShortText.setColorNormalResId(R.color.colorAccent);
+        buttonAddShortText.setColorPressedResId(R.color.colorAccentDark);
         buttonAddShortText.setOnClickListener((view) -> {
             TemplateField field = new TemplateField();
             field.setType(TemplateField.Type.SHORT_TEXT);
@@ -120,12 +126,15 @@ public class DataTemplateCreatorFragment extends Fragment {
             template.getFields().add(field);
 
             fieldListAdapter.notifyItemInserted(index);
+            menu.close(true);
         });
 
         FloatingActionButton buttonAddBooleanField =
                 new FloatingActionButton(getContext());
         buttonAddBooleanField.setLabelText(getString(R.string.check_box));
         buttonAddBooleanField.setImageResource(R.drawable.ic_check_box_white_24dp);
+        buttonAddBooleanField.setColorNormalResId(R.color.colorAccent);
+        buttonAddBooleanField.setColorPressedResId(R.color.colorAccentDark);
         buttonAddBooleanField.setOnClickListener((view) -> {
             TemplateField field = new TemplateField();
             field.setType(TemplateField.Type.BOOLEAN);
@@ -134,6 +143,7 @@ public class DataTemplateCreatorFragment extends Fragment {
             template.getFields().add(field);
 
             fieldListAdapter.notifyItemInserted(index);
+            menu.close(true);
         });
 
 
@@ -141,6 +151,8 @@ public class DataTemplateCreatorFragment extends Fragment {
                 new FloatingActionButton(getContext());
         buttonAddLongTextField.setLabelText(getString(R.string.long_text));
         buttonAddLongTextField.setImageResource(R.drawable.ic_long_text_white_24dp);
+        buttonAddLongTextField.setColorNormalResId(R.color.colorAccent);
+        buttonAddLongTextField.setColorPressedResId(R.color.colorAccentDark);
         buttonAddLongTextField.setOnClickListener((view) -> {
             TemplateField field = new TemplateField();
             field.setType(TemplateField.Type.LONG_TEXT);
@@ -149,6 +161,7 @@ public class DataTemplateCreatorFragment extends Fragment {
             template.getFields().add(field);
 
             fieldListAdapter.notifyItemInserted(index);
+            menu.close(true);
         });
 
 
@@ -157,6 +170,8 @@ public class DataTemplateCreatorFragment extends Fragment {
                 new FloatingActionButton(getContext());
         buttonAddEmailField.setLabelText(getString(R.string.email));
         buttonAddEmailField.setImageResource(R.drawable.ic_email_white_24dp);
+        buttonAddEmailField.setColorNormalResId(R.color.colorAccent);
+        buttonAddEmailField.setColorPressedResId(R.color.colorAccentDark);
         buttonAddEmailField.setOnClickListener((view) -> {
             TemplateField field = new TemplateField();
             field.setType(TemplateField.Type.EMAIL);
@@ -165,6 +180,7 @@ public class DataTemplateCreatorFragment extends Fragment {
             template.getFields().add(field);
 
             fieldListAdapter.notifyItemInserted(index);
+            menu.close(true);
         });
 
 
@@ -172,6 +188,8 @@ public class DataTemplateCreatorFragment extends Fragment {
                 new FloatingActionButton(getContext());
         buttonAddNumericField.setLabelText(getString(R.string.numeric));
         buttonAddNumericField.setImageResource(R.drawable.ic_numeric_white_24dp);
+        buttonAddNumericField.setColorNormalResId(R.color.colorAccent);
+        buttonAddNumericField.setColorPressedResId(R.color.colorAccentDark);
         buttonAddNumericField.setOnClickListener((view) -> {
             TemplateField field = new TemplateField();
             field.setType(TemplateField.Type.NUMERIC);
@@ -180,6 +198,7 @@ public class DataTemplateCreatorFragment extends Fragment {
             template.getFields().add(field);
 
             fieldListAdapter.notifyItemInserted(index);
+            menu.close(true);
         });
 
 
@@ -187,14 +206,17 @@ public class DataTemplateCreatorFragment extends Fragment {
                 new FloatingActionButton(getContext());
         buttonAddMultipleChoiceField.setLabelText(getString(R.string.multiple_choice));
         buttonAddMultipleChoiceField.setImageResource(R.drawable.ic_list_black_24dp);
+        buttonAddMultipleChoiceField.setColorNormalResId(R.color.colorAccent);
+        buttonAddMultipleChoiceField.setColorPressedResId(R.color.colorAccentDark);
         buttonAddMultipleChoiceField.setOnClickListener((view) -> {
-            TemplateField field = new TemplateField();
+            MultipleChoiceTemplateField field = new MultipleChoiceTemplateField();
             field.setType(TemplateField.Type.MULTIPLE_CHOICE);
 
             int index = template.getFields().size();
             template.getFields().add(field);
 
             fieldListAdapter.notifyItemInserted(index);
+            menu.close(true);
         });
 
         menu.addMenuButton(buttonAddShortText);
@@ -215,10 +237,14 @@ public class DataTemplateCreatorFragment extends Fragment {
             famHandler = (FloatingActionsMenuHandler) context;
 
             errorHandler = (ErrorHandler) context;
+            menuHandler = (MenuHandler) context;
         } catch (ClassCastException e) {
             // Added to debug stuff
             e.printStackTrace();
         }
+
+        getActivity().getMenuInflater()
+                .inflate(R.menu.main_data_template, menuHandler.getMenu());
 
         fabHandler.hideFloatingActionButton();
         famHandler.hideFloatingActionsMenu();

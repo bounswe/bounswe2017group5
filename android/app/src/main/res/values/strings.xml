@@ -23,4 +23,8 @@
     <string name="email">Email</string>
     <string name="numeric">Numeric</string>
     <string name="multiple_choice">Multiple Choice</string>
+    <string name="choice_name">Choice Name</string>
+    <string name="done">Done</string>
+    <string name="removed_item">Removed item</string>
+    <string name="save">Save</string>
 </resources>

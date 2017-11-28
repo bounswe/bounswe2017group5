@@ -31,17 +31,18 @@ public class MainActivity extends AppCompatActivity
         SignUpFragment.OnSignupSuccessfulListener,
         FloatingActionsMenuHandler,
         FloatingActionButtonHandler,
-        ErrorHandler {
+        ErrorHandler,
+        ToolbarHandler {
 
     private FloatingActionButton fab;
     private FloatingActionMenu fam;
+    private Toolbar toolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        toolbar = findViewById(R.id.toolbar);
 
         fab = findViewById(R.id.fab);
         fab.hide(false);
@@ -69,7 +70,7 @@ public class MainActivity extends AppCompatActivity
 
         FragmentManager fm = getSupportFragmentManager();
         fm.beginTransaction()
-                .replace(R.id.content, LoginFragment.newInstance())
+                .replace(R.id.content, SearchFragment.newInstance())
                 .commit();
 
     }
@@ -232,4 +233,8 @@ public class MainActivity extends AppCompatActivity
         errorDialogFragment.show(getSupportFragmentManager(), "ErrorDialog:" + errorMessage);
     }
 
+    @Override
+    public Toolbar getToolbar() {
+        return toolbar;
+    }
 }

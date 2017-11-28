@@ -4,6 +4,7 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,9 +14,16 @@ import android.widget.ImageButton;
 
 import com.karacasoft.interestr.ErrorHandler;
 import com.karacasoft.interestr.R;
+import com.karacasoft.interestr.ToolbarHandler;
 import com.karacasoft.interestr.network.InterestrAPI;
 import com.karacasoft.interestr.network.InterestrAPIImpl;
 import com.karacasoft.interestr.network.models.Token;
+import com.karacasoft.interestr.pages.search.SearchResultItem;
+import com.karacasoft.interestr.pages.search.dummydata.SearchDummyData;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -32,8 +40,11 @@ public class SearchFragment extends Fragment {
     private RecyclerView searchResultList;
     private ImageButton btnSearch;
     private EditText etSearch;
+    private SearchRecyclerViewAdapter recyclerViewAdapter;
+    private ArrayList<SearchResultItem> results = new ArrayList<>();
     
     private ErrorHandler errorHandler;
+    private ToolbarHandler toolbarHandler;
 
     public SearchFragment() {
         // Required empty public constructor
@@ -60,6 +71,12 @@ public class SearchFragment extends Fragment {
         etSearch=root.findViewById(R.id.etSearch);
         btnSearch =root.findViewById(R.id.imgBtnSearch);
         searchResultList = root.findViewById(R.id.searchResultList);
+        recyclerViewAdapter = new SearchRecyclerViewAdapter(results);
+
+        searchResultList.setLayoutManager(new LinearLayoutManager(getContext()));
+        searchResultList.setAdapter(recyclerViewAdapter);
+
+        fillList();
         return root;
     }
 
@@ -68,5 +85,22 @@ public class SearchFragment extends Fragment {
         super.onAttach(context);
 
         errorHandler = (ErrorHandler) context;
+        toolbarHandler = (ToolbarHandler) context;
+    }
+
+    private void fillList(){
+        results.addAll( SearchDummyData.createDummySearchResultList());
+
+        recyclerViewAdapter.notifyItemRangeInserted(0, results.size());
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        // TODO
+    }
+
+    public interface OnSearchFragmentInteractionListener{
+        void onSearchFragmentInteraction(SearchResultItem item);
     }
 }

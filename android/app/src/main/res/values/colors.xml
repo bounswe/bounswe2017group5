@@ -11,4 +11,6 @@
     <color name="button_text_color_disabled">#aaaaaa</color>
     <color name="button_text_color_pressed">#000000</color>
 
+    <color name="text_gray">#808080</color>
+
 </resources>

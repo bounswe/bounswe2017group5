@@ -1,6 +1,5 @@
 package com.karacasoft.interestr.pages.search;
 
-import android.media.Image;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,9 +8,11 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.karacasoft.interestr.R;
+import com.karacasoft.interestr.network.models.Group;
+import com.karacasoft.interestr.network.models.User;
+import com.karacasoft.interestr.pages.search.SearchResultItem;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -19,8 +20,10 @@ import java.util.List;
  */
 
 public class SearchRecyclerViewAdapter extends RecyclerView.Adapter<SearchRecyclerViewAdapter.ViewHolder>{
-    private List<SearchResultItem> searchResults;
+    private List<SearchResultItem> searchResults;//type - group/user
     private ImageLoader imageLoader;
+    private SearchFragment.OnSearchFragmentInteractionListener slistener;
+
 
     public SearchRecyclerViewAdapter(List<SearchResultItem> searchResults) {
         this.searchResults = searchResults;
@@ -30,14 +33,9 @@ public class SearchRecyclerViewAdapter extends RecyclerView.Adapter<SearchRecycl
 
 
     @Override
-    public int getItemViewType(int position) {
-        return super.getItemViewType(position);
-    }
-
-    @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.fragment_group, parent, false);
+                .inflate(R.layout.search_item, parent, false);
         return new ViewHolder(view);
 
     }
@@ -45,12 +43,24 @@ public class SearchRecyclerViewAdapter extends RecyclerView.Adapter<SearchRecycl
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         holder.item = searchResults.get(position);
-        imageLoader.displayImage(searchResults.get(position).getImage(),holder.searchImageView);
-        holder.searchTextView.setText(searchResults.get(position).getText());
+        //todo add type as string
+
+        imageLoader.displayImage(searchResults.get(position).getImageUrl(),holder.searchImageView);
+        holder.searchTextView.setText(searchResults.get(position).getName());
+        if(searchResults.get(position).getType() ==1){
+            holder.searchTypeView.setText("user");
+        }else if(searchResults.get(position).getType() ==0){
+            holder.searchTypeView.setText("group");
+        }else{
+            holder.searchTypeView.setText("");//todo set maybe or give exception
+        }
+
         holder.searchView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                if(slistener!=null){
+                    slistener.onSearchFragmentInteraction(holder.item);
+                }
             }
         });
     }
@@ -63,6 +73,7 @@ public class SearchRecyclerViewAdapter extends RecyclerView.Adapter<SearchRecycl
         public final View searchView;
         public final ImageView searchImageView;
         public final TextView searchTextView;
+        public final TextView searchTypeView;
 
         public SearchResultItem item;
 
@@ -71,40 +82,10 @@ public class SearchRecyclerViewAdapter extends RecyclerView.Adapter<SearchRecycl
             searchView = view;
             searchTextView = view.findViewById(R.id.textSearchItem);
             searchImageView = view.findViewById(R.id.imgSearchItem);
+            searchTypeView = view.findViewById(R.id.tvSearchItemType);
         }
     }
 
-    class SearchResultItem  {
-
-        private String text;
-        private String imageUrl;
-
-        public SearchResultItem(String text,String image) {
-            this.text = text;
-            this.imageUrl = image;
-        }
-
-        public SearchResultItem(String text){
-            this.text = text;
-            this.imageUrl = null;
-        }
-
-
-        public void setImage(String image) {
-            imageUrl = image;
-        }
-
-        public void setText(String text) {
-            this.text = text;
-        }
-
-        public String getImage() {
-            return imageUrl;
-        }
-
-        public String getText() {
-            return text;
-        }
-    }
 }
+
 

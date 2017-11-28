@@ -15,7 +15,7 @@ from django.contrib.auth.models import User
 from django.views import View
 
 from api.models import Group
-from .forms import LoginForm, RegisterForm, CreateGroupForm, CreatePostForm
+from .forms import LoginForm, RegisterForm, CreateGroupForm
 
 from django.contrib.auth.mixins import LoginRequiredMixin
 
@@ -122,30 +122,18 @@ class HomePageView(View):
 
 class GroupDetailsView(LoginRequiredMixin, View):
     template_name = 'website/group-details.html'
-    form_class = CreatePostForm
     model = Group
 
     def get_object(self, pk):
         return self.model.objects.get(pk=pk)
 
     def get(self, request, pk):
-        form = self.form_class()
         group = self.get_object(pk)
         isJoined = request.user in group.members.all()
         return render(request, self.template_name, {
-            'post_create_form': form,
             'group' : group,
             'is_joined' : isJoined
             })
-
-    def post(self, request, pk):
-        form = self.form_class(request.POST, request.FILES)
-
-        if form.is_valid():
-            post = form.save(request.user, self.get_object(pk), commit=True)
-            return redirect('website:group_details', self.get_object(pk).id)
-
-        return render(request, self.template_name, {'post_create_form': form, 'group' : self.get_object(pk) })
 
 class CreateGroupView(View):
 

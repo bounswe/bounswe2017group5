@@ -143,19 +143,19 @@
           <button class="btn btn-round btn-danger" onclick="removeCurrentTemplate()">Remove This</button>
         </div>
 
-        <form method="POST" class="group-detail-content-form">
+        <form class="group-detail-content-form">
           {% csrf_token %}
           {{ form.non_field_errors }}
           <div id="formFields">
           </div>
 
           <div class="text-right">
-            <button type="submit" class="btn btn-round btn-warning btn-fill btn-wide">Share</button>
+            <div role="button" class="btn btn-round btn-warning btn-fill btn-wide" onclick="sendPost()">Share</div>
           </div>
         </form>
       </div>
 
-      {% for post in group.posts.all %}
+      {% for post in group.posts.all reversed %}
       <div class="group-detail-content">
         <div class="header">
           <div class="text">
@@ -167,7 +167,9 @@
           </div>
         </div>
         <div class="content">
-          <p>{{ post.text }}</p>
+          {% for question_response in post.data %}
+          <p><strong>{{ question_response.question }}</strong>: <span>{{ question_response.response }}</span></p>
+          {% endfor %}
         </div>
         <div class="comments">
           <a class="text-muted" href="javascript:void(0);">0 Comments</a>
@@ -402,6 +404,7 @@
           labelElem.classList.add('template-input-label');
 
           if (input.type == 'checkbox') {
+            inputElem.value = input.label;
             labelElem.classList.add('checkbox');
             var checkboxIcons = document.createElement('span');
             checkboxIcons.classList.add('icons');
@@ -714,6 +717,40 @@
                 }).fail((xhr, status, err) => swal('Oops...', 'Unexpected error, couldn\'t remove the template.', 'error'));
             }
         });
+    }
+
+    function sendPost() {
+        var questionResponses = $(formFields).find('> .form-group').map((i, el) => {
+            var question = $(el).find('> label').text(), response = '';
+
+            var checkboxes = $(el).find('input[type="checkbox"]');
+
+            if (checkboxes.length) {
+                var checkedCheckboxes = checkboxes.filter((i, el) => el.checked).map((i, el) => el.value);
+                response = Array.from(checkedCheckboxes).join(', ');
+            } else {
+              var inputOrTextarea = $(el).find('textarea');
+              if (!inputOrTextarea.length) {
+                  inputOrTextarea = $(el).find('input');
+              }
+              response = inputOrTextarea.get(0).value;
+            }
+            return { question: question, response: response };
+        });
+
+        $.ajax({
+          method: 'POST',
+          url: '{% url "api:posts" %}',
+          data: {
+              data: JSON.stringify(Array.from(questionResponses)),
+              group: '{{ group.id }}',
+              owner: '{{ user.id }}',
+              data_template: selectedTemplate.id === '-1' ? undefined : selectedTemplate.id,
+          },
+          beforeSend: (xhr) => { xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken')); }
+        }).done(() => {
+          location.reload();
+        }).fail((xhr, status, err) => swal('Oops...', 'Unexpected error, couldn\'t send the post.', 'error'));
     }
 
   </script>

@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import json
+
 from django.db import models
 from django.contrib.auth import models as auth_models
 from django.utils import timezone
@@ -72,7 +74,7 @@ class Post(BaseModel):
     data = JSONField()
 
     def __str__(self):
-        return self.data
+        return json.dumps(self.data)
 
 class Comment(BaseModel):
     owner = models.ForeignKey(auth_models.User, related_name="comments", default=None)

@@ -33,12 +33,19 @@ class CommentSerializer(serializers.ModelSerializer):
         model = core_models.Comment
         fields = ('id', 'owner', 'text', 'post', 'created', 'updated',)
 
+class VoteSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = core_models.Vote
+        fields = ('id', 'owner', 'post', 'up', 'created', 'updated',)
+
 class PostSerializer(serializers.ModelSerializer):
     comments = CommentSerializer(many=True, read_only=True)
+    votes = VoteSerializer(many=True, read_only=True)
 
     class Meta:
         model = core_models.Post
-        fields = ('id', 'owner', 'group', 'data_template', 'data', 'created', 'updated',)
+        fields = ('id', 'owner', 'group', 'data_template', 'data', 'created', 'updated', 'comments', 'votes')
 
 class UserSerializer(serializers.ModelSerializer):
     joined_groups = GroupSerializer(many=True, read_only=True)
@@ -46,7 +53,8 @@ class UserSerializer(serializers.ModelSerializer):
     data_templates = DataTemplateSerializer(many=True, read_only=True)
     comments = CommentSerializer(many=True, read_only=True) 
     posts = PostSerializer(many=True, read_only=True)
+    votes = VoteSerializer(many=True, read_only=True)
 
     class Meta:
         model = auth_models.User
-        fields = ('id', 'username', 'email', 'joined_groups', 'moderated_groups', 'data_templates', 'posts', 'comments', )
+        fields = ('id', 'username', 'email', 'joined_groups', 'moderated_groups', 'data_templates', 'posts', 'comments', 'votes')

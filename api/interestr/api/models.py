@@ -73,6 +73,9 @@ class Post(BaseModel):
     data_template = models.ForeignKey('api.DataTemplate', related_name='posts', default=None, null=True)
     data = JSONField()
 
+    def vote_sum(self):
+        return self.votes.filter(up=True).count() - self.votes.filter(up=False).count()
+
     def __str__(self):
         return json.dumps(self.data)
 

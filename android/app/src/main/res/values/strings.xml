@@ -27,4 +27,7 @@
     <string name="done">Done</string>
     <string name="removed_item">Removed item</string>
     <string name="save">Save</string>
+    <string name="report">Report</string>
+    <string name="user_reported">User reported.</string>
+
 </resources>

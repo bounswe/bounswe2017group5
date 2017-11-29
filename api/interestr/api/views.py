@@ -37,7 +37,7 @@ from .http import ErrorResponse
 
 ### List Views BEGIN
 
-class UserList(generics.ListAPIView):
+class UserList(generics.ListCreateAPIView):
     """
     Return a list of all the existing users.
     """
@@ -288,3 +288,17 @@ def search_wikidata(request, limit=15):
         response.append(model_to_dict(tag))
 
     return JsonResponse({"results": response})
+
+class SignUpView(APIView):
+    def post(self, request):
+        serialized = core_serializers.UserSerializer(data=request.data)
+        if serialized.is_valid():
+            auth_models.User.objects.create_user(
+                email = request.data['email'],
+                username = request.data['username'],
+                password = request.data['password'] )
+            user_to_send = auth_models.User.objects.get(username = request.data['username'])
+            out_serializer = core_serializers.UserSerializer(user_to_send)
+            return JsonResponse(out_serializer.data)
+        else:
+            return JsonResponse(serialized._errors, status=417)

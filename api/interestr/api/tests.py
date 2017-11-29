@@ -30,6 +30,58 @@ class AuthTests(TestCase):
 
         self.assertEqual(json_response['token'], Token.objects.get(user=self.test_user).key)
 
+class SignupTests(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.test_user = User.objects.create_user('user', 'e@mail.com', 'password123')
+
+    def test_signup_nonexisting_user(self):
+        response = self.client.post('/api/v1/register/',
+            {'username': 'name',
+            'email':'email@email.com',
+            'password':'password123'})
+
+        self.assertEqual(response.status_code, 200)
+
+        json_response = json.loads(response.content)
+
+        self.assertEqual(json_response['username'], 'name')
+        self.assertEqual(json_response['email'], 'email@email.com')
+        self.assertEqual(json_response['joined_groups'], [])
+        self.assertEqual(json_response['moderated_groups'], [])
+        self.assertEqual(json_response['data_templates'], [])
+        self.assertEqual(json_response['posts'], [])
+        self.assertEqual(json_response['comments'], [])
+
+    def test_signup_with_existing_username(self):
+        response = self.client.post('/api/v1/register/',
+           {'username': 'user',
+           'email':'email@email.com',
+           'password':'password123'})
+
+        self.assertEqual(response.status_code, 417)
+
+        json_response = json.loads(response.content)
+
+        self.assertEqual(json_response['username'],
+            ["A user with that username already exists."])
+
+    def test_signup_with_existing_email(self):
+        response = self.client.post('/api/v1/register/',
+            {'username': 'name2',
+            'email':'email@email.com',
+            'password':'password123'})
+        self.assertEqual(response.status_code, 200)
+
+        json_response = json.loads(response.content)
+
+        self.assertEqual(json_response['username'], 'name2')
+        self.assertEqual(json_response['email'], 'email@email.com')
+        self.assertEqual(json_response['joined_groups'], [])
+        self.assertEqual(json_response['moderated_groups'], [])
+        self.assertEqual(json_response['data_templates'], [])
+        self.assertEqual(json_response['posts'], [])
+        self.assertEqual(json_response['comments'], [])
 
 class PostTests(TestCase):
     def setUp(self):

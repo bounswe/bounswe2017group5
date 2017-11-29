@@ -15,6 +15,8 @@ urlpatterns = [
     url(r'^tags/(?P<pk>\d+)/$', views.TagDetail.as_view(), name='tagdetail'),
     url(r'^comments/$', views.CommentList.as_view(), name='comments'),
     url(r'^comments/(?P<pk>\d+)/$', views.CommentDetail.as_view(), name='commentdetail'),
+    url(r'^votes/$', views.VoteList.as_view(), name='votes'),
+    url(r'^votes/(?P<pk>\d+)/$', views.VoteDetail.as_view(), name='votedetail'),
 
     url(r'^data_templates/$', views.DataTemplateList.as_view(), name='datatemplates'),
     url(r'^data_templates/(?P<pk>\d+)/$', views.DataTemplateDetail.as_view(), name='datatemplatedetail'),

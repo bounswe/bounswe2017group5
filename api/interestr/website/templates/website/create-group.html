@@ -33,15 +33,53 @@
     <div class="col-md-8">
       <h1>Create A Group</h1>
       <hr>
-      <form method='POST' enctype="multipart/form-data">
+      <form method='POST'>
 
       {% csrf_token %}
 
-      {{form.as_p}}
+      {% if form.errors %}
+        {{ form.errors }}
+      {% endif %}
+
+      {% for field in form %}
+        <div class="form-group">
+          <label for="{{ field.auto_id }}">{{ field.label }}:</label>
+          {{ field }}
+        </div>
+        {% endfor %}
+
       <button type="submit" class="btn btn-warning btn-fill btn-wide">Create</button>
       <a href="{% url 'website:groups' %}" class="btn btn-fill btn-wide">Go Back</a>
       </form>
     </div>
   </div>
 </div>
+
+<script type="text/javascript">
+  window.onload = function () {
+    $("#create-group-tag-select").select2({
+      ajax: {
+          url: "{% url 'api:searchwiki' %}",
+          dataType: 'json',
+          delay: 200,
+          processResults: (data) => {
+              var results = data.results.map(el => Object.assign({}, el, {
+                  text: el.label + (el.description ? " (" + el.description + ")" : ""),
+              }));
+
+              return {
+                  results: results,
+                  pagination: {
+                      more: false,
+                  },
+              };
+          },
+          cache: true,
+      },
+      placeholder: 'Add some tags',
+      minimumInputLength: 1, // don't query the API for empty search terms
+      multiple: true, // make it a multi-select
+    });
+  };
+</script>
 {% endblock content %}

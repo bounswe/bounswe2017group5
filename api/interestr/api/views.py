@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+from django.forms import model_to_dict
 from rest_framework.authtoken.models import Token
 from rest_framework import generics
 from rest_framework.decorators import api_view
@@ -9,10 +10,12 @@ from rest_framework.permissions import IsAuthenticated
 
 from django.shortcuts import render
 
-
 from django.http import HttpResponse, JsonResponse
 
 from django.contrib.auth import models as auth_models
+
+from api.models import Tag
+
 from . import models as core_models
 from django.contrib.auth import authenticate
 
@@ -29,6 +32,7 @@ import json
 from . import serializers as core_serializers
 from .http import ErrorResponse
 
+
 ### List Views BEGIN
 
 class UserList(generics.ListAPIView):
@@ -38,6 +42,7 @@ class UserList(generics.ListAPIView):
     queryset = auth_models.User.objects.all()
     serializer_class = core_serializers.UserSerializer
     pagination_class = UserLimitOffsetPagination
+
 
 class GroupList(generics.ListCreateAPIView):
     """
@@ -51,6 +56,7 @@ class GroupList(generics.ListCreateAPIView):
     serializer_class = core_serializers.GroupSerializer
     pagination_class = GroupLimitOffsetPagination
 
+
 class DataTemplateList(generics.ListCreateAPIView):
     """
     get:
@@ -62,6 +68,7 @@ class DataTemplateList(generics.ListCreateAPIView):
     queryset = core_models.DataTemplate.objects.all()
     serializer_class = core_serializers.DataTemplateSerializer
     pagination_class = DataTemplateLimitOffSetPagination
+
 
 class PostList(generics.ListCreateAPIView):
     """
@@ -75,6 +82,7 @@ class PostList(generics.ListCreateAPIView):
     serializer_class = core_serializers.PostSerializer
     pagination_class = PostLimitOffsetPagination
 
+
 class TagList(generics.ListCreateAPIView):
     """
     get:
@@ -86,6 +94,7 @@ class TagList(generics.ListCreateAPIView):
     queryset = core_models.Tag.objects.all()
     serializer_class = core_serializers.TagSerializer
 
+
 class CommentList(generics.ListCreateAPIView):
     """
     get:
@@ -96,6 +105,7 @@ class CommentList(generics.ListCreateAPIView):
     """
     queryset = core_models.Comment.objects.all()
     serializer_class = core_serializers.CommentSerializer
+
 
 ### List Views END
 
@@ -112,6 +122,7 @@ class UserDetail(generics.RetrieveUpdateAPIView):
     queryset = auth_models.User.objects.all()
     serializer_class = core_serializers.UserSerializer
 
+
 class GroupDetail(generics.RetrieveUpdateDestroyAPIView):
     """
     get:
@@ -125,6 +136,7 @@ class GroupDetail(generics.RetrieveUpdateDestroyAPIView):
     """
     queryset = core_models.Group.objects.all()
     serializer_class = core_serializers.GroupSerializer
+
 
 class DataTemplateDetail(generics.RetrieveUpdateDestroyAPIView):
     """
@@ -140,6 +152,7 @@ class DataTemplateDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = core_models.DataTemplate.objects.all()
     serializer_class = core_serializers.DataTemplateSerializer
 
+
 class PostDetail(generics.RetrieveUpdateDestroyAPIView):
     """
     get:
@@ -154,6 +167,7 @@ class PostDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = core_models.Post.objects.all()
     serializer_class = core_serializers.PostSerializer
 
+
 class TagDetail(generics.RetrieveUpdateDestroyAPIView):
     """
     get:
@@ -167,6 +181,7 @@ class TagDetail(generics.RetrieveUpdateDestroyAPIView):
     """
     queryset = core_models.Tag.objects.all()
     serializer_class = core_serializers.TagSerializer
+
 
 class CommentDetail(generics.RetrieveUpdateDestroyAPIView):
     """
@@ -193,7 +208,8 @@ class MemberGroupOperation(APIView):
         # handle, user is already a member.
         if group.members.filter(id=request.user.id).count() == 1:
             return HttpResponse(status=410)
-        group.members.add(request.user);    group.save()
+        group.members.add(request.user);
+        group.save()
         serializer = core_serializers.GroupSerializer(group)
         return JsonResponse(serializer.data)
 
@@ -202,22 +218,35 @@ class MemberGroupOperation(APIView):
         # handle, user isn't a member to begin with.
         if group.members.filter(id=request.user.id).count() == 0:
             return HttpResponse(status=410)
-        group.members.remove(request.user); group.save()
+        group.members.remove(request.user);
+        group.save()
         serializer = core_serializers.GroupSerializer(group)
         return JsonResponse(serializer.data)
+
 
 @api_view(['GET'])
 def search_wikidata(request, limit=15):
     """
     Returns wikidata search results for the specified name in the requests GET field.
     """
-    searched_name = urllib.quote_plus(request.GET["name"])
-    url = "http://www.wikidata.org//w/api.php?action=wbsearchentities&format=json&search="+searched_name+"&language=en&type=item&limit="+str(limit)
+    searched_name = urllib.quote_plus(request.GET["term"])
+    url = "http://www.wikidata.org//w/api.php?action=wbsearchentities&format=json&search=" + searched_name + "&language=en&type=item&limit=" + str(
+        limit)
     response = urllib.urlopen(url)
-    data = json.loads(response.read())
- 
-    data = data["search"]
-    fields = ('label', 'url','description', 'concepturi', 'created', 'updated')
-    data = [{k:tag_data[k] for k in fields if k in tag_data} for tag_data in data]
+    data = json.loads(response.read())["search"]
+    response = []
 
-    return JsonResponse({"resuts":data})
+    for tag_data in data:
+        try:
+            tag = Tag.objects.get(concepturi=tag_data["concepturi"])
+            tag.label = tag_data["label"]
+            tag.url = tag_data["url"]
+            tag.description = tag_data["description"] if "description" in tag_data else None
+        except:
+            tag = Tag(label=tag_data["label"], url=tag_data["url"],
+                      description=tag_data["description"] if "description" in tag_data else None,
+                      concepturi=tag_data["concepturi"])
+        tag.save()
+        response.append(model_to_dict(tag))
+
+    return JsonResponse({"results": response})

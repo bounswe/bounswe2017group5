@@ -125,6 +125,18 @@ class CommentList(generics.ListCreateAPIView):
     serializer_class = core_serializers.CommentSerializer
 
 
+class VoteList(generics.ListCreateAPIView):
+    """
+    get:
+    Return a list of all the existing votes.
+
+    post:
+    Create a new vote instance.
+    """
+    queryset = core_models.Vote.objects.all()
+    serializer_class = core_serializers.VoteSerializer
+
+
 ### List Views END
 
 ### Detail Views BEGIN
@@ -214,6 +226,21 @@ class CommentDetail(generics.RetrieveUpdateDestroyAPIView):
     """
     queryset = core_models.Comment.objects.all()
     serializer_class = core_serializers.CommentSerializer
+
+
+class VoteDetail(generics.RetrieveUpdateDestroyAPIView):
+    """
+    get:
+    Return the details of the vote with the given id.
+
+    update:
+    Update the vote detail with the given id.
+
+    delete:
+    Delete the vote detail with the given id.
+    """
+    queryset = core_models.Vote.objects.all()
+    serializer_class = core_serializers.VoteSerializer
 
 
 ### Detail Views END

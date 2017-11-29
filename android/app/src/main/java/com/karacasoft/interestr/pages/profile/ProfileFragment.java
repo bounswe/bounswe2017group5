@@ -3,8 +3,12 @@ package com.karacasoft.interestr.pages.profile;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -27,6 +31,7 @@ public class ProfileFragment extends Fragment {
     private TextView aboutMe;
     //todo group recycler reuse
     //todo context menu add
+
 
     public ProfileFragment() {
         // Required empty public constructor
@@ -58,8 +63,13 @@ public class ProfileFragment extends Fragment {
         btnMore = root.findViewById(R.id.btnMore);
         followers = root.findViewById(R.id.tvFollowerNum);
         following = root.findViewById(R.id.tvFollowingNum);
+
+        registerForContextMenu(btnMore);
+
         btnMore.setOnClickListener((view -> {
-            //todo create context menu
+            if(getActivity() != null) {
+                getActivity().openContextMenu(btnMore);
+            }
         }));
         btnFollow.setOnClickListener(view -> {
             //todo follow user
@@ -68,4 +78,25 @@ public class ProfileFragment extends Fragment {
         return root;
     }
 
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+
+        if(getActivity() != null) {
+            MenuInflater inflater = getActivity().getMenuInflater();
+            inflater.inflate(R.menu.context_menu_user_options, menu);
+        }
+
+        super.onCreateContextMenu(menu, v, menuInfo);
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        if(item.getItemId() == R.id.action_report) {
+            // TODO report action
+            Snackbar.make(getView(), R.string.user_reported, Snackbar.LENGTH_SHORT)
+                .show();
+            return true;
+        }
+        return super.onContextItemSelected(item);
+    }
 }

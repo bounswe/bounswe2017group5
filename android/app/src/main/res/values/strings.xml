@@ -30,4 +30,7 @@
     <string name="make_hidden">Make Hidden</string>
     <string name="group_name">Group Name</string>
     <string name="groups">Groups</string>
+    <string name="report">Report</string>
+    <string name="user_reported">User reported.</string>
+
 </resources>

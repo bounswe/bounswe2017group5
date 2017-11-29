@@ -11,13 +11,25 @@
         android:layout_height="300dp"
         android:fitsSystemWindows="true"
         >
+        <!--default title is added, will be changed in pages-->
         <android.support.design.widget.CollapsingToolbarLayout
+            android:id="@+id/collapsing_toolbar_layout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:layout_scrollFlags="scroll|exitUntilCollapsed"
             android:fitsSystemWindows="true"
-            app:title="User Profile"
+            app:title="User/group name"
             >
+            <!--default image added, will be changed in pages-->
+            <ImageView
+                android:id="@+id/coordinator_layout_image"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                android:fitsSystemWindows="true"
+                android:src="@drawable/ic_menu_gallery"
+                app:layout_collapseMode="parallax"
+                />
 
             <android.support.v7.widget.Toolbar
                 android:layout_width="match_parent"
@@ -34,7 +46,7 @@
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
         >
         <FrameLayout
-            android:id="@+id/profile_activity_content"
+            android:id="@+id/coordinator_layout_activity_content"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 

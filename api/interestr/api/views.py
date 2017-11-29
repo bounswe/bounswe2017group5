@@ -37,7 +37,7 @@ from .http import ErrorResponse
 
 ### List Views BEGIN
 
-class UserList(generics.ListAPIView):
+class UserList(generics.ListCreateAPIView):
     """
     Return a list of all the existing users.
     """
@@ -83,9 +83,19 @@ class DataTemplateList(generics.ListCreateAPIView):
     post:
     Create a new data template instance.
     """
-    queryset = core_models.DataTemplate.objects.all()
     serializer_class = core_serializers.DataTemplateSerializer
     pagination_class = DataTemplateLimitOffSetPagination
+    
+    def get_queryset(self):
+        """
+        Optionally restricts the returned purchases to a given user,
+        by filtering against a `username` query parameter in the URL.
+        """
+        queryset = core_models.DataTemplate.objects.all()
+        group_id = self.request.query_params.get('group', None)
+        if group_id is not None:
+            queryset = queryset.filter(group=group_id)
+        return queryset
 
 
 class PostList(generics.ListCreateAPIView):
@@ -96,10 +106,20 @@ class PostList(generics.ListCreateAPIView):
     post:
     Create a new data post instance.
     """
-    queryset = core_models.Post.objects.all()
+    
     serializer_class = core_serializers.PostSerializer
     pagination_class = PostLimitOffsetPagination
 
+    def get_queryset(self):
+        """
+        Optionally restricts the returned purchases to a given user,
+        by filtering against a `username` query parameter in the URL.
+        """
+        queryset = core_models.Post.objects.all()
+        group_id = self.request.query_params.get('group', None)
+        if group_id is not None:
+            queryset = queryset.filter(group=group_id)
+        return queryset
 
 class TagList(generics.ListCreateAPIView):
     """
@@ -218,6 +238,11 @@ class CommentDetail(generics.RetrieveUpdateDestroyAPIView):
 
 ### Detail Views END
 
+class CurrentUserView(APIView):
+    def get(self, request):
+        serializer = core_serializers.UserSerializer(request.user)
+        return JsonResponse(serializer.data)
+
 class MemberGroupOperation(APIView):
     permission_classes = (IsAuthenticated,)
 
@@ -268,3 +293,17 @@ def search_wikidata(request, limit=15):
         response.append(model_to_dict(tag))
 
     return JsonResponse({"results": response})
+
+class SignUpView(APIView):
+    def post(self, request):
+        serialized = core_serializers.UserSerializer(data=request.data)
+        if serialized.is_valid():
+            auth_models.User.objects.create_user(
+                email = request.data['email'],
+                username = request.data['username'],
+                password = request.data['password'] )
+            user_to_send = auth_models.User.objects.get(username = request.data['username'])
+            out_serializer = core_serializers.UserSerializer(user_to_send)
+            return JsonResponse(out_serializer.data)
+        else:
+            return JsonResponse(serialized._errors, status=417)

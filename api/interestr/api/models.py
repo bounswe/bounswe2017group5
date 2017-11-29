@@ -84,6 +84,14 @@ class Comment(BaseModel):
     def __str__(self):
         return self.text
 
+class Vote(BaseModel):
+    owner = models.ForeignKey(auth_models.User, related_name="votes", on_delete=models.CASCADE)
+    post = models.ForeignKey(Post, related_name="votes", on_delete=models.CASCADE)
+    up = models.NullBooleanField(default=None)
+
+    def __str__(self):
+        return self.owner + ' -> ' + self.post + ' ' + self.up
+
 class DataTemplate(BaseModel):
     name = models.CharField(max_length=40)
     group = models.ForeignKey(Group, related_name='data_templates', on_delete=models.SET_NULL, default=None, null=True)

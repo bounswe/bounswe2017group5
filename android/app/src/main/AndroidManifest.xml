@@ -14,7 +14,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/InterestrTheme">
-        <activity android:name=".pages.profile.ProfileActivity"
+        <activity android:name=".CoordinatorLayoutActivity"
             android:label="Profile"
             android:theme="@style/InterestrTheme">
             <intent-filter>

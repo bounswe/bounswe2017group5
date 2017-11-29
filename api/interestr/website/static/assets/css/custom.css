@@ -133,11 +133,22 @@ small {
   margin: 0 0 20px;
 }
 
-.group-detail-header-block .buttons {
+.group-detail-header-block .footer {
+  display: flex;
+  justify-content: space-between;
+}
+
+.tag + .tag::before {
+  content: ", ";
+  margin-left: -3px;
+  margin-right: -2px;
+}
+
+.group-detail-header-block .footer .buttons {
   text-align: right;
 }
 
-.group-detail-header-block .buttons:not(:first-child) {
+.group-detail-header-block .footer .buttons :not(:first-child) {
   margin-left: 5px;
 }
 
@@ -189,4 +200,36 @@ small {
 .avatar {
   width: 64px;
   height: 64px;
+}
+
+
+.flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.template-input-container {
+  display: flex;
+  align-items: center;
+  flex-flow: row wrap;
+}
+
+.template-input-label.checkbox {
+  margin-top: 0 !important;
+}
+
+.template-input-container > *:not(:last-child) {
+  margin-right: 20px;
+}
+
+div.col-form-legend, div.template-input-label {
+  font-weight: bold;
+}
+
+.hidden {
+  width: 0 !important;
+  height: 0 !important;
+  opacity: 0 !important;
+  overflow: hidden !important;
 }

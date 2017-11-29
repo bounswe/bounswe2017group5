@@ -9,6 +9,9 @@ from .models import Post, Group, Comment, DataTemplate
 
 from rest_framework.authtoken.models import Token
 
+from django.contrib.auth import models as auth_models
+from . import models as core_models
+
 import json
 
 
@@ -279,3 +282,99 @@ class ApiDocTests(TestCase):
         response = self.client.get('/api/v1/docs/')
 
         self.assertEqual(response.status_code, 200)
+
+
+class SearchTests(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.user_pass = 'Ab12Cd34'
+        self.test_user1 = User.objects.create_user('mehmet', 'mehmet@mail.com', self.user_pass)
+        self.test_user2 = User.objects.create_user('ali', 'ali@mail.com', self.user_pass)
+        self.test_user3 = User.objects.create_user('mehmet ali', 'memoli@mail.com', self.user_pass)
+        self.test_group1 = Group.objects.create(name="awesome", description="good")
+        self.test_group2 = Group.objects.create(name="best", description="fine")
+        self.test_group3 = Group.objects.create(name="awesome best", description="great")
+
+
+    def count_users(self, query):
+        c = 0;
+        for User in auth_models.User.objects.all():
+            if query in User.username:
+                c = c + 1
+
+        return c
+
+    def count_groups(self, query):
+        d = 0;
+        for Group in core_models.Group.objects.all():
+            if query in Group.name:
+                d = d + 1
+
+        return d
+
+    #search for the first user
+    def test_user_search1(self):
+        response = self.client.get('/api/v1/users/' + '?q=' + self.test_user1.username)
+        self.assertEqual(response.status_code, 200)
+
+        json_response = json.loads(response.content)
+        self.assertEqual(json_response['count'], self.count_users(self.test_user1.username))
+
+    #search for the second user
+    def test_user_search2(self):
+        response = self.client.get('/api/v1/users/' + '?q=' + self.test_user2.username)
+        self.assertEqual(response.status_code, 200)
+
+        json_response = json.loads(response.content)
+        self.assertEqual(json_response['count'], self.count_users(self.test_user2.username))
+
+    #search for the third user
+    def test_user_search3(self):
+        response = self.client.get('/api/v1/users/' + '?q=' + self.test_user3.username)
+        self.assertEqual(response.status_code, 200)
+
+        json_response = json.loads(response.content)
+        self.assertEqual(json_response['count'], self.count_users(self.test_user3.username))
+
+    #search for a user that does not exist
+    def test_user_search4(self):
+        response = self.client.get('/api/v1/users/' + '?q=' + 'dummy')
+        self.assertEqual(response.status_code, 200)
+
+        json_response = json.loads(response.content)
+        self.assertEqual(json_response['count'], self.count_users('dummy'))
+
+
+
+
+    #search for the first group
+    def test_group_search1(self):
+        response = self.client.get('/api/v1/groups/' + '?q=' + self.test_group1.name)
+        self.assertEqual(response.status_code, 200)
+
+        json_response = json.loads(response.content)
+        self.assertEqual(json_response['count'], self.count_groups(self.test_group1.name))
+
+    #search for the second group
+    def test_group_search2(self):
+        response = self.client.get('/api/v1/groups/' + '?q=' + self.test_group2.name)
+        self.assertEqual(response.status_code, 200)
+
+        json_response = json.loads(response.content)
+        self.assertEqual(json_response['count'], self.count_groups(self.test_group2.name))
+
+    #search for the third group
+    def test_group_search3(self):
+        response = self.client.get('/api/v1/groups/' + '?q=' + self.test_group3.name)
+        self.assertEqual(response.status_code, 200)
+
+        json_response = json.loads(response.content)
+        self.assertEqual(json_response['count'], self.count_groups(self.test_group3.name))
+
+    #search for a group that does not exist
+    def test_group_search4(self):
+        response = self.client.get('/api/v1/groups/' + '?q=' + 'dummy')
+        self.assertEqual(response.status_code, 200)
+
+        json_response = json.loads(response.content)
+        self.assertEqual(json_response['count'], self.count_groups('dummy'))

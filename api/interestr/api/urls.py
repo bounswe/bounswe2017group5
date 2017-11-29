@@ -23,5 +23,5 @@ urlpatterns = [
     url(r'^groups/(?P<pk>\d+)/$', views.GroupDetail.as_view(), name='groupdetail'),
 
     url(r'^users/groups/(?P<pk>\d+)/$', views.MemberGroupOperation.as_view(), name='groupoperation'),
-    url(r'^search_wiki/$', views.search_wikidata),
+    url(r'^search_wiki/$', views.search_wikidata, name="searchwiki"),
 ]

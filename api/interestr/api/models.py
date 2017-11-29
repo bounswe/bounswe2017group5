@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import json
+
 from django.db import models
 from django.contrib.auth import models as auth_models
 from django.utils import timezone
@@ -35,13 +37,13 @@ class ChoiceEnum(Enum):
 # Models START
 
 class Tag(BaseModel):
-    label = models.CharField(max_length=40)
+    label = models.TextField()
     url = models.URLField()
     concepturi = models.URLField(unique=True)
-    description = models.TextField()
+    description = models.TextField(blank=True, null=True)
 
     def __str__(self):
-        return self.label+'('+self.concepturi+')'
+        return self.label +' (' + self.concepturi + ')'
 
 class Group(BaseModel):
     name = models.CharField(max_length=40, unique=True)
@@ -66,14 +68,13 @@ class Group(BaseModel):
             return '/static/assets/img/group_default_icon.png'
 
 class Post(BaseModel):
-    owner = models.ForeignKey(auth_models.User, related_name="posts", default=None)
-    text = models.TextField(default='')
-    group = models.ForeignKey(Group, related_name='posts', default=None) 
+    owner = models.ForeignKey(auth_models.User, related_name="posts", default=None, null=True)
+    group = models.ForeignKey(Group, related_name='posts', on_delete=models.CASCADE, default=None, null=True)
     data_template = models.ForeignKey('api.DataTemplate', related_name='posts', default=None, null=True)
-    data = JSONField(default=None, null=True)
-     
+    data = JSONField()
+
     def __str__(self):
-        return self.text
+        return json.dumps(self.data)
 
 class Comment(BaseModel):
     owner = models.ForeignKey(auth_models.User, related_name="comments", default=None)

@@ -49,6 +49,7 @@ class UserList(generics.ListAPIView):
             ).distinct()
         return query_list
 
+
 class GroupList(generics.ListCreateAPIView):
     """
     get:
@@ -68,6 +69,7 @@ class GroupList(generics.ListCreateAPIView):
                 Q(name__icontains=query)
             ).distinct()
         return query_list
+
 
 class DataTemplateList(generics.ListCreateAPIView):
     """

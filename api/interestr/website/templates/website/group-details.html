@@ -179,7 +179,12 @@
           <p><strong>{{ question_response.question }}</strong>: <span>{{ question_response.response }}</span></p>
           {% endfor %}
         </div>
-        <div class="comments">
+        <div class="col-md-6">
+          <span>{{ post.vote_sum }}</span>
+          <span title="+1 Vote Up" class="fa fa-chevron-up vote-up"></span>
+          <span title="-1 Vote Down" class="fa fa-chevron-down vote-down"></span>
+        </div>
+        <div class="col-md-6 comments">
           <a class="text-muted" href="javascript:void(0);">0 Comments</a>
         </div>
       </div>

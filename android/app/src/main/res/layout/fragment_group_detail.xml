@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:tools="http://schemas.android.com/tools"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/group_detail_content"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    >
+    tools:context=".pages.profile.ProfileActivity">
 
 
-</LinearLayout>
+</android.support.constraint.ConstraintLayout>

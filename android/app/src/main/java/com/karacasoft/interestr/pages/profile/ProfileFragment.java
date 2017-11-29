@@ -22,7 +22,6 @@ public class ProfileFragment extends Fragment {
     private View root;
     private TextView followers;
     private TextView following;
-    private TextView userName;
     private Button btnFollow;
     private Button btnMore;
     private TextView aboutMe;
@@ -55,7 +54,6 @@ public class ProfileFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         root = inflater.inflate(R.layout.fragment_profile, container, false);
-        userName = root.findViewById(R.id.tvUsername);
         btnFollow = root.findViewById(R.id.btnFollowUser);
         btnMore = root.findViewById(R.id.btnMore);
         followers = root.findViewById(R.id.tvFollowerNum);

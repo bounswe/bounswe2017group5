@@ -81,7 +81,7 @@ class DataTemplateList(generics.ListCreateAPIView):
     Return a list of all the existing data templates.
 
     post:
-    Create a new data template instance.
+    Create a new template instance.
     """
     queryset = core_models.DataTemplate.objects.all()
     serializer_class = core_serializers.DataTemplateSerializer
@@ -94,7 +94,7 @@ class PostList(generics.ListCreateAPIView):
     Return a list of all the existing posts.
 
     post:
-    Create a new data post instance.
+    Create a new post instance.
     """
     queryset = core_models.Post.objects.all()
     serializer_class = core_serializers.PostSerializer
@@ -107,7 +107,7 @@ class TagList(generics.ListCreateAPIView):
     Return a list of all the existing tags.
 
     post:
-    Create a new data tag instance.
+    Create a new tag instance.
     """
     queryset = core_models.Tag.objects.all()
     serializer_class = core_serializers.TagSerializer
@@ -119,7 +119,7 @@ class CommentList(generics.ListCreateAPIView):
     Return a list of all the existing comments.
 
     post:
-    Create a new data comment instance.
+    Create a new comment instance.
     """
     queryset = core_models.Comment.objects.all()
     serializer_class = core_serializers.CommentSerializer

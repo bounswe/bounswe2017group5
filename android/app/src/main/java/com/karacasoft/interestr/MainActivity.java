@@ -50,6 +50,7 @@ public class MainActivity extends AppCompatActivity
     private Menu menu;
 
     private NavigationView navigationView;
+    DrawerLayout drawer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,7 +66,7 @@ public class MainActivity extends AppCompatActivity
         fam = findViewById(R.id.fam);
         fam.hideMenu(false);
 
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
+        drawer = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
@@ -74,6 +75,7 @@ public class MainActivity extends AppCompatActivity
         navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+        drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
 
 //      Fragment operations
 //        FragmentManager fm = getSupportFragmentManager();
@@ -118,7 +120,6 @@ public class MainActivity extends AppCompatActivity
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             return true;
         } else if (id ==R.id.action_search){
@@ -161,7 +162,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onLoginSuccessful(Token token) {
-        navigationView.setVisibility(View.VISIBLE);
+        drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
 
         FragmentManager fm = getSupportFragmentManager();
         fm.beginTransaction()

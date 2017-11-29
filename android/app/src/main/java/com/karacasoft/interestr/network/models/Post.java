@@ -7,10 +7,19 @@ import org.json.JSONObject;
  */
 
 public class Post {
+    private int id;
     private int owner;
     private int groupId;
     private int dataTemplateId;
     private JSONObject data;
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
 
     public int getOwner() {
         return owner;

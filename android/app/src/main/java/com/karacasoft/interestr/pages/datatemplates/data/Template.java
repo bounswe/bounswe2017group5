@@ -28,14 +28,15 @@ public class Template implements Serializable {
     public JSONObject toJSON() {
         JSONObject object = new JSONObject();
 
-        // TODO fill object
+        // TODO implement
 
-        return object;
+        throw new UnsupportedOperationException("Implement toJSON in Template class");
     }
 
     public static Template fromJSON(JSONObject object) {
         Template template = new Template();
 
+        // maybe later
         // TODO fill object
 
         return template;

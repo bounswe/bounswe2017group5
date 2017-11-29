@@ -11,9 +11,12 @@ import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
 import com.karacasoft.interestr.R;
+import com.karacasoft.interestr.network.models.DataTemplate;
 import com.karacasoft.interestr.network.models.Group;
+import com.karacasoft.interestr.network.models.Post;
 import com.karacasoft.interestr.network.models.Token;
 import com.karacasoft.interestr.network.models.User;
+import com.karacasoft.interestr.pages.datatemplates.data.Template;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -48,6 +51,8 @@ public class InterestrAPIImpl implements InterestrAPI {
     private static final String ENDPOINT_GROUPS = API_HOME + "/groups/";
     private static final String ENDPOINT_LOGIN = API_HOME + "/login/";
     private static final String ENDPOINT_JOIN_LEAVE_GROUP = API_HOME + "/users/groups/";
+    private static final String ENDPOINT_POSTS = API_HOME + "/posts/";
+    private static final String ENDPOINT_DATA_TEMPLATES = API_HOME + "/data_templates/";
 
     private static final String REQUEST_METHOD_GET = "GET";
     private static final String REQUEST_METHOD_POST = "POST";
@@ -386,6 +391,170 @@ public class InterestrAPIImpl implements InterestrAPI {
         networkHandler.post(job);
     }
 
+    @Override
+    public void getPosts(int group_id, Callback<ArrayList<Post>> callback) {
+        APIJob<ArrayList<Post>> job = new APIJob<ArrayList<Post>>(
+                REQUEST_METHOD_GET, ENDPOINT_POSTS + "?group=" + group_id,
+                null, callback
+        ) {
+            @Override
+            protected ArrayList<Post> extractData(String data) {
+                ArrayList<Post> posts = new ArrayList<>();
+
+                try {
+                    JSONObject object = new JSONObject(data);
+
+                    JSONArray results = object.getJSONArray("results");
+
+                    for (int i = 0; i < results.length(); i++) {
+                        JSONObject postObj = results.getJSONObject(i);
+
+                        Post post = new Post();
+
+                        post.setId(postObj.getInt("id"));
+                        post.setOwner(postObj.getInt("owner"));
+                        post.setGroupId(postObj.getInt("group"));
+                        post.setDataTemplateId(postObj.getInt("data_template"));
+                        post.setData(postObj.getJSONObject("data"));
+
+                        posts.add(post);
+                    }
+
+                } catch (JSONException e) {
+                    return null;
+                }
+
+
+                return posts;
+            }
+        };
+
+        jobQueue.add(job);
+        networkHandler.post(job);
+    }
+
+    @Override
+    public void createPost(Post p, Callback<Post> callback) {
+        JSONObject postObject = new JSONObject();
+
+        try {
+            postObject.put("owner", 1);
+            postObject.put("group", p.getGroupId());
+            postObject.put("data_template", p.getDataTemplateId());
+            postObject.put("data", p.getData());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        APIJob<Post> job = new APIJob<Post>(REQUEST_METHOD_POST, ENDPOINT_POSTS, postObject, callback) {
+            @Override
+            protected Post extractData(String data) {
+                Post p = new Post();
+                try {
+                    JSONObject obj = new JSONObject(data);
+
+                    p.setId(obj.getInt("id"));
+                    p.setOwner(obj.getInt("owner"));
+                    p.setGroupId(obj.getInt("group"));
+                    p.setDataTemplateId(obj.getInt("data_template"));
+                    p.setData(obj.getJSONObject("data"));
+
+                } catch (JSONException e) {
+                    return null;
+                }
+                return p;
+            }
+        };
+
+        jobQueue.add(job);
+        networkHandler.post(job);
+
+    }
+
+    @Override
+    public void getDataTemplates(int group_id, Callback<ArrayList<DataTemplate>> callback) {
+        APIJob<ArrayList<DataTemplate>> job = new APIJob<ArrayList<DataTemplate>>(
+                REQUEST_METHOD_GET, ENDPOINT_DATA_TEMPLATES + "?group=" + group_id,
+                null, callback
+        ) {
+            @Override
+            protected ArrayList<DataTemplate> extractData(String data) {
+                ArrayList<DataTemplate> dataTemplates = new ArrayList<>();
+
+                try {
+                    JSONObject object = new JSONObject(data);
+
+                    JSONArray results = object.getJSONArray("results");
+
+                    for (int i = 0; i < results.length(); i++) {
+                        JSONObject dataTemplateObj = results.getJSONObject(i);
+
+                        DataTemplate dataTemplate = new DataTemplate();
+
+                        dataTemplate.setId(dataTemplateObj.getInt("id"));
+                        dataTemplate.setName(dataTemplateObj.getString("name"));
+                        dataTemplate.setGroupId(dataTemplateObj.getInt("group"));
+                        dataTemplate.setUserId(dataTemplateObj.getInt("user"));
+                        dataTemplate.setTemplate(Template.fromJSON(dataTemplateObj.getJSONObject("fields")));
+
+
+                        dataTemplates.add(dataTemplate);
+                    }
+
+                } catch (JSONException e) {
+                    return null;
+                }
+
+
+                return dataTemplates;
+            }
+        };
+
+        jobQueue.add(job);
+        networkHandler.post(job);
+    }
+
+    @Override
+    public void createDataTemplate(DataTemplate dataTemplate, Callback<DataTemplate> callback) {
+        JSONObject dataTemplateObject = new JSONObject();
+
+        try {
+            dataTemplateObject.put("name", dataTemplate.getName());
+            dataTemplateObject.put("group", dataTemplate.getGroupId());
+            dataTemplateObject.put("user", dataTemplate.getUserId());
+            dataTemplateObject.put("fields", dataTemplate.getTemplate().toJSON());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        APIJob<DataTemplate> job = new APIJob<DataTemplate>(REQUEST_METHOD_POST,
+                ENDPOINT_DATA_TEMPLATES, dataTemplateObject, callback) {
+            @Override
+            protected DataTemplate extractData(String data) {
+                DataTemplate dataTemplate = new DataTemplate();
+                try {
+                    JSONObject object = new JSONObject(data);
+
+                    dataTemplate.setId(object.getInt("id"));
+                    dataTemplate.setName(object.getString("name"));
+                    dataTemplate.setGroupId(object.getInt("group"));
+                    dataTemplate.setUserId(object.getInt("user"));
+                    dataTemplate.setTemplate(Template.fromJSON(object.getJSONObject("fields")));
+
+                } catch (JSONException e) {
+                    return null;
+                }
+
+
+                return dataTemplate;
+            }
+        };
+
+        jobQueue.add(job);
+        networkHandler.post(job);
+
+
+    }
 
 
     public abstract class APIJob<T> implements Runnable {

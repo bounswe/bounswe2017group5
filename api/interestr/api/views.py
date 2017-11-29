@@ -21,6 +21,7 @@ from django.views.decorators.csrf import csrf_exempt
 
 import urllib
 import json
+import random
 
 from . import serializers as core_serializers
 from .http import ErrorResponse
@@ -224,7 +225,7 @@ def recommend_groups(user, limit=2):
         members1 = group1.members.all().values_list('id', flat=True)
         members2 = group2.members.all().values_list('id', flat=True)
         
-        return len(members1) + len(members2) - 2*len(members1 & members2)
+        return len(members1) + len(members2) - 2*len(members1 & members2)+random.random()
 
     def total_distance(group, group_list):
         """

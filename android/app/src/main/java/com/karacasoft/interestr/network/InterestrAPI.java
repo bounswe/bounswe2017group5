@@ -3,6 +3,7 @@ package com.karacasoft.interestr.network;
 import com.karacasoft.interestr.network.models.DataTemplate;
 import com.karacasoft.interestr.network.models.Group;
 import com.karacasoft.interestr.network.models.Post;
+import com.karacasoft.interestr.network.models.Tag;
 import com.karacasoft.interestr.network.models.Token;
 import com.karacasoft.interestr.network.models.User;
 
@@ -32,6 +33,8 @@ public interface InterestrAPI {
 
     public void getDataTemplates(int group_id, Callback<ArrayList<DataTemplate>> callback);
     public void createDataTemplate(DataTemplate dataTemplate, Callback<DataTemplate> callback);
+
+    public void createTag(Tag tag, Callback<Tag> callback);
 
     public void logout();
     public void authenticate(Token token);

@@ -238,6 +238,11 @@ class CommentDetail(generics.RetrieveUpdateDestroyAPIView):
 
 ### Detail Views END
 
+class CurrentUserView(APIView):
+    def get(self, request):
+        serializer = core_serializers.UserSerializer(request.user)
+        return JsonResponse(serializer.data)
+
 class MemberGroupOperation(APIView):
     permission_classes = (IsAuthenticated,)
 

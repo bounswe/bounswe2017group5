@@ -83,9 +83,19 @@ class DataTemplateList(generics.ListCreateAPIView):
     post:
     Create a new data template instance.
     """
-    queryset = core_models.DataTemplate.objects.all()
     serializer_class = core_serializers.DataTemplateSerializer
     pagination_class = DataTemplateLimitOffSetPagination
+    
+    def get_queryset(self):
+        """
+        Optionally restricts the returned purchases to a given user,
+        by filtering against a `username` query parameter in the URL.
+        """
+        queryset = core_models.DataTemplate.objects.all()
+        group_id = self.request.query_params.get('group', None)
+        if group_id is not None:
+            queryset = queryset.filter(group=group_id)
+        return queryset
 
 
 class PostList(generics.ListCreateAPIView):
@@ -96,10 +106,20 @@ class PostList(generics.ListCreateAPIView):
     post:
     Create a new data post instance.
     """
-    queryset = core_models.Post.objects.all()
+    
     serializer_class = core_serializers.PostSerializer
     pagination_class = PostLimitOffsetPagination
 
+    def get_queryset(self):
+        """
+        Optionally restricts the returned purchases to a given user,
+        by filtering against a `username` query parameter in the URL.
+        """
+        queryset = core_models.Post.objects.all()
+        group_id = self.request.query_params.get('group', None)
+        if group_id is not None:
+            queryset = queryset.filter(group=group_id)
+        return queryset
 
 class TagList(generics.ListCreateAPIView):
     """

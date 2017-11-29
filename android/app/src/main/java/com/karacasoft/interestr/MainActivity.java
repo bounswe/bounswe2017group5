@@ -11,6 +11,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
 import com.github.clans.fab.FloatingActionButton;
@@ -19,6 +20,7 @@ import com.karacasoft.interestr.errorhandling.ErrorDialogFragment;
 import com.karacasoft.interestr.network.models.Group;
 import com.karacasoft.interestr.network.models.Token;
 import com.karacasoft.interestr.network.models.User;
+import com.karacasoft.interestr.pages.creategroup.CreateGroupFragment;
 import com.karacasoft.interestr.pages.datatemplates.DataTemplateCreatorFragment;
 import com.karacasoft.interestr.pages.datatemplates.data.Template;
 import com.karacasoft.interestr.pages.groups.GroupsFragment;
@@ -30,6 +32,8 @@ import com.karacasoft.interestr.pages.signup.SignUpFragment;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
         GroupsFragment.OnGroupsListItemClickedListener,
+        GroupsFragment.OnCreateGroupClicked,
+        CreateGroupFragment.OnGroupSavedListener,
         LoginFragment.OnLoginFragmentInteractionListener,
         SignUpFragment.OnSignupSuccessfulListener,
         DataTemplateCreatorFragment.OnDataTemplateSavedListener,
@@ -44,6 +48,8 @@ public class MainActivity extends AppCompatActivity
     private Toolbar toolbar;
 
     private Menu menu;
+
+    private NavigationView navigationView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,8 +71,9 @@ public class MainActivity extends AppCompatActivity
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
-        NavigationView navigationView = findViewById(R.id.nav_view);
+        navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
 
 //      Fragment operations
 //        FragmentManager fm = getSupportFragmentManager();
@@ -80,7 +87,7 @@ public class MainActivity extends AppCompatActivity
 
         FragmentManager fm = getSupportFragmentManager();
         fm.beginTransaction()
-                .replace(R.id.content, SearchFragment.newInstance())
+                .replace(R.id.content, LoginFragment.newInstance())
                 .commit();
 
     }
@@ -140,26 +147,6 @@ public class MainActivity extends AppCompatActivity
                     .replace(R.id.content, GroupsFragment.newInstance(1))
                     .commit();
 
-        } else if (id == R.id.nav_gallery) {
-            DataTemplateCreatorFragment fragment = DataTemplateCreatorFragment.newInstance();
-
-            FragmentManager fm = getSupportFragmentManager();
-            fm.beginTransaction()
-                    .replace(R.id.content, fragment)
-                    .addToBackStack(null)
-                    .commit();
-
-        } else if (id == R.id.nav_slideshow) {
-            FragmentManager fm = getSupportFragmentManager();
-            fm.beginTransaction()
-                    .replace(R.id.content, SignUpFragment.newInstance())
-                    .commit();
-        } else if (id == R.id.nav_manage) {
-
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
-
         }
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
@@ -168,12 +155,14 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onListFragmentInteraction(Group item) {
-
+    public void onGroupsListItemClicked(Group item) {
+        // TODO open group detail page
     }
 
     @Override
     public void onLoginSuccessful(Token token) {
+        navigationView.setVisibility(View.VISIBLE);
+
         FragmentManager fm = getSupportFragmentManager();
         fm.beginTransaction()
                 .replace(R.id.content, new NewsFeedFragment())
@@ -192,10 +181,10 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onSignupSuccessful(User user) {
+
+
         FragmentManager fm = getSupportFragmentManager();
-        fm.beginTransaction()
-                .replace(R.id.content, LoginFragment.newInstance())
-                .commit();
+        fm.popBackStack();
     }
 
     @Override
@@ -268,5 +257,26 @@ public class MainActivity extends AppCompatActivity
 
         FragmentManager fm = getSupportFragmentManager();
         fm.popBackStack();
+    }
+
+    @Override
+    public void onCreateGroupClicked() {
+        FragmentManager fm = getSupportFragmentManager();
+
+        fm.beginTransaction()
+                .replace(R.id.content, CreateGroupFragment.newInstance(null))
+                .addToBackStack(null)
+                .commit();
+    }
+
+    @Override
+    public void onGroupSaved(Group group) {
+        Snackbar.make(findViewById(R.id.content), "Created Group", Snackbar.LENGTH_SHORT)
+                // TODO maybe add an action to go edit that template more??
+                .show();
+
+        FragmentManager fm = getSupportFragmentManager();
+        fm.popBackStack();
+        // TODO redirect to group page
     }
 }

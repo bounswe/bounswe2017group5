@@ -13,6 +13,8 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 
 import com.karacasoft.interestr.ErrorHandler;
+import com.karacasoft.interestr.FloatingActionButtonHandler;
+import com.karacasoft.interestr.FloatingActionsMenuHandler;
 import com.karacasoft.interestr.R;
 import com.karacasoft.interestr.ToolbarHandler;
 import com.karacasoft.interestr.network.InterestrAPI;
@@ -45,6 +47,9 @@ public class SearchFragment extends Fragment {
     
     private ErrorHandler errorHandler;
     private ToolbarHandler toolbarHandler;
+
+    private FloatingActionButtonHandler fabHandler;
+    private FloatingActionsMenuHandler famHandler;
 
     public SearchFragment() {
         // Required empty public constructor
@@ -84,8 +89,14 @@ public class SearchFragment extends Fragment {
     public void onAttach(Context context) {
         super.onAttach(context);
 
+        fabHandler = (FloatingActionButtonHandler) context;
+        famHandler = (FloatingActionsMenuHandler) context;
+
         errorHandler = (ErrorHandler) context;
         toolbarHandler = (ToolbarHandler) context;
+
+        fabHandler.hideFloatingActionButton();
+        famHandler.hideFloatingActionsMenu();
     }
 
     private void fillList(){

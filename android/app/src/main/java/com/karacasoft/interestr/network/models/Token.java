@@ -1,10 +1,12 @@
 package com.karacasoft.interestr.network.models;
 
+import java.io.Serializable;
+
 /**
  * Created by karacasoft on 18.11.2017.
  */
 
-public class Token {
+public class Token implements Serializable {
 
     private String key;
 

@@ -17,10 +17,15 @@ public interface InterestrAPI {
     public void login(String username, String password, Callback<Token> callback);
     public void signup(String username, String email, String pass1, String pass2, Callback<User> callback);
 
+    public void createGroup(Group group, Callback<Group> callback);
     public void getGroups(Callback<ArrayList<Group>> callback);
 
     public void getGroupDetail(int group_id, Callback<Group> callback);
 
+    public void joinGroup(int group_id, Callback<Boolean> callback);
+    public void leaveGroup(int group_id, Callback<Boolean> callback);
+
+    public void logout();
     public void authenticate(Token token);
 
     public interface Callback<T extends Object> {

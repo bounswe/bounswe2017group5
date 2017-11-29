@@ -1,9 +1,13 @@
 package com.karacasoft.interestr.network;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
+import android.preference.PreferenceManager;
+import android.support.annotation.Nullable;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
 import com.karacasoft.interestr.R;
@@ -31,13 +35,19 @@ import okhttp3.ResponseBody;
 
 public class InterestrAPIImpl implements InterestrAPI {
 
-    private Token authToken;
+    private Token authToken = new Token();
+
+    private static final String PREF_LOGGED_IN = "com.karacasoft.interestr.logged_in";
+    private static final String PREF_TOKEN = "com.karacasoft.interestr.token";
+
+    private SharedPreferences sharedPreferences;
 
     private static final String TAG = "InterestrAPI";
     private static final String API_HOME = "http://35.177.96.220/api/v1";
 
     private static final String ENDPOINT_GROUPS = API_HOME + "/groups/";
     private static final String ENDPOINT_LOGIN = API_HOME + "/login/";
+    private static final String ENDPOINT_JOIN_LEAVE_GROUP = API_HOME + "/users/groups/";
 
     private static final String REQUEST_METHOD_GET = "GET";
     private static final String REQUEST_METHOD_POST = "POST";
@@ -66,6 +76,13 @@ public class InterestrAPIImpl implements InterestrAPI {
         handler = new Handler(Looper.getMainLooper());
 
         networkHandler = new Handler(networkThread.getLooper());
+
+        sharedPreferences = context.getSharedPreferences("api", Context.MODE_PRIVATE);
+        if(sharedPreferences.contains(PREF_LOGGED_IN)) {
+            if(sharedPreferences.getBoolean(PREF_LOGGED_IN, false)) {
+                authToken = new Token(sharedPreferences.getString(PREF_TOKEN, null));
+            }
+        }
     }
 
     private static synchronized OkHttpClient getClient() {
@@ -75,37 +92,52 @@ public class InterestrAPIImpl implements InterestrAPI {
         return client;
     }
 
-    private static Response get(String url) throws IOException {
-        Request request = new Request.Builder()
+    private static Response get(String url, @Nullable String auth_token) throws IOException {
+
+        Request.Builder builder = new Request.Builder()
+                .url(url);
+
+        if(auth_token != null)
+            builder.addHeader("Authorization", "Token " + auth_token);
+
+        return getClient().newCall(builder.build()).execute();
+    }
+
+    private static Response post(String url, JSONObject data, @Nullable String auth_token) throws IOException {
+        return request("POST", url, data, auth_token);
+    }
+
+    private static Response put(String url, JSONObject data, @Nullable String auth_token) throws IOException {
+        return request("PUT", url, data, auth_token);
+    }
+
+    private static Response patch(String url, JSONObject data, @Nullable String auth_token) throws IOException {
+        return request("PATCH", url, data, auth_token);
+    }
+
+    private static Response delete(String url, JSONObject data, @Nullable String auth_token) throws IOException {
+        return request("DELETE", url, data, auth_token);
+    }
+
+    private static Response request(String method, String url, JSONObject data, @Nullable String auth_token) throws IOException {
+        RequestBody body;
+        if(data != null) {
+            body = RequestBody.create(JSON, data.toString());
+        } else {
+            body = RequestBody.create(JSON, "");
+        }
+
+        Request.Builder builder = new Request.Builder()
                 .url(url)
-                .build();
-        return getClient().newCall(request).execute();
+                .method(method, body);
+
+        if(auth_token != null) {
+            builder.addHeader("Authorization", "Token " + auth_token);
+        }
+
+        return getClient().newCall(builder.build()).execute();
     }
 
-    private static Response post(String url, JSONObject data) throws IOException {
-        return request("POST", url, data);
-    }
-
-    private static Response put(String url, JSONObject data) throws IOException {
-        return request("PUT", url, data);
-    }
-
-    private static Response patch(String url, JSONObject data) throws IOException {
-        return request("PATCH", url, data);
-    }
-
-    private static Response delete(String url, JSONObject data) throws IOException {
-        return request("DELETE", url, data);
-    }
-
-    private static Response request(String method, String url, JSONObject data) throws IOException {
-        RequestBody body = RequestBody.create(JSON, data.toString());
-        Request request = new Request.Builder()
-                .url(url)
-                .method(method, body)
-                .build();
-        return getClient().newCall(request).execute();
-    }
 
     private void runOnUiThread(Runnable runnable) {
         handler.post(runnable);
@@ -114,6 +146,18 @@ public class InterestrAPIImpl implements InterestrAPI {
     @Override
     public void authenticate(Token token) {
         this.authToken = token;
+        sharedPreferences.edit()
+                .putBoolean(PREF_LOGGED_IN, true)
+                .putString(PREF_TOKEN, token.getKey())
+                .apply();
+    }
+
+    @Override
+    public void logout() {
+        sharedPreferences.edit()
+                .putBoolean(PREF_LOGGED_IN, false)
+                .putString(PREF_TOKEN, null)
+                .apply();
     }
 
     @Override
@@ -160,6 +204,88 @@ public class InterestrAPIImpl implements InterestrAPI {
     }
 
     @Override
+    public void createGroup(Group group, final Callback<Group> callback) {
+
+        JSONObject groupData = new JSONObject();
+
+        try {
+            groupData.put("name", group.getName());
+            groupData.put("description", group.getDescription());
+            groupData.put("location", group.getLocation());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+
+        APIJob<Group> job = new APIJob<Group>(REQUEST_METHOD_POST, ENDPOINT_GROUPS, groupData, callback) {
+            @Override
+            protected Group extractData(String data) {
+                Group g = null;
+
+                try {
+                    JSONObject obj = new JSONObject(data);
+
+                    g = new Group();
+
+                    g.setId(obj.getInt("id"));
+                    g.setName(obj.getString("name"));
+                    g.setDescription(obj.getString("description"));
+                    g.setMemberCount(obj.getInt("size"));
+                    g.setPictureUrl(obj.getString("picture"));
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    return null;
+                }
+                return g;
+            }
+        };
+
+        jobQueue.add(job);
+        networkHandler.post(job);
+    }
+
+    public void updateGroup(Group group, final Callback<Group> callback) {
+
+        JSONObject groupData = new JSONObject();
+
+        try {
+            groupData.put("name", group.getName());
+            groupData.put("description", group.getDescription());
+            groupData.put("location", group.getLocation());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        APIJob<Group> job = new APIJob<Group>(REQUEST_METHOD_PUT, ENDPOINT_GROUPS + group.getId() + "/", groupData, callback) {
+            @Override
+            protected Group extractData(String data) {
+                Group g = null;
+
+                try {
+                    JSONObject obj = new JSONObject(data);
+
+                    g = new Group();
+
+                    g.setId(obj.getInt("id"));
+                    g.setName(obj.getString("name"));
+                    g.setDescription(obj.getString("description"));
+                    g.setMemberCount(obj.getInt("size"));
+                    g.setPictureUrl(obj.getString("picture"));
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    return null;
+                }
+                return g;
+            }
+        };
+
+        jobQueue.add(job);
+        networkHandler.post(job);
+    }
+
+    @Override
     public void getGroups(final Callback<ArrayList<Group>> callback) {
 
         APIJob<ArrayList<Group>> job = new APIJob<ArrayList<Group>>(REQUEST_METHOD_GET, ENDPOINT_GROUPS, null, callback) {
@@ -178,6 +304,7 @@ public class InterestrAPIImpl implements InterestrAPI {
                         Group g = new Group();
                         g.setId(obj.getInt("id"));
                         g.setName(obj.getString("name"));
+                        g.setDescription(obj.getString("description"));
                         g.setMemberCount(obj.getInt("size"));
                         g.setPictureUrl(obj.getString("picture"));
                         groups.add(g);
@@ -213,6 +340,7 @@ public class InterestrAPIImpl implements InterestrAPI {
 
                     g.setId(obj.getInt("id"));
                     g.setName(obj.getString("name"));
+                    g.setDescription(obj.getString("description"));
                     g.setMemberCount(obj.getInt("size"));
                     g.setPictureUrl(obj.getString("picture"));
 
@@ -227,6 +355,37 @@ public class InterestrAPIImpl implements InterestrAPI {
         jobQueue.add(job);
         networkHandler.post(job);
     }
+
+    @Override
+    public void joinGroup(int group_id, Callback<Boolean> callback) {
+        APIJob<Boolean> job = new APIJob<Boolean>(REQUEST_METHOD_PUT,
+                ENDPOINT_JOIN_LEAVE_GROUP + group_id + "/",
+                null, callback) {
+            @Override
+            protected Boolean extractData(String data) {
+                return true;
+            }
+        };
+
+        jobQueue.add(job);
+        networkHandler.post(job);
+    }
+
+    @Override
+    public void leaveGroup(int group_id, Callback<Boolean> callback) {
+        APIJob<Boolean> job = new APIJob<Boolean>(REQUEST_METHOD_DELETE,
+                ENDPOINT_JOIN_LEAVE_GROUP + group_id + "/",
+                null, callback) {
+            @Override
+            protected Boolean extractData(String data) {
+                return true;
+            }
+        };
+
+        jobQueue.add(job);
+        networkHandler.post(job);
+    }
+
 
 
     public abstract class APIJob<T> implements Runnable {
@@ -268,22 +427,22 @@ public class InterestrAPIImpl implements InterestrAPI {
                 Response r = null;
                 switch (requestMethod) {
                     case REQUEST_METHOD_GET:
-                        r = get(requestEndpoint);
+                        r = get(requestEndpoint, authToken.getKey());
                         break;
                     case REQUEST_METHOD_POST:
-                        r = post(requestEndpoint, requestData);
+                        r = post(requestEndpoint, requestData, authToken.getKey());
                         break;
                     case REQUEST_METHOD_PUT:
-                        r = put(requestEndpoint, requestData);
+                        r = put(requestEndpoint, requestData, authToken.getKey());
                         break;
                     case REQUEST_METHOD_PATCH:
-                        r = patch(requestEndpoint, requestData);
+                        r = patch(requestEndpoint, requestData, authToken.getKey());
                         break;
                     case REQUEST_METHOD_DELETE:
-                        r = delete(requestEndpoint, requestData);
+                        r = delete(requestEndpoint, requestData, authToken.getKey());
                         break;
                     default:
-                        r = request(requestMethod, requestEndpoint, requestData);
+                        r = request(requestMethod, requestEndpoint, requestData, authToken.getKey());
                         break;
                 }
 
@@ -294,20 +453,22 @@ public class InterestrAPIImpl implements InterestrAPI {
                     return;
                 }
 
-                if(r != null && r.isSuccessful()) {
-                    ResponseBody rBody = r.body();
-                    if(rBody != null) {
-                        retObj = extractData(rBody.string());
-                        if(retObj == null) {
-                            isError = true;
-                            errorMessage = mContext.getString(R.string.no_data_returned);
+                if(r != null) {
+                    if (r.isSuccessful()) {
+                        ResponseBody rBody = r.body();
+                        if (rBody != null) {
+                            retObj = extractData(rBody.string());
+                            if (retObj == null) {
+                                isError = true;
+                                errorMessage = rBody.string();
+                            }
+                        } else {
+                            retObj = null;
                         }
                     } else {
-                        retObj = null;
+                        isError = true;
+                        errorMessage = r.message();
                     }
-                } else {
-                    isError = true;
-                    errorMessage = mContext.getString(R.string.no_response_from_server);
                 }
 
             } catch (IOException e) {

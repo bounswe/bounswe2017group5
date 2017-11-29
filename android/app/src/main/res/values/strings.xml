@@ -27,4 +27,7 @@
     <string name="done">Done</string>
     <string name="removed_item">Removed item</string>
     <string name="save">Save</string>
+    <string name="make_hidden">Make Hidden</string>
+    <string name="group_name">Group Name</string>
+    <string name="groups">Groups</string>
 </resources>

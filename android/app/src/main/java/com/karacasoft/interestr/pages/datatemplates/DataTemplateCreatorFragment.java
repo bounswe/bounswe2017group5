@@ -254,7 +254,7 @@ public class DataTemplateCreatorFragment extends Fragment {
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.main_data_template, menu);
+        inflater.inflate(R.menu.main_with_save, menu);
         super.onCreateOptionsMenu(menu, inflater);
     }
 

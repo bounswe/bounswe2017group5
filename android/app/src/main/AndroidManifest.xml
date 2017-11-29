@@ -14,7 +14,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/InterestrTheme">
-        <activity android:name=".CoordinatorLayoutActivity"
+        <activity
+            android:name=".CoordinatorLayoutActivity"
             android:label="Profile"
             android:theme="@style/InterestrTheme">
             <intent-filter>
@@ -31,7 +32,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
+        <activity android:name=".test.TestActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+            </intent-filter>
+        </activity>
     </application>
 
 </manifest>

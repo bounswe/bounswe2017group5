@@ -37,6 +37,7 @@ dependencies {
     implementation 'com.squareup.okhttp3:okhttp:3.9.0'
     implementation 'com.nostra13.universalimageloader:universal-image-loader:1.9.5'
     implementation 'com.github.clans:fab:1.6.4'
+    implementation 'com.github.mabbas007:TagsEditText:1.0.5'
 
     testImplementation 'junit:junit:4.12'
     //testImplementation 'org.mockito:mockito-core:2.8.47'

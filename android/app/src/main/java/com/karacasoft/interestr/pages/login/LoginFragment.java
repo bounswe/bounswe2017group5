@@ -57,16 +57,10 @@ public class LoginFragment extends Fragment {
         signUp = root.findViewById(R.id.btnSignUp);
 
         login.setOnClickListener(
-                (view) -> {
-                    //validated(username.getText().toString(),password.getText().toString());
-                    Log.d("Login OnClickListener","onClick Pressed");
-                    api.login(username.getText().toString(),password.getText().toString(),loginCallBack);
-                }
+                (view) -> api.login(username.getText().toString(),password.getText().toString(),loginCallBack)
         );
 
-        signUp.setOnClickListener((view) -> {
-            onLoginFragmentInteractionListener.onSignUpPressed();
-        });
+        signUp.setOnClickListener((view) -> onLoginFragmentInteractionListener.onSignUpPressed());
 
         return root;
     }
@@ -98,6 +92,7 @@ public class LoginFragment extends Fragment {
         @Override
         public void onResult(InterestrAPIResult<Token> result) {
             if(onLoginFragmentInteractionListener != null) {
+                api.authenticate(result.get());
                 onLoginFragmentInteractionListener.onLoginSuccessful(result.get());
             }
         }

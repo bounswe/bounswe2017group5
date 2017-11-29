@@ -34,6 +34,7 @@ public class GroupsFragment extends Fragment {
     private static final String ARG_COLUMN_COUNT = "column-count";
     private int mColumnCount = 1;
     private OnGroupsListItemClickedListener mListener;
+    private OnCreateGroupClicked onCreateGroupClicked;
 
     private ArrayList<Group> dataset = new ArrayList<>();
     private RecyclerView recyclerView;
@@ -125,6 +126,7 @@ public class GroupsFragment extends Fragment {
         super.onAttach(context);
         if (context instanceof OnGroupsListItemClickedListener) {
             mListener = (OnGroupsListItemClickedListener) context;
+            onCreateGroupClicked = (OnCreateGroupClicked) context;
         } else {
             throw new RuntimeException(context.toString()
                     + " must implement OnGroupsListItemClickedListener");
@@ -134,6 +136,9 @@ public class GroupsFragment extends Fragment {
 
         fabHandler = (FloatingActionButtonHandler) context;
         famHandler = (FloatingActionsMenuHandler) context;
+
+        fabHandler.getFloatingActionButton().setOnClickListener(
+                (view) -> onCreateGroupClicked.onCreateGroupClicked());
 
         fabHandler.hideFloatingActionButton();
         famHandler.hideFloatingActionsMenu();
@@ -163,17 +168,12 @@ public class GroupsFragment extends Fragment {
 
     }
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p/>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
     public interface OnGroupsListItemClickedListener {
-        void onListFragmentInteraction(Group item);
+        void onGroupsListItemClicked(Group item);
     }
+
+    public interface OnCreateGroupClicked {
+        void onCreateGroupClicked();
+    }
+
 }

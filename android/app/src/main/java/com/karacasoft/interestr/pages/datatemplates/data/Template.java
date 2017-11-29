@@ -1,5 +1,7 @@
 package com.karacasoft.interestr.pages.datatemplates.data;
 
+import org.json.JSONObject;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 
@@ -22,4 +24,22 @@ public class Template implements Serializable {
     public ArrayList<TemplateField> getFields() {
         return fields;
     }
+
+    public JSONObject toJSON() {
+        JSONObject object = new JSONObject();
+
+        // TODO fill object
+
+        return object;
+    }
+
+    public static Template fromJSON(JSONObject object) {
+        Template template = new Template();
+
+        // TODO fill object
+
+        return template;
+    }
+
+
 }

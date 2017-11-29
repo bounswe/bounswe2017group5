@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:weightSum="1">
+
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tv_post_owner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Owner" />
+
+
+        <TextView
+            android:id="@+id/tv_postText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Post content will be added here..." />
+
+        <Button
+            android:id="@+id/btnPostDetail"
+            style="@style/InterestrTheme.ButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="24dp"
+            android:text="Comments" />
+
+
+    </LinearLayout>
+
+</LinearLayout>

@@ -4,11 +4,19 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.TextView;
 
 import com.karacasoft.interestr.R;
+import com.karacasoft.interestr.network.InterestrAPI;
+import com.karacasoft.interestr.network.models.Post;
+
+import java.util.ArrayList;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -22,6 +30,18 @@ public class GroupDetailFragment extends Fragment {
 
     // TODO: Rename and change types of parameters
     private int mGroupId;
+
+    private InterestrAPI api;
+    private RecyclerView groupPostsList;
+    private PostRecyclerViewAdapter recyclerViewAdapter;
+    private ArrayList<Post> posts = new ArrayList<>();
+
+    private View root;
+    private TextView gMemberNum;
+    private Button gBtnJoin;
+    private Button gBtnMore;
+    private TextView gDescription;
+    private RecyclerView rvPosts;
 
     public GroupDetailFragment() {
         // Required empty public constructor
@@ -53,7 +73,16 @@ public class GroupDetailFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_group_detail, container, false);
+        root =  inflater.inflate(R.layout.fragment_group_detail, container, false);
+        gBtnJoin = root.findViewById(R.id.btnJoinGroup);
+        gBtnMore = root.findViewById(R.id.btnMoreGroup);
+        gDescription = root.findViewById(R.id.tvAboutGroup);
+        gMemberNum = root.findViewById(R.id.tvMemberNum);
+        groupPostsList = root.findViewById(R.id.rvGroupPosts);
+        recyclerViewAdapter = new PostRecyclerViewAdapter(posts);
+        groupPostsList.setLayoutManager(new LinearLayoutManager(getContext()));
+        groupPostsList.setAdapter(recyclerViewAdapter);
+            //TODO fill rv with posts of the group
+        return root;
     }
 }

@@ -1,5 +1,6 @@
 package com.karacasoft.interestr;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
@@ -148,6 +149,16 @@ public class MainActivity extends AppCompatActivity
                     .replace(R.id.content, GroupsFragment.newInstance(1))
                     .commit();
 
+        } else if (id == R.id.nav_slideshow) {
+            FragmentManager fm = getSupportFragmentManager();
+            fm.beginTransaction()
+                    .replace(R.id.content, SignUpFragment.newInstance())
+                    .commit();
+        }else if(id==R.id.nav_profile){
+            Intent intent = new Intent(MainActivity.this,CoordinatorLayoutActivity.class);
+            intent.setAction(CoordinatorLayoutActivity.ACTION_DISPLAY_USER);
+            intent.putExtra(CoordinatorLayoutActivity.EXTRA_USER_ID,0);//todo add id
+            startActivity(intent);
         }
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
@@ -157,6 +168,10 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onGroupsListItemClicked(Group item) {
+        Intent intent = new Intent(MainActivity.this,CoordinatorLayoutActivity.class);
+        intent.setAction(CoordinatorLayoutActivity.ACTION_DISPLAY_GROUP);
+        intent.putExtra(CoordinatorLayoutActivity.EXTRA_GROUP_ID,item.getId());
+        startActivity(intent);
         // TODO open group detail page
     }
 

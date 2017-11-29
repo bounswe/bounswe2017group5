@@ -21,6 +21,9 @@ urlpatterns = [
     url(r'^groups/$', views.GroupList.as_view(), name='groups'),
     url(r'^groups/(?P<pk>\d+)/$', views.GroupDetail.as_view(), name='groupdetail'),
 
+    url(r'^me/$', views.CurrentUserView.as_view(), name='currentuser'),
+
     url(r'^users/groups/(?P<pk>\d+)/$', views.MemberGroupOperation.as_view(), name='groupoperation'),
     url(r'^search_wiki/$', views.search_wikidata, name="searchwiki"),
+    
 ]

@@ -11,6 +11,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.github.clans.fab.FloatingActionButton;
 import com.github.clans.fab.FloatingActionMenu;
@@ -19,6 +20,7 @@ import com.karacasoft.interestr.network.models.Group;
 import com.karacasoft.interestr.network.models.Token;
 import com.karacasoft.interestr.network.models.User;
 import com.karacasoft.interestr.pages.datatemplates.DataTemplateCreatorFragment;
+import com.karacasoft.interestr.pages.datatemplates.data.Template;
 import com.karacasoft.interestr.pages.groups.GroupsFragment;
 import com.karacasoft.interestr.pages.login.LoginFragment;
 import com.karacasoft.interestr.pages.newsfeed.NewsFeedFragment;
@@ -30,6 +32,7 @@ public class MainActivity extends AppCompatActivity
         GroupsFragment.OnGroupsListItemClickedListener,
         LoginFragment.OnLoginFragmentInteractionListener,
         SignUpFragment.OnSignupSuccessfulListener,
+        DataTemplateCreatorFragment.OnDataTemplateSavedListener,
         FloatingActionsMenuHandler,
         FloatingActionButtonHandler,
         ErrorHandler,
@@ -48,6 +51,8 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         toolbar = findViewById(R.id.toolbar);
         toolbar.setTitle(R.string.app_name);
+
+        setSupportActionBar(toolbar);
 
         fab = findViewById(R.id.fab);
         fab.hide(false);
@@ -141,6 +146,7 @@ public class MainActivity extends AppCompatActivity
             FragmentManager fm = getSupportFragmentManager();
             fm.beginTransaction()
                     .replace(R.id.content, fragment)
+                    .addToBackStack(null)
                     .commit();
 
         } else if (id == R.id.nav_slideshow) {
@@ -254,4 +260,13 @@ public class MainActivity extends AppCompatActivity
         return this.menu;
     }
 
+    @Override
+    public void onDataTemplateSaved(Template template) {
+        Snackbar.make(findViewById(R.id.content), "Data Template Saved", Snackbar.LENGTH_SHORT)
+                // TODO maybe add an action to go edit that template more??
+                .show();
+
+        FragmentManager fm = getSupportFragmentManager();
+        fm.popBackStack();
+    }
 }

@@ -9,8 +9,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -42,6 +44,7 @@ public class DataTemplateCreatorFragment extends Fragment {
 
     private DataTemplateRecyclerViewAdapter fieldListAdapter;
     private OnDataTemplateFieldRemoveListener onDataTemplateFieldClickListener;
+    private OnDataTemplateSavedListener onDataTemplateSavedListener;
 
     private FloatingActionsMenuHandler famHandler;
     private FloatingActionButtonHandler fabHandler;
@@ -87,6 +90,8 @@ public class DataTemplateCreatorFragment extends Fragment {
                 this.template = (Template) args.getSerializable(ARG_TEMPLATE);
             }
         }
+
+        setHasOptionsMenu(true);
     }
 
     @Override
@@ -232,19 +237,10 @@ public class DataTemplateCreatorFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        try {
-            fabHandler = (FloatingActionButtonHandler) context;
-            famHandler = (FloatingActionsMenuHandler) context;
+        fabHandler = (FloatingActionButtonHandler) context;
+        famHandler = (FloatingActionsMenuHandler) context;
 
-            errorHandler = (ErrorHandler) context;
-            menuHandler = (MenuHandler) context;
-        } catch (ClassCastException e) {
-            // Added to debug stuff
-            e.printStackTrace();
-        }
-
-        getActivity().getMenuInflater()
-                .inflate(R.menu.main_data_template, menuHandler.getMenu());
+        errorHandler = (ErrorHandler) context;
 
         fabHandler.hideFloatingActionButton();
         famHandler.hideFloatingActionsMenu();
@@ -252,6 +248,30 @@ public class DataTemplateCreatorFragment extends Fragment {
         famHandler.clearFloatingActionsMenu();
         setupFloatingActionsMenu(famHandler.getFloatingActionsMenu());
         famHandler.showFloatingActionsMenu();
+
+        this.onDataTemplateSavedListener = (OnDataTemplateSavedListener) context;
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.main_data_template, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        int id = item.getItemId();
+
+        switch (id) {
+            case R.id.action_save:
+                Template template = fieldListAdapter.getTemplate();
+                // TODO do stuff with template
+                onDataTemplateSavedListener.onDataTemplateSaved(template);
+                return true;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     public void setOnDataTemplateFieldClickListener(OnDataTemplateFieldRemoveListener onDataTemplateFieldClickListener) {
@@ -260,5 +280,9 @@ public class DataTemplateCreatorFragment extends Fragment {
 
     public interface OnDataTemplateFieldRemoveListener {
         void onDataTemplateFieldRemove(TemplateField field);
+    }
+
+    public interface OnDataTemplateSavedListener {
+        void onDataTemplateSaved(Template template);
     }
 }

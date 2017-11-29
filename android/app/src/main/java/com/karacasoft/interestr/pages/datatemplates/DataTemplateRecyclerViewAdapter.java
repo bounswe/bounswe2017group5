@@ -258,7 +258,7 @@ public class DataTemplateRecyclerViewAdapter extends RecyclerView.Adapter<FieldV
     public Template getTemplate() {
         Template t = new Template();
 
-        // TODO
+        t.getFields().addAll(fields);
 
         return t;
     }

@@ -5,6 +5,8 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -54,6 +56,20 @@ public class MultipleChoiceFieldViewHolder extends FieldViewHolder {
         adapter = new MultipleChoiceFieldRecyclerViewAdapter(choiceItems);
 
         choiceList.setAdapter(adapter);
+
+        fieldName.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                field.setName(editable.toString());
+            }
+        });
+
     }
 
     @Override
@@ -69,21 +85,25 @@ public class MultipleChoiceFieldViewHolder extends FieldViewHolder {
     public synchronized void addItem(ChoiceItem item) {
         choiceItems.add(item);
         adapter.notifyItemInserted(choiceItems.size() - 1);
+        updateField();
     }
 
     public synchronized void addItem(int index, ChoiceItem item) {
         choiceItems.add(index, item);
         adapter.notifyItemInserted(index);
+        updateField();
     }
 
     public synchronized void editItem(int index, String newValue) {
         choiceItems.get(index).setName(newValue);
         adapter.notifyItemChanged(index);
+        updateField();
     }
 
     public synchronized void removeItem(int index) {
         choiceItems.remove(index);
         adapter.notifyItemRemoved(index);
+        updateField();
     }
 
     public synchronized void clearItems() {

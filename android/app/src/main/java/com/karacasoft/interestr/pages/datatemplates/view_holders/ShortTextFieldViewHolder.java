@@ -1,5 +1,7 @@
 package com.karacasoft.interestr.pages.datatemplates.view_holders;
 
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -30,6 +32,33 @@ public class ShortTextFieldViewHolder extends FieldViewHolder {
         fieldName = itemView.findViewById(R.id.field_name);
         fieldHint = itemView.findViewById(R.id.field_placeholder);
         btnRemove = itemView.findViewById(R.id.btn_remove);
+
+        fieldName.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                field.setName(editable.toString());
+            }
+        });
+
+        fieldHint.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                field.setHint(editable.toString());
+            }
+        });
+
     }
 
     public void updateField() {

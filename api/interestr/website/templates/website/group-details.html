@@ -82,46 +82,54 @@
           </div>
         </div>
 
-        <div class="buttons">
-          <div id="leaveJoinButton" class="btn btn-round btn-fill" onclick="leave_join_group()"></div>
-          <div class="btn btn-round">More ...</div>
+        <div class="footer">
+          <div class="tags">
+            <i>Tags: </i>
+            {% for tag in group.tags.all %}
+              <span class="tag" data-toggle="tooltip" title="{{ tag.description }}">{{ tag.label }}</span>
+            {% endfor %}
+          </div>
+          <div class="buttons">
+            <div id="leaveJoinButton" class="btn btn-round btn-fill" onclick="leave_join_group()"></div>
+            <div class="btn btn-round">More ...</div>
 
-          <script type="text/javascript">
-            var isJoined = {{ is_joined|yesno:"1,0" }};
-            var buttonText = ['Join Group', 'Leave Group'];
-            var buttonTextPending = ['Joining...', 'Leaving...'];
-            var btn = document.getElementById('leaveJoinButton');
+            <script type="text/javascript">
+              var isJoined = {{ is_joined|yesno:"1,0" }};
+              var buttonText = ['Join Group', 'Leave Group'];
+              var buttonTextPending = ['Joining...', 'Leaving...'];
+              var btn = document.getElementById('leaveJoinButton');
 
-            function refresh_button() {
-              btn.textContent = buttonText[isJoined];
-              if (!isJoined) {
-                btn.classList.add("btn-warning");
+              function refresh_button() {
+                btn.textContent = buttonText[isJoined];
+                if (!isJoined) {
+                  btn.classList.add("btn-warning");
+                }
+                else {
+                  btn.classList.remove("btn-warning");
+                }
+                btn.disabled = false;
               }
-              else {
-                btn.classList.remove("btn-warning");
+
+              refresh_button();
+
+              function leave_join_group() {
+                if (!btn.disabled) {
+                  btn.disabled = true;
+                  btn.textContent = buttonTextPending[isJoined];
+
+                  $.ajax({
+                      method: isJoined ? 'DELETE' : 'PUT',
+                      url: '{% url "api:groupoperation" group.id %}',
+                      beforeSend: function(xhr) {
+                        xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
+                      }
+                    }).done(function (msg) {
+                      location.reload();
+                    });
+                }
               }
-              btn.disabled = false;
-            }
-
-            refresh_button();
-
-            function leave_join_group() {
-              if (!btn.disabled) {
-                btn.disabled = true;
-                btn.textContent = buttonTextPending[isJoined];
-
-                $.ajax({
-                  method: isJoined ? 'DELETE' : 'PUT',
-                  url: '{% url "api:groupoperation" group.id %}',
-                  beforeSend: function(xhr) {
-                    xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
-                  }
-                }).done(function (msg) {
-                  location.reload();
-                });
-              }
-            }
-          </script>
+              </script>
+          </div>
         </div>
       </div>
 

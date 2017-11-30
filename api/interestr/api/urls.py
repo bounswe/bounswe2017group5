@@ -20,6 +20,8 @@ urlpatterns = [
     
     url(r'^comments/$', views.CommentList.as_view(), name='comments'),
     url(r'^comments/(?P<pk>\d+)/$', views.CommentDetail.as_view(), name='commentdetail'),
+    url(r'^votes/$', views.VoteList.as_view(), name='votes'),
+    url(r'^votes/(?P<pk>\d+)/$', views.VoteDetail.as_view(), name='votedetail'),
 
     url(r'^profile_pages/$', views.ProfilePageList.as_view(), name='profilepages'),
     url(r'^profile_pages/(?P<pk>\d+)/$', views.ProfilePageDetail.as_view(), name='profilepages'),

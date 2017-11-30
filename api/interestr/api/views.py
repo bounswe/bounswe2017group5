@@ -82,7 +82,7 @@ class DataTemplateList(generics.ListCreateAPIView):
     Return a list of all the existing data templates.
 
     post:
-    Create a new data template instance.
+    Create a new template instance.
     """
     serializer_class = core_serializers.DataTemplateSerializer
     pagination_class = DataTemplateLimitOffSetPagination
@@ -105,7 +105,7 @@ class PostList(generics.ListCreateAPIView):
     Return a list of all the existing posts.
 
     post:
-    Create a new data post instance.
+    Create a new post instance.
     """
 
     serializer_class = core_serializers.PostSerializer
@@ -128,7 +128,7 @@ class TagList(generics.ListCreateAPIView):
     Return a list of all the existing tags.
 
     post:
-    Create a new data tag instance.
+    Create a new tag instance.
     """
     queryset = core_models.Tag.objects.all()
     serializer_class = core_serializers.TagSerializer
@@ -140,11 +140,22 @@ class CommentList(generics.ListCreateAPIView):
     Return a list of all the existing comments.
 
     post:
-    Create a new data comment instance.
+    Create a new comment instance.
     """
     queryset = core_models.Comment.objects.all()
     serializer_class = core_serializers.CommentSerializer
 
+
+class VoteList(generics.ListCreateAPIView):
+    """
+    get:
+    Return a list of all the existing votes.
+
+    post:
+    Create a new vote instance.
+    """
+    queryset = core_models.Vote.objects.all()
+    serializer_class = core_serializers.VoteSerializer
 
 class ProfilePageList(generics.ListAPIView):
     """
@@ -257,6 +268,21 @@ class ProfilePageDetail(generics.RetrieveUpdateAPIView):
     """
     queryset = core_models.ProfilePage.objects.all()
     serializer_class = core_serializers.ProfilePageSerializer
+
+class VoteDetail(generics.RetrieveUpdateDestroyAPIView):
+    """
+    get:
+    Return the details of the vote with the given id.
+
+    update:
+    Update the vote detail with the given id.
+
+    delete:
+    Delete the vote detail with the given id.
+    """
+    queryset = core_models.Vote.objects.all()
+    serializer_class = core_serializers.VoteSerializer
+
 
 ### Detail Views END
 

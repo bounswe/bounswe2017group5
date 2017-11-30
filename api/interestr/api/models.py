@@ -85,6 +85,9 @@ class Post(BaseModel):
     data_template = models.ForeignKey('api.DataTemplate', related_name='posts', default=None, null=True)
     data = JSONField()
 
+    def vote_sum(self):
+        return self.votes.filter(up=True).count() - self.votes.filter(up=False).count()
+
     def __str__(self):
         return json.dumps(self.data)
 
@@ -97,7 +100,17 @@ class Comment(BaseModel):
     def __str__(self):
         return self.text
 
+class Vote(BaseModel):
+    owner = models.ForeignKey(auth_models.User, related_name="votes", on_delete=models.CASCADE)
+    post = models.ForeignKey(Post, related_name="votes", on_delete=models.CASCADE)
+    up = models.NullBooleanField(default=None)
 
+    def __str__(self):
+        return str(self.owner.id) + ' -> ' + str(self.post.id) + ' ' + str(self.up)
+
+    class Meta:
+        unique_together = (('owner', 'post'), )
+                
 class DataTemplate(BaseModel):
     name = models.CharField(max_length=40)
     group = models.ForeignKey(Group, related_name='data_templates', on_delete=models.SET_NULL, default=None, null=True)

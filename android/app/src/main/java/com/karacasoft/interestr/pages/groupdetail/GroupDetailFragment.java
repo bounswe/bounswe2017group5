@@ -17,6 +17,7 @@ import com.karacasoft.interestr.network.InterestrAPI;
 import com.karacasoft.interestr.network.models.Post;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -41,6 +42,7 @@ public class GroupDetailFragment extends Fragment {
     private Button gBtnJoin;
     private Button gBtnMore;
     private TextView gDescription;
+    private TextView gTags;
     private RecyclerView rvPosts;
 
     public GroupDetailFragment() {
@@ -78,6 +80,8 @@ public class GroupDetailFragment extends Fragment {
         gBtnMore = root.findViewById(R.id.btnMoreGroup);
         gDescription = root.findViewById(R.id.tvAboutGroup);
         gMemberNum = root.findViewById(R.id.tvMemberNum);
+        gTags = root.findViewById(R.id.tvTagList);
+
         groupPostsList = root.findViewById(R.id.rvGroupPosts);
         recyclerViewAdapter = new PostRecyclerViewAdapter(posts);
         groupPostsList.setLayoutManager(new LinearLayoutManager(getContext()));

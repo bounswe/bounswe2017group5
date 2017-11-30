@@ -41,7 +41,7 @@
         android:text="This is group description..."
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvMembers" />
+        app:layout_constraintTop_toBottomOf="@+id/tvTagList" />
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/rvGroupPosts"
@@ -54,7 +54,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvAboutGroup" />
+        />
 
     <TextView
         android:id="@+id/tvMembers"
@@ -77,5 +77,17 @@
         android:text="0"
         app:layout_constraintStart_toEndOf="@+id/tvMembers"
         app:layout_constraintTop_toBottomOf="@+id/btnJoinGroup" />
+
+    <TextView
+        android:id="@+id/tvTagList"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:text="Tag1, Tag2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvMembers" />
+
 
 </android.support.constraint.ConstraintLayout>

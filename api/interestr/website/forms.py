@@ -1,7 +1,7 @@
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 from django import forms
-from api.models import Group, Post
+from api.models import Group, Post, ProfilePage
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.core.exceptions import ValidationError
 
@@ -14,7 +14,7 @@ class LoginForm(forms.Form):
 	#class Meta:
 	#	model = User
 	#	fields = ['username_or_email', 'password']
-	
+
 def UniqueEmailValidator(value):
 	if User.objects.filter(email__iexact=value).exists():
 		raise ValidationError('User with this Email already exists.')
@@ -54,3 +54,22 @@ class CreateGroupForm(forms.ModelForm):
 	class Meta:
 		model = Group
 		fields = ['name','description','tags','location','is_private','picture']
+
+class ProfileForm(forms.ModelForm):
+	name = forms.CharField(required=False, widget = forms.TextInput(attrs={'placeholder': 'Name', 'class':"form-control"}))
+	surname = forms.CharField(required=False, widget = forms.TextInput(attrs={'placeholder': 'Surname', 'class':"form-control"}))
+	date_of_birth = forms.DateField(required=False, widget = forms.DateInput(attrs={'placeholder': 'Date of birth', 'class':"form-control", 'type': 'date'}))
+	location = forms.CharField(required=False, widget = forms.TextInput(attrs={'placeholder': 'Location', 'class':"form-control"}))
+	interests = forms.CharField(required=False, widget = forms.TextInput(attrs={'placeholder': 'Interests (comma separated)', 'class':"form-control"}))
+
+	class Meta:
+		model = ProfilePage
+		fields = ['name', 'surname', 'date_of_birth', 'location', 'interests']
+
+	def save(self, commit=True, user=None):
+		user.profile.delete()
+		profile = super(ProfileForm, self).save(commit=False)
+		profile.user = user
+		if commit:
+			profile.save()
+		return profile

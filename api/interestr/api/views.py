@@ -211,8 +211,8 @@ def search_wikidata(request, limit=15):
 
     return JsonResponse({"resuts":data})
 
-
-def recommend_groups(user, limit=2):
+@api_view(['GET'])
+def recommend_groups(request, limit=5):
     """
     Returns recommended groups on the basis of the other groups of the 
     users that the given user has a common group.
@@ -233,6 +233,8 @@ def recommend_groups(user, limit=2):
         """
         return sum(list(map(lambda group2: distance(group,group2), group_list)))
     
+    user = request.user
+    limit = int(request.GET.get("limit",limit))
     groups = core_models.Group.objects.all()
     users_groups = user.joined_groups.all()
 
@@ -243,6 +245,8 @@ def recommend_groups(user, limit=2):
 
     #in case there are not enough candidates as the requested number
     limit = min(len(candidates),limit)
+    candidates = list(map(lambda group3: {"id":group3.id, "name": group3.name},candidates[:limit]))
+    return JsonResponse({"results": candidates})
 
-    return candidates[:limit]
+
 

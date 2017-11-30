@@ -9,7 +9,6 @@ from .models import Post
 from .models import Group
 from .models import DataTemplate
 
-from .views import recommend_groups
 
 
 from rest_framework.authtoken.models import Token
@@ -142,6 +141,7 @@ class DataTemplateTests(TestCase):
 
 class RecommendationTests(TestCase):
     def setUp(self):
+        self.client = APIClient()
         self.test_user1 = User.objects.create_user('ramazan', 'ramazan@wow.com', 'wowpass123')
         self.test_user2 = User.objects.create_user('murat', 'murat@wow.com', 'wowpass123')
         self.test_user3 = User.objects.create_user('mahmut', 'mahmut@wow.com', 'wowpass123')
@@ -157,18 +157,27 @@ class RecommendationTests(TestCase):
         self.test_group1.members.add(self.test_user1, self.test_user4)
         self.test_group2.members.add(self.test_user1, self.test_user2)
 
+    def recommend_groups(self,user, limit=None):
+        self.client.force_login(user)
+        limit_slug = ("?limit=" + str(limit)) if limit else ""
+        response = self.client.get('/api/v1/recommend_groups/'+ limit_slug)
+        json_response = json.loads(response.content)
+        return list(map(lambda x: Group.objects.get(id=x["id"]),json_response["results"]))
+
+  
+
     def test_length(self):
         self.test_group5.members.add(self.test_user5, self.test_user4)
         self.test_group4.members.add(self.test_user5, self.test_user2)
         
-        recommendations=recommend_groups(self.test_user3, 4)
+        recommendations=self.recommend_groups(self.test_user3, 4)
         self.assertEqual(len(recommendations), 4)
 
     def test_type(self):
         self.test_group5.members.add(self.test_user5, self.test_user4)
         self.test_group4.members.add(self.test_user5, self.test_user3)
 
-        recommendations=recommend_groups(self.test_user3, 3)
+        recommendations=self.recommend_groups(self.test_user3, 3)
         for recommendation in recommendations:
             self.assertEqual(recommendation.__class__.__name__,"Group")
     
@@ -177,7 +186,7 @@ class RecommendationTests(TestCase):
         self.test_group4.members.add(self.test_user3, self.test_user5)
         self.test_group5.members.add(self.test_user1, self.test_user5)
         
-        recommendations=recommend_groups(self.test_user4, 3)
+        recommendations=self.recommend_groups(self.test_user4, 3)
         # as user3 has two co-members in group2, one in group5, zero in group4
         best_recommendations = [self.test_group2,self.test_group5,self.test_group4]
         for i in range(3):

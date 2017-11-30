@@ -14,6 +14,7 @@ import com.karacasoft.interestr.R;
 import com.karacasoft.interestr.network.models.DataTemplate;
 import com.karacasoft.interestr.network.models.Group;
 import com.karacasoft.interestr.network.models.Post;
+import com.karacasoft.interestr.network.models.Tag;
 import com.karacasoft.interestr.network.models.Token;
 import com.karacasoft.interestr.network.models.User;
 import com.karacasoft.interestr.pages.datatemplates.data.Template;
@@ -53,6 +54,7 @@ public class InterestrAPIImpl implements InterestrAPI {
     private static final String ENDPOINT_JOIN_LEAVE_GROUP = API_HOME + "/users/groups/";
     private static final String ENDPOINT_POSTS = API_HOME + "/posts/";
     private static final String ENDPOINT_DATA_TEMPLATES = API_HOME + "/data_templates/";
+    private static final String ENDPOINT_TAGS = API_HOME + "/tags/";
 
     private static final String REQUEST_METHOD_GET = "GET";
     private static final String REQUEST_METHOD_POST = "POST";
@@ -554,6 +556,49 @@ public class InterestrAPIImpl implements InterestrAPI {
         networkHandler.post(job);
 
 
+    }
+
+    @Override
+    public void createTag(Tag tag, Callback<Tag> callback) {
+        JSONObject tagObj = new JSONObject();
+
+        try {
+            tagObj.put("label", tag.getLabel());
+            tagObj.put("url", tag.getUrl());
+            tagObj.put("description", tag.getDescription());
+            tagObj.put("concepturi", tag.getConceptUri());
+            tagObj.put("groups", "[]");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        APIJob<Tag> job = new APIJob<Tag>(
+                REQUEST_METHOD_POST,
+                ENDPOINT_TAGS,
+                tagObj,
+                callback
+        ) {
+            @Override
+            protected Tag extractData(String data) {
+                Tag t = new Tag();
+                try {
+                    JSONObject object = new JSONObject(data);
+
+                    t.setId(object.getInt("id"));
+                    t.setLabel(object.getString("label"));
+                    t.setUrl(object.getString("url"));
+                    t.setDescription(object.getString("description"));
+                    t.setConceptUri(object.getString("concepturi"));
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                return t;
+            }
+        };
+
+        jobQueue.add(job);
+        networkHandler.post(job);
     }
 
 

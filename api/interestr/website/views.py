@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+from django.forms import model_to_dict
 from django.shortcuts import render, redirect
 
 from django.contrib.auth import authenticate, login, logout
@@ -14,10 +15,11 @@ from django.contrib.auth.models import User
 #from django.views.generic import views
 from django.views import View
 
-from api.models import Group
-from .forms import LoginForm, RegisterForm, CreateGroupForm
+from api.models import Group, ProfilePage
+from .forms import LoginForm, RegisterForm, CreateGroupForm, ProfileForm
 
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db.models import Q
 
 class UserLoginView(View):
     form_class = LoginForm
@@ -46,16 +48,16 @@ class UserLoginView(View):
                                 username = User.objects.get(email=username_or_email).username
                         else:
                                 username = username_or_email
-                        
+
                         user = authenticate(username=username, password=password)
                 except:
-                        user = None 
+                        user = None
 
                 if user is not None:
-                        if user.is_active: #if he/she is not banned 
+                        if user.is_active: #if he/she is not banned
                                 login(request,user)
-                                return redirect('website:groups') 
-                
+                                return redirect('website:groups')
+
                 return render(request,self.template_name, {'err_msg': 'Invalid credentials!'})
 
 class UserRegisterView(View):
@@ -160,3 +162,42 @@ class NewsView(LoginRequiredMixin, generic.ListView):
 
     def get_queryset(self):
         return None
+
+class SearchView(LoginRequiredMixin, generic.ListView):
+    template_name = 'website/search.html'
+
+    def get(self, request):
+        query = self.request.GET.get("q")
+        groups = Group.objects.all()
+        users = User.objects.all()
+        if query:
+            groups = groups.filter(Q(name__icontains=query)).distinct()
+            users = users.filter(Q(username__icontains=query)).distinct()
+        return render(request, self.template_name, {'groups': groups, 'users': users, 'search_term': query})
+
+
+class MyProfileView(LoginRequiredMixin, View):
+    form_class = ProfileForm
+    template_name = 'website/my_profile.html'
+
+    def get(self, request):
+        profile, _ = ProfilePage.objects.get_or_create(user=request.user)
+        form = self.form_class(instance=profile)
+        return render(request, self.template_name, {'form': form})
+
+    def post(self, request):
+        form = self.form_class(request.POST, request.FILES)
+        profile = form.save(commit=True, user=request.user)
+        return redirect('website:my_profile')
+
+
+class ProfileView(View):
+    model = ProfilePage
+    template_name = 'website/profile.html'
+
+    def get_object(self, pk):
+        return User.objects.get(pk=pk).profile
+
+    def get(self, request, pk):
+        profile = self.get_object(pk)
+        return render(request, self.template_name, {'profile' : profile})

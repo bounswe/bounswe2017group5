@@ -1,6 +1,6 @@
 {% extends 'website/base.html' %}
 
-{% block title %}Groups{% endblock %}
+{% block title %}Search{% endblock %}
 
 {% block navbaritems %}
 <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
@@ -36,35 +36,47 @@
     <hr>
 
     <div class="groups">
-      {% for group in object_list %}
-      <div class="group">
-        <a href="{% url 'website:group_details' group.id %}">
-          <div class="group-image">
-            <img src="{{ group.get_picture }}" alt="Group alt..." width='160' class="img-thumbnail img-responsive">
-          </div>
-        </a>
-        <div class="group-info">
+      {% if groups %}
+        {% for group in groups %}
+        <div class="group">
           <a href="{% url 'website:group_details' group.id %}">
-            <div class="group-name">
-              <h4>{{ group.name }}</h4>
+            <div class="group-image">
+              <img src="{{ group.get_picture }}" alt="Group alt..." width='160' class="img-thumbnail img-responsive">
             </div>
           </a>
-          <div class="group-member-count">
-            {{ group.size }} member{{ group.size|pluralize }}
-          </div>
-          <div class="group-description">
-            {{ group.description }}
+          <div class="group-info">
+            <a href="{% url 'website:group_details' group.id %}">
+              <div class="group-name">
+                <h4>{{ group.name }}</h4>
+              </div>
+            </a>
+            <div class="group-member-count">
+              {{ group.size }} member{{ group.size|pluralize }}
+            </div>
+            <div class="group-description">
+              {{ group.description }}
+            </div>
           </div>
         </div>
-      </div>
-      {% endfor %}
+        {% endfor %}
+      {% else %}
+        No groups found!
+      {% endif %}
+    </div>
 
-      <a href="{% url 'website:create_group' %}">
-        <button type="button" class="btn btn-warning btn-round btn-fill">
-              Create a new Group!
-        </button>
-      </a>
+    <h1>Users</h1>
+    <hr>
 
+    <div class="users">
+      {% if users %}
+        {% for user in users %}
+        <div class="user">
+          <a href="{% url 'website:profile' user.id %}">{{ user.username }}</a>
+        </div>
+        {% endfor %}
+      {% else %}
+        No users found!
+      {% endif %}
     </div>
   </div>
 </div>

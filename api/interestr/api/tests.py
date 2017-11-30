@@ -7,6 +7,8 @@ from rest_framework.test import APIClient
 from django.contrib.auth.models import User
 from .models import Post, Group, Comment, DataTemplate
 
+
+
 from rest_framework.authtoken.models import Token
 
 from django.contrib.auth import models as auth_models
@@ -29,6 +31,59 @@ class AuthTests(TestCase):
         json_response = json.loads(response.content)
 
         self.assertEqual(json_response['token'], Token.objects.get(user=self.test_user).key)
+
+class SignupTests(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.test_user = User.objects.create_user('user', 'e@mail.com', 'password123')
+
+    def test_signup_nonexisting_user(self):
+        response = self.client.post('/api/v1/register/',
+            {'username': 'name',
+            'email':'email@email.com',
+            'password':'password123'})
+
+        self.assertEqual(response.status_code, 200)
+
+        json_response = json.loads(response.content)
+
+        self.assertEqual(json_response['username'], 'name')
+        self.assertEqual(json_response['email'], 'email@email.com')
+        self.assertEqual(json_response['joined_groups'], [])
+        self.assertEqual(json_response['moderated_groups'], [])
+        self.assertEqual(json_response['data_templates'], [])
+        self.assertEqual(json_response['posts'], [])
+        self.assertEqual(json_response['comments'], [])
+
+    def test_signup_with_existing_username(self):
+        response = self.client.post('/api/v1/register/',
+           {'username': 'user',
+           'email':'email@email.com',
+           'password':'password123'})
+
+        self.assertEqual(response.status_code, 417)
+
+        json_response = json.loads(response.content)
+
+        self.assertEqual(json_response['username'],
+            ["A user with that username already exists."])
+
+    def test_signup_with_existing_email(self):
+        response = self.client.post('/api/v1/register/',
+            {'username': 'name2',
+            'email':'email@email.com',
+            'password':'password123'})
+        self.assertEqual(response.status_code, 200)
+
+        json_response = json.loads(response.content)
+
+        self.assertEqual(json_response['username'], 'name2')
+        self.assertEqual(json_response['email'], 'email@email.com')
+        self.assertEqual(json_response['joined_groups'], [])
+        self.assertEqual(json_response['moderated_groups'], [])
+        self.assertEqual(json_response['data_templates'], [])
+        self.assertEqual(json_response['posts'], [])
+        self.assertEqual(json_response['comments'], [])
 
 
 class PostTests(TestCase):
@@ -111,6 +166,40 @@ class GroupTests(TestCase):
         response = self.client.delete(test_url, follow=True)
 
         self.assertEqual(response.status_code, 410)
+
+class aaaaProfilePageTests(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+
+    def test_1_check_auto_creation(self):
+        # posts a user and checks if profile page is created
+        post_test_url = '/api/v1/register/'
+
+        user_dict = {
+            'username': 'naim',
+            'email':'e@mail.com',
+            'password':'10201'}
+        # post the user
+        response = self.client.post(post_test_url, user_dict)
+        json_response = json.loads(response.content)
+        user_id = json_response['id']
+        # get its id
+        profilepage = json_response['profilepage']
+        sakki_no_id = profilepage['id']
+        self.assertEqual(response.status_code, 200)
+        # try to retrieve a profile page with given id
+        profile_page_url = '/api/v1/profile_pages/' + str(sakki_no_id) + '/'  
+        response = self.client.get(profile_page_url)
+        json_response = json.loads(response.content)
+
+
+        self.assertEqual(json_response['name'], '')
+        self.assertEqual(json_response['surname'], '')
+        self.assertEqual(json_response['location'], '')
+        self.assertEqual(json_response['interests'], '')
+        self.assertEqual(json_response['date_of_birth'], '1900-01-01')
+        self.assertEqual(json_response['user'], user_id) # last user's id
+
 
 class CommentTests(TestCase):
 
@@ -220,6 +309,59 @@ class DataTemplateTests(TestCase):
         self.assertEqual(response.status_code, 204)
         response = self.client.get('/api/v1/data_templates/' + str(self.test_data_template.id) + '/')
         self.assertEqual(response.status_code, 404)
+
+class RecommendationTests(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.test_user1 = User.objects.create_user('ramazan', 'ramazan@wow.com', 'wowpass123')
+        self.test_user2 = User.objects.create_user('murat', 'murat@wow.com', 'wowpass123')
+        self.test_user3 = User.objects.create_user('mahmut', 'mahmut@wow.com', 'wowpass123')
+        self.test_user4 = User.objects.create_user('enes', 'enes@wow.com', 'wowpass123')
+        self.test_user5 = User.objects.create_user('orbay', 'orbay@wow.com', 'wowpass123')
+
+        self.test_group1 = Group.objects.create(name="Chess Fans", description="All about chess.")
+        self.test_group2 = Group.objects.create(name="Classic Music Lovers", description="Every thing related to classic music.")
+        self.test_group3 = Group.objects.create(name="History Junkies", description="History is simply past.")
+        self.test_group4 = Group.objects.create(name="Amateur Basketball", description="Keep the amateur spirit.")
+        self.test_group5 = Group.objects.create(name="Heavy Lifting", description="Let's lift!")
+
+        self.test_group1.members.add(self.test_user1, self.test_user4)
+        self.test_group2.members.add(self.test_user1, self.test_user2)
+
+    def recommend_groups(self,user, limit=None):
+        self.client.force_login(user)
+        limit_slug = ("?limit=" + str(limit)) if limit else ""
+        response = self.client.get('/api/v1/recommend_groups/'+ limit_slug)
+        json_response = json.loads(response.content)
+        return list(map(lambda x: Group.objects.get(id=x["id"]),json_response["results"]))
+
+  
+
+    def test_length(self):
+        self.test_group5.members.add(self.test_user5, self.test_user4)
+        self.test_group4.members.add(self.test_user5, self.test_user2)
+        
+        recommendations=self.recommend_groups(self.test_user3, 4)
+        self.assertEqual(len(recommendations), 4)
+
+    def test_type(self):
+        self.test_group5.members.add(self.test_user5, self.test_user4)
+        self.test_group4.members.add(self.test_user5, self.test_user3)
+
+        recommendations=self.recommend_groups(self.test_user3, 3)
+        for recommendation in recommendations:
+            self.assertEqual(recommendation.__class__.__name__,"Group")
+    
+    def test_quality(self):
+        self.test_group3.members.add(self.test_user2, self.test_user4)
+        self.test_group4.members.add(self.test_user3, self.test_user5)
+        self.test_group5.members.add(self.test_user1, self.test_user5)
+        
+        recommendations=self.recommend_groups(self.test_user4, 3)
+        # as user3 has two co-members in group2, one in group5, zero in group4
+        best_recommendations = [self.test_group2,self.test_group5,self.test_group4]
+        for i in range(3):
+            self.assertEqual(recommendations[i],best_recommendations[i])
 
 
 class ApiDocTests(TestCase):

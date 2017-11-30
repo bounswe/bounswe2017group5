@@ -30,6 +30,7 @@ from django.views.decorators.csrf import csrf_exempt
 
 import urllib
 import json
+import random
 
 from . import serializers as core_serializers
 from .http import ErrorResponse
@@ -37,7 +38,7 @@ from .http import ErrorResponse
 
 ### List Views BEGIN
 
-class UserList(generics.ListAPIView):
+class UserList(generics.ListCreateAPIView):
     """
     Return a list of all the existing users.
     """
@@ -83,9 +84,19 @@ class DataTemplateList(generics.ListCreateAPIView):
     post:
     Create a new template instance.
     """
-    queryset = core_models.DataTemplate.objects.all()
     serializer_class = core_serializers.DataTemplateSerializer
     pagination_class = DataTemplateLimitOffSetPagination
+
+    def get_queryset(self):
+        """
+        Optionally restricts the returned purchases to a given user,
+        by filtering against a `username` query parameter in the URL.
+        """
+        queryset = core_models.DataTemplate.objects.all()
+        group_id = self.request.query_params.get('group', None)
+        if group_id is not None:
+            queryset = queryset.filter(group=group_id)
+        return queryset
 
 
 class PostList(generics.ListCreateAPIView):
@@ -96,10 +107,20 @@ class PostList(generics.ListCreateAPIView):
     post:
     Create a new post instance.
     """
-    queryset = core_models.Post.objects.all()
+
     serializer_class = core_serializers.PostSerializer
     pagination_class = PostLimitOffsetPagination
 
+    def get_queryset(self):
+        """
+        Optionally restricts the returned purchases to a given user,
+        by filtering against a `username` query parameter in the URL.
+        """
+        queryset = core_models.Post.objects.all()
+        group_id = self.request.query_params.get('group', None)
+        if group_id is not None:
+            queryset = queryset.filter(group=group_id)
+        return queryset
 
 class TagList(generics.ListCreateAPIView):
     """
@@ -136,6 +157,16 @@ class VoteList(generics.ListCreateAPIView):
     queryset = core_models.Vote.objects.all()
     serializer_class = core_serializers.VoteSerializer
 
+class ProfilePageList(generics.ListAPIView):
+    """
+    get:
+    Return a list of all the existing profile pages.
+
+    post:
+    Create a new profile page instance.
+    """
+    queryset = core_models.ProfilePage.objects.all()
+    serializer_class = core_serializers.ProfilePageSerializer
 
 ### List Views END
 
@@ -227,6 +258,16 @@ class CommentDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = core_models.Comment.objects.all()
     serializer_class = core_serializers.CommentSerializer
 
+class ProfilePageDetail(generics.RetrieveUpdateAPIView):
+    """
+    get:
+    Return the details of the comment with the given id.
+
+    update:
+    Update the comment detail with the given id.
+    """
+    queryset = core_models.ProfilePage.objects.all()
+    serializer_class = core_serializers.ProfilePageSerializer
 
 class VoteDetail(generics.RetrieveUpdateDestroyAPIView):
     """
@@ -244,6 +285,11 @@ class VoteDetail(generics.RetrieveUpdateDestroyAPIView):
 
 
 ### Detail Views END
+
+class CurrentUserView(APIView):
+    def get(self, request):
+        serializer = core_serializers.UserSerializer(request.user)
+        return JsonResponse(serializer.data)
 
 class MemberGroupOperation(APIView):
     permission_classes = (IsAuthenticated,)
@@ -295,3 +341,56 @@ def search_wikidata(request, limit=15):
         response.append(model_to_dict(tag))
 
     return JsonResponse({"results": response})
+
+@api_view(['GET'])
+def recommend_groups(request, limit=5):
+    """
+    Returns recommended groups on the basis of the other groups of the 
+    users that the given user has a common group.
+    """
+    def distance(group1, group2):
+        """
+        Calculates the distance between groups based on how much they 
+        'agree' on their members
+        """
+        members1 = group1.members.all().values_list('id', flat=True)
+        members2 = group2.members.all().values_list('id', flat=True)
+        
+        return len(members1) + len(members2) - 2*len(members1 & members2)+random.random()
+
+    def total_distance(group, group_list):
+        """
+        Sum of all distances a group has to groups from a list
+        """
+        return sum(list(map(lambda group2: distance(group,group2), group_list)))
+    
+    user = request.user
+    limit = int(request.GET.get("limit",limit))
+    groups = core_models.Group.objects.all()
+    users_groups = user.joined_groups.all()
+
+    #list of groups that the user is not a member of.
+    candidates = [group for group in groups if group not in users_groups]
+    #sort candidate groups according to their similarities to users current groups
+    candidates = sorted(candidates, key=lambda group: total_distance(group, users_groups))
+
+    #in case there are not enough candidates as the requested number
+    limit = min(len(candidates),limit)
+    candidates = list(map(lambda group3: {"id":group3.id, "name": group3.name},candidates[:limit]))
+    return JsonResponse({"results": candidates})
+
+class SignUpView(APIView):
+    def post(self, request):
+        serialized = core_serializers.UserSerializer(data=request.data)
+        if serialized.is_valid():
+            auth_models.User.objects.create_user(
+                email = request.data['email'],
+                username = request.data['username'],
+                password = request.data['password'] )
+            user_to_send = auth_models.User.objects.get(username = request.data['username'])
+            profile_page = core_models.ProfilePage(user = user_to_send)
+            profile_page.save()
+            out_serializer = core_serializers.UserSerializer(user_to_send)
+            return JsonResponse(out_serializer.data)
+        else:
+            return JsonResponse(serialized._errors, status=417)

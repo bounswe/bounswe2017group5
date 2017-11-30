@@ -1,6 +1,6 @@
 {% extends 'website/base.html' %}
 
-{% block title %}News Feed{% endblock %}
+{% block title %}Profile{% endblock %}
 
 {% block navbaritems %}
 <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
@@ -32,17 +32,28 @@
 
 <div class="main">
   <div class="container">
-    <h1>News Feed</h1>
+    <h1>Profile</h1>
     <hr>
 
-    <div class="news">
-      {% if object_list %}
-        {% for news_item in object_list %}
+    <div class="profile-field">
+      <b>Name:</b> <span>{{ profile.name }}</span>
+    </div>
 
-        {% endfor %}
-      {% else %}
-        No news to show!
-      {% endif %}
+
+    <div class="profile-field">
+      <b>Surname:</b> <span>{{ profile.surname }}</span>
+    </div>
+
+    <div class="profile-field">
+      <b>Date of birth:</b> <span>{{ profile.date_of_birth }}</span>
+    </div>
+
+    <div class="profile-field">
+      <b>Location:</b> <span>{{ profile.location }}</span>
+    </div>
+
+    <div class="profile-field">
+      <b>Interests:</b> <span>{{ profile.interests }}</span>
     </div>
   </div>
 </div>

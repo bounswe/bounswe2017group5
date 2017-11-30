@@ -95,6 +95,10 @@ class Vote(BaseModel):
     def __str__(self):
         return self.owner + ' -> ' + self.post + ' ' + self.up
 
+    class Meta:
+        unique_together = (('owner', 'post'), )
+                
+
 class DataTemplate(BaseModel):
     name = models.CharField(max_length=40)
     group = models.ForeignKey(Group, related_name='data_templates', on_delete=models.SET_NULL, default=None, null=True)

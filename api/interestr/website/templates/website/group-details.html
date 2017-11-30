@@ -1,5 +1,6 @@
 {% extends 'website/base.html' %}
 
+{% load voting_extras %}
 {% load static %}
 
 {% block title %}Create a new Group{% endblock title %}
@@ -163,6 +164,109 @@
         </form>
       </div>
 
+      <script type="text/javascript">
+        function votecaster_onload(votecaster) {
+          var casteractive = false;
+
+          var postid = votecaster.getAttribute('data-post-id');
+          var voteid = votecaster.getAttribute('data-vote-id');
+
+          var counter = votecaster.getElementsByClassName('vote-count').item(0);
+          var upcaster = votecaster.getElementsByClassName('vote-up').item(0);
+          var downcaster = votecaster.getElementsByClassName('vote-down').item(0);
+
+          var caststatus;
+
+          function refresh_current_vote() {
+            if (voteid == -1) {
+              caststatus = null;
+              casteractive = true;
+            }
+            else {
+              casteractive = false;
+
+              $.ajax({
+                method: 'GET',
+                url: '{% url "api:votedetail" 12345 %}'.replace(/12345/, voteid),
+                beforeSend: function(xhr) {
+                  xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
+                }
+              }).done(function (msg) {
+                if (msg.owner == {{ user.id }} && msg.post == postid) {
+                  caststatus = msg.up;
+                  casteractive = true;
+                }
+              });
+            }
+          }
+
+          refresh_current_vote();
+
+          function change_counter(by) {
+            var count = parseInt(counter.textContent, 10);
+            if (isNaN(count)) {
+              // TODO
+            }
+            else {
+              count += by;
+              counter.textContent = count.toString();
+            }
+          }
+
+          upcaster.onclick = function (event) {
+            if (caststatus == true) {
+              upcaster.classList.remove('voted');
+              change_counter(-1);
+              caststatus = null;
+            }
+            else {
+              if (caststatus == false) {
+                downcaster.onclick();
+              }
+
+              upcaster.classList.add('voted');
+              change_counter(1);
+              caststatus = true;
+            }
+          }
+
+          downcaster.onclick = function (event) {
+            if (caststatus == false) {
+              downcaster.classList.remove('voted');
+              change_counter(1);
+              caststatus = null;
+            }
+            else {
+              if (caststatus == true) {
+                upcaster.onclick();
+              }
+
+              downcaster.classList.add('voted');
+              change_counter(-1);
+              caststatus = false;
+            }
+          }
+
+          function vote(event, up) {
+            if (casteractive) {
+              var btn = event.target;
+
+              event.stopPropagation();
+
+              $.ajax({
+                method: isJoined ? 'DELETE' : 'POST',
+                url: '{% url "api:groupoperation" group.id %}',
+                beforeSend: function(xhr) {
+                  xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
+                }
+              }).done(function (msg) {
+                btn.onclick = up ? vote_up : vote_down;
+              });
+            }
+          }
+        }
+      </script>
+
       {% for post in group.posts.all reversed %}
       <div class="group-detail-content">
         <div class="header">
@@ -179,11 +283,11 @@
           <p><strong>{{ question_response.question }}</strong>: <span>{{ question_response.response }}</span></p>
           {% endfor %}
         </div>
-        <div class="col-md-6">
-          <span>{{ post.vote_sum }}</span>
-          <span title="+1 Vote Up" class="fa fa-chevron-up vote-up"></span>
-          <span title="-1 Vote Down" class="fa fa-chevron-down vote-down"></span>
-        </div>
+        <div data-post-id="{{ post.id }}" data-vote-id="{{ post|vote_of_user:post.id }}" class="col-md-6">
+          <span class="vote-count">{{ post.vote_sum }}</span>
+          <span title="+1 Vote Up" class="fa fa-chevron-up vote vote-up"></span>
+          <span title="-1 Vote Down" class="fa fa-chevron-down vote vote-down"></span>
+        </div><script type="text/javascript">votecaster_onload(document.currentScript.previousSibling);</script>
         <div class="col-md-6 comments">
           <a class="text-muted" href="javascript:void(0);">0 Comments</a>
         </div>
@@ -191,6 +295,8 @@
       {% endfor %}
     </div>
   </div>
+
+
 
   <!-- Modal -->
   <div class="modal fade" id="createTemplateModal" tabindex="-1" role="dialog" aria-labelledby="createTemplateModalLabel" aria-hidden="true">

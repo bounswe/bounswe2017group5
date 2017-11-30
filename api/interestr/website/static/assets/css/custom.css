@@ -233,3 +233,31 @@ div.col-form-legend, div.template-input-label {
   opacity: 0 !important;
   overflow: hidden !important;
 }
+
+.vote {
+  transition-property: color, text-shadow;
+  transition-duration: 0.3s;
+
+  cursor: pointer;
+}
+
+.vote-up {
+  --color: #5C5;
+}
+
+.vote-down {
+  --color: #C55;
+}
+
+.voted, .vote:hover{
+  color: var(--color);
+  text-shadow: 0 0 3px var(--color);
+}
+
+.vote:active {
+  filter: brightness(150%);
+}
+
+.voted {
+  filter: brightness(130%);
+}

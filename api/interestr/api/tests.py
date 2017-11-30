@@ -85,6 +85,7 @@ class SignupTests(TestCase):
         self.assertEqual(json_response['posts'], [])
         self.assertEqual(json_response['comments'], [])
 
+
 class PostTests(TestCase):
     def setUp(self):
         self.client = APIClient()
@@ -165,6 +166,40 @@ class GroupTests(TestCase):
         response = self.client.delete(test_url, follow=True)
 
         self.assertEqual(response.status_code, 410)
+
+class aaaaProfilePageTests(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+
+    def test_1_check_auto_creation(self):
+        # posts a user and checks if profile page is created
+        post_test_url = '/api/v1/register/'
+
+        user_dict = {
+            'username': 'naim',
+            'email':'e@mail.com',
+            'password':'10201'}
+        # post the user
+        response = self.client.post(post_test_url, user_dict)
+        json_response = json.loads(response.content)
+        user_id = json_response['id']
+        # get its id
+        profilepage = json_response['profilepage']
+        sakki_no_id = profilepage['id']
+        self.assertEqual(response.status_code, 200)
+        # try to retrieve a profile page with given id
+        profile_page_url = '/api/v1/profile_pages/' + str(sakki_no_id) + '/'  
+        response = self.client.get(profile_page_url)
+        json_response = json.loads(response.content)
+
+
+        self.assertEqual(json_response['name'], '')
+        self.assertEqual(json_response['surname'], '')
+        self.assertEqual(json_response['location'], '')
+        self.assertEqual(json_response['interests'], '')
+        self.assertEqual(json_response['date_of_birth'], '1900-01-01')
+        self.assertEqual(json_response['user'], user_id) # last user's id
+
 
 class CommentTests(TestCase):
 

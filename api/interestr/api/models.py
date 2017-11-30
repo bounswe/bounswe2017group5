@@ -6,7 +6,7 @@ import json
 from django.db import models
 from django.contrib.auth import models as auth_models
 from django.utils import timezone
-
+import datetime
 from django.contrib.postgres.fields import JSONField
 import inspect
 from enum import Enum
@@ -36,6 +36,16 @@ class ChoiceEnum(Enum):
 
 # Models START
 
+class ProfilePage(BaseModel):
+    name = models.CharField(max_length=30, blank=True, default='')
+    surname = models.CharField(max_length=30, blank=True, default='')
+    date_of_birth = models.DateField(blank=True, default=datetime.date(1900, 1, 1))
+    location = models.TextField(blank=True, default='')
+    interests = models.TextField(blank=True, default='')
+    user = models.OneToOneField(auth_models.User, on_delete=models.CASCADE, 
+        verbose_name="user")
+
+
 class Tag(BaseModel):
     label = models.TextField()
     url = models.URLField()
@@ -44,6 +54,7 @@ class Tag(BaseModel):
 
     def __str__(self):
         return self.label +' (' + self.concepturi + ')'
+
 
 class Group(BaseModel):
     name = models.CharField(max_length=40, unique=True)
@@ -67,6 +78,7 @@ class Group(BaseModel):
         else:
             return '/static/assets/img/group_default_icon.png'
 
+
 class Post(BaseModel):
     owner = models.ForeignKey(auth_models.User, related_name="posts", default=None, null=True)
     group = models.ForeignKey(Group, related_name='posts', on_delete=models.CASCADE, default=None, null=True)
@@ -76,6 +88,7 @@ class Post(BaseModel):
     def __str__(self):
         return json.dumps(self.data)
 
+
 class Comment(BaseModel):
     owner = models.ForeignKey(auth_models.User, related_name="comments", default=None)
     text = models.TextField(default='', blank=True)
@@ -83,6 +96,7 @@ class Comment(BaseModel):
 
     def __str__(self):
         return self.text
+
 
 class DataTemplate(BaseModel):
     name = models.CharField(max_length=40)
@@ -93,5 +107,6 @@ class DataTemplate(BaseModel):
 
     def __str__(self):
         return self.name
+
 
 # Models END

@@ -9,11 +9,13 @@ class DataTemplateSerializer(serializers.ModelSerializer):
         model = core_models.DataTemplate
         fields = ('id', 'name', 'group', 'user', 'created', 'updated', 'fields' )
 
+
 class TagSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = core_models.Tag
         fields = ('id','label', 'url','description', 'concepturi', 'created', 'updated', 'groups' )
+
 
 class GroupSerializer(serializers.ModelSerializer):
     data_templates = DataTemplateSerializer(many=True, read_only=True)
@@ -27,11 +29,13 @@ class GroupSerializer(serializers.ModelSerializer):
          'moderators', 'picture', 'data_templates', 'tags', )
         read_only_fields = ('members', 'moderators',)
 
+
 class CommentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = core_models.Comment
         fields = ('id', 'owner', 'text', 'post', 'created', 'updated',)
+
 
 class PostSerializer(serializers.ModelSerializer):
     comments = CommentSerializer(many=True, read_only=True)
@@ -40,13 +44,24 @@ class PostSerializer(serializers.ModelSerializer):
         model = core_models.Post
         fields = ('id', 'owner', 'group', 'data_template', 'data', 'comments', 'created', 'updated',)
 
+
+class ProfilePageSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = core_models.ProfilePage
+        fields = ('id', 'name', 'surname', 'date_of_birth',
+         'location', 'interests', 'user',)
+
+
 class UserSerializer(serializers.ModelSerializer):
     joined_groups = GroupSerializer(many=True, read_only=True)
     moderated_groups = GroupSerializer(many=True, read_only=True)
     data_templates = DataTemplateSerializer(many=True, read_only=True)
     comments = CommentSerializer(many=True, read_only=True) 
     posts = PostSerializer(many=True, read_only=True)
-
+    profilepage = ProfilePageSerializer(read_only=True, many=False)
     class Meta:
         model = auth_models.User
-        fields = ('id', 'username', 'email', 'joined_groups', 'moderated_groups', 'data_templates', 'posts', 'comments')
+
+        fields = ('id', 'username', 'email', 'joined_groups', 'moderated_groups',
+         'data_templates', 'posts', 'comments', 'profilepage')

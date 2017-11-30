@@ -85,7 +85,7 @@ class DataTemplateList(generics.ListCreateAPIView):
     """
     serializer_class = core_serializers.DataTemplateSerializer
     pagination_class = DataTemplateLimitOffSetPagination
-    
+
     def get_queryset(self):
         """
         Optionally restricts the returned purchases to a given user,
@@ -106,7 +106,7 @@ class PostList(generics.ListCreateAPIView):
     post:
     Create a new data post instance.
     """
-    
+
     serializer_class = core_serializers.PostSerializer
     pagination_class = PostLimitOffsetPagination
 

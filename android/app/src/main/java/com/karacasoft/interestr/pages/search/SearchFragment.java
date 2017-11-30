@@ -15,6 +15,7 @@ import android.widget.ImageButton;
 import com.karacasoft.interestr.ErrorHandler;
 import com.karacasoft.interestr.FloatingActionButtonHandler;
 import com.karacasoft.interestr.FloatingActionsMenuHandler;
+import com.karacasoft.interestr.InterestrApplication;
 import com.karacasoft.interestr.R;
 import com.karacasoft.interestr.ToolbarHandler;
 import com.karacasoft.interestr.network.InterestrAPI;
@@ -65,7 +66,7 @@ public class SearchFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        api = new InterestrAPIImpl(getContext());
+        api = ((InterestrApplication)getActivity().getApplication()).getApi();
     }
 
     @Override

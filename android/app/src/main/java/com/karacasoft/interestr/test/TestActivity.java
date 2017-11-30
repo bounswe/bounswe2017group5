@@ -4,6 +4,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.karacasoft.interestr.InterestrApplication;
 import com.karacasoft.interestr.R;
 import com.karacasoft.interestr.network.InterestrAPI;
 import com.karacasoft.interestr.network.InterestrAPIImpl;
@@ -20,7 +21,7 @@ public class TestActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_test);
 
-        InterestrAPI api = new InterestrAPIImpl(this);
+        InterestrAPI api = ((InterestrApplication) getApplication()).getApi();
 
         api.login("KaracaSoft", "Mahmut95", new InterestrAPI.Callback<Token>() {
             @Override

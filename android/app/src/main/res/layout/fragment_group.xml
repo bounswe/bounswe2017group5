@@ -1,58 +1,75 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal"
-    android:weightSum="1">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:padding="2dp">
 
-    <LinearLayout
-        android:layout_width="0dp"
+    <android.support.v7.widget.CardView
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_weight="0.25">
-        <ImageView
-            android:layout_margin="4dp"
-            android:id="@+id/group_image"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:maxHeight="60dp"
-            />
-    </LinearLayout>
-    
-    <LinearLayout
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_weight="0.75">
-        <TextView
-            android:text="group_name"
-            android:id="@+id/group_name"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="@dimen/text_margin"
-            android:textAppearance="?attr/textAppearanceListItem"
-            tools:ignore="HardcodedText" />
+        app:cardElevation="5dp"
+        app:contentPadding="3dp">
 
-        <TextView
-            android:text="group_desc"
-            android:id="@+id/group_desc"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="@dimen/text_margin"
-            android:maxLines="1"
-            android:ellipsize="end"
-            android:textAppearance="?attr/textAppearanceListItem"
-            tools:ignore="HardcodedText" />
+            android:orientation="horizontal"
+            android:weightSum="1">
 
-        <TextView
-            android:text="group_members"
-            android:id="@+id/group_member_count"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="@dimen/text_margin"
-            android:textAppearance="?attr/textAppearanceListItem"
-            tools:ignore="HardcodedText" />
-    </LinearLayout>
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="0.25"
+                android:orientation="vertical">
 
-</LinearLayout>
+                <ImageView
+                    android:id="@+id/group_image"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_margin="4dp"
+                    android:maxHeight="60dp"
+                    android:scaleType="centerInside"
+                    android:src="@mipmap/ic_launcher" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.75"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/group_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/text_margin"
+                    android:text="group_name"
+                    android:textAppearance="?attr/textAppearanceListItem"
+                    tools:ignore="HardcodedText" />
+
+                <TextView
+                    android:id="@+id/group_desc"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/text_margin"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:text="group_desc"
+                    android:textAppearance="?attr/textAppearanceListItem"
+                    tools:ignore="HardcodedText" />
+
+                <TextView
+                    android:id="@+id/group_member_count"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/text_margin"
+                    android:text="group_members"
+                    android:textAppearance="?attr/textAppearanceListItem"
+                    tools:ignore="HardcodedText" />
+            </LinearLayout>
+
+        </LinearLayout>
+    </android.support.v7.widget.CardView>
+</FrameLayout>

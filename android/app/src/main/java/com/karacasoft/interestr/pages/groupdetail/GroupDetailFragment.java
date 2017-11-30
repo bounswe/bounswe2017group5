@@ -12,9 +12,19 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.github.clans.fab.FloatingActionButton;
+import com.karacasoft.interestr.ErrorHandler;
+import com.karacasoft.interestr.FloatingActionButtonHandler;
+import com.karacasoft.interestr.InterestrApplication;
 import com.karacasoft.interestr.R;
+import com.karacasoft.interestr.ToolbarHandler;
 import com.karacasoft.interestr.network.InterestrAPI;
+import com.karacasoft.interestr.network.InterestrAPIImpl;
+import com.karacasoft.interestr.network.InterestrAPIResult;
+import com.karacasoft.interestr.network.models.Group;
 import com.karacasoft.interestr.network.models.Post;
+import com.karacasoft.interestr.network.models.Tag;
+import com.karacasoft.interestr.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,6 +55,13 @@ public class GroupDetailFragment extends Fragment {
     private TextView gTags;
     private RecyclerView rvPosts;
 
+    private ErrorHandler errorHandler;
+    private ToolbarHandler toolbarHandler;
+
+    private FloatingActionButtonHandler fabHandler;
+
+    private OnAddPostButtonClicked onAddPostButtonClicked;
+
     public GroupDetailFragment() {
         // Required empty public constructor
     }
@@ -67,9 +84,6 @@ public class GroupDetailFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mGroupId = getArguments().getInt(ARG_GROUP_ID);
-        }
     }
 
     @Override
@@ -82,11 +96,85 @@ public class GroupDetailFragment extends Fragment {
         gMemberNum = root.findViewById(R.id.tvMemberNum);
         gTags = root.findViewById(R.id.tvTagList);
 
+
+
         groupPostsList = root.findViewById(R.id.rvGroupPosts);
         recyclerViewAdapter = new PostRecyclerViewAdapter(posts);
         groupPostsList.setLayoutManager(new LinearLayoutManager(getContext()));
         groupPostsList.setAdapter(recyclerViewAdapter);
-            //TODO fill rv with posts of the group
+
         return root;
     }
+
+    private void setupFloatingActionButton(FloatingActionButton floatingActionButton) {
+        floatingActionButton.setImageResource(R.drawable.ic_add_white_24dp);
+        floatingActionButton.setOnClickListener((view) -> onAddPostButtonClicked.onAddPostButtonClicked());
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        api = ((InterestrApplication)getActivity().getApplication()).getApi();
+
+        if (getArguments() != null) {
+            mGroupId = getArguments().getInt(ARG_GROUP_ID);
+        }
+
+        errorHandler = (ErrorHandler) context;
+        toolbarHandler = (ToolbarHandler) context;
+
+        fabHandler = (FloatingActionButtonHandler) context;
+
+        onAddPostButtonClicked = (OnAddPostButtonClicked) context;
+
+        setupFloatingActionButton(fabHandler.getFloatingActionButton());
+
+        fillGroupDetail();
+    }
+
+    private void fillGroupDetail() {
+        api.getGroupDetail(mGroupId, new InterestrAPI.Callback<Group>() {
+            @Override
+            public void onResult(InterestrAPIResult<Group> result) {
+                Group g = result.get();
+
+                gDescription.setText(g.getDescription());
+                gMemberNum.setText(StringUtils.pluralize(g.getMemberCount(), "Member"));
+                gTags.setText("");
+                for (String tag : g.getTags()) {
+                    gTags.append(tag + ", ");
+                }
+
+                toolbarHandler.setTitle(g.getName());
+            }
+
+            @Override
+            public void onError(String error_message) {
+                errorHandler.onError(error_message);
+            }
+        });
+
+        api.getPosts(mGroupId, new InterestrAPI.Callback<ArrayList<Post>>() {
+            @Override
+            public void onResult(InterestrAPIResult<ArrayList<Post>> result) {
+                posts.clear();
+                posts.addAll(result.get());
+
+                recyclerViewAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onError(String error_message) {
+                errorHandler.onError(error_message);
+            }
+        });
+
+
+
+    }
+
+    public interface OnAddPostButtonClicked {
+        public void onAddPostButtonClicked();
+    }
+
 }

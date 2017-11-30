@@ -1,5 +1,6 @@
 package com.karacasoft.interestr.network.models;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 /**
@@ -11,7 +12,7 @@ public class Post {
     private int owner;
     private int groupId;
     private int dataTemplateId;
-    private JSONObject data;
+    private JSONArray data;
 
     public int getId() {
         return id;
@@ -45,11 +46,11 @@ public class Post {
         this.dataTemplateId = dataTemplateId;
     }
 
-    public JSONObject getData() {
+    public JSONArray getData() {
         return data;
     }
 
-    public void setData(JSONObject data) {
+    public void setData(JSONArray data) {
         this.data = data;
     }
 }

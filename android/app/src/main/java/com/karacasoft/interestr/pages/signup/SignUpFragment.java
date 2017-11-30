@@ -13,6 +13,7 @@ import android.widget.EditText;
 import com.karacasoft.interestr.ErrorHandler;
 import com.karacasoft.interestr.FloatingActionButtonHandler;
 import com.karacasoft.interestr.FloatingActionsMenuHandler;
+import com.karacasoft.interestr.InterestrApplication;
 import com.karacasoft.interestr.R;
 import com.karacasoft.interestr.network.InterestrAPI;
 import com.karacasoft.interestr.network.InterestrAPIImpl;
@@ -64,8 +65,12 @@ public class SignUpFragment extends Fragment {
         signup= root.findViewById(R.id.btnSignup);
 
         signup.setOnClickListener(
-                (view)-> api.signup(username.getText().toString(),email.getText().toString(),
-                        pass1.getText().toString(),pass2.getText().toString(),signupCallBack)
+            (view)-> {
+                User user = new User(username.getText().toString(), pass1.getText().toString(),
+                        email.getText().toString());
+
+                api.signup(user, signupCallBack);
+            }
         );
 
         return root;
@@ -74,7 +79,7 @@ public class SignUpFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        api = new InterestrAPIImpl(getContext());
+        api = ((InterestrApplication)getActivity().getApplication()).getApi();
     }
 
     @Override

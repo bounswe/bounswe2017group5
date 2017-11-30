@@ -8,4 +8,5 @@ import android.support.v7.widget.Toolbar;
 
 public interface ToolbarHandler {
     public Toolbar getToolbar();
+    public void setTitle(String title);
 }

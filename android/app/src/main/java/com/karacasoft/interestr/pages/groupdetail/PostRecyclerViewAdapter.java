@@ -1,6 +1,8 @@
 package com.karacasoft.interestr.pages.groupdetail;
 
+import android.os.Build;
 import android.support.v7.widget.RecyclerView;
+import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,7 +10,11 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.karacasoft.interestr.R;
+import com.karacasoft.interestr.network.InterestrAPI;
 import com.karacasoft.interestr.network.models.Post;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,8 +40,29 @@ public class PostRecyclerViewAdapter extends RecyclerView.Adapter<PostRecyclerVi
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         holder.mPost = postList.get(position);
-        holder.mPostOwnerView.setText(postList.get(position).getOwner());
-        //todo add post content in correct format
+
+        StringBuilder postContent = new StringBuilder();
+
+        try {
+            for (int i = 0; i < holder.mPost.getData().length(); i++) {
+                JSONObject obj = holder.mPost.getData().getJSONObject(i);
+
+                postContent.append("<b>").append(obj.getString("question")).append(":</b> ");
+                postContent.append("<span>").append(obj.getString("response")).append("</span>");
+                postContent.append("<br>");
+
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            holder.mPostContentView.setText(Html.fromHtml(postContent.toString(), Html.FROM_HTML_MODE_COMPACT));
+        } else {
+            holder.mPostContentView.setText(Html.fromHtml(postContent.toString()));
+        }
+
     }
 
     @Override

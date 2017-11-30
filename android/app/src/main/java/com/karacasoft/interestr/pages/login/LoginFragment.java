@@ -11,6 +11,7 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import com.karacasoft.interestr.ErrorHandler;
+import com.karacasoft.interestr.InterestrApplication;
 import com.karacasoft.interestr.R;
 import com.karacasoft.interestr.network.InterestrAPI;
 import com.karacasoft.interestr.network.InterestrAPIImpl;
@@ -68,8 +69,6 @@ public class LoginFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        api = new InterestrAPIImpl(getContext());
     }
 
     @Override
@@ -79,6 +78,7 @@ public class LoginFragment extends Fragment {
         errorHandler = (ErrorHandler) context;
 
         onLoginFragmentInteractionListener = (OnLoginFragmentInteractionListener) getActivity();
+        api = ((InterestrApplication) getActivity().getApplication()).getApi();
     }
 
     @Override

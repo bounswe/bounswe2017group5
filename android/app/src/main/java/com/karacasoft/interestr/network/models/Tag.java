@@ -1,10 +1,12 @@
 package com.karacasoft.interestr.network.models;
 
+import java.io.Serializable;
+
 /**
  * Created by karacasoft on 30.11.2017.
  */
 
-public class Tag {
+public class Tag implements Serializable {
     private int id;
     private String label;
     private String url;

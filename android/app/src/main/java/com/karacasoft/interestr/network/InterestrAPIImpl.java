@@ -51,6 +51,7 @@ public class InterestrAPIImpl implements InterestrAPI {
 
     private static final String ENDPOINT_GROUPS = API_HOME + "/groups/";
     private static final String ENDPOINT_LOGIN = API_HOME + "/login/";
+    private static final String ENDPOINT_REGISTER = API_HOME + "/register/";
     private static final String ENDPOINT_JOIN_LEAVE_GROUP = API_HOME + "/users/groups/";
     private static final String ENDPOINT_POSTS = API_HOME + "/posts/";
     private static final String ENDPOINT_DATA_TEMPLATES = API_HOME + "/data_templates/";
@@ -169,17 +170,14 @@ public class InterestrAPIImpl implements InterestrAPI {
 
     @Override
     public void login(String username, String password, Callback<Token> callback) {
-        Log.d("APIImpl login","login is called");
         JSONObject data = new JSONObject();
 
         try {
             data.put("username", username);
             data.put("password", password);
-            Log.d("APIImpl login","login data are put successfully");
 
         } catch (JSONException e) {
             // This should never happen.
-            Log.d("APIImpl login","this just happened, login JSON error");
         }
 
         APIJob<Token> job = new APIJob<Token>(REQUEST_METHOD_POST, ENDPOINT_LOGIN, data, callback) {
@@ -187,8 +185,6 @@ public class InterestrAPIImpl implements InterestrAPI {
             protected Token extractData(String data) {
 
                 Token token = null;
-                Log.d("APIImpl login","login extract data");
-                Log.d("APIImpl login",data);
                 try {
                     JSONObject obj = new JSONObject(data);
 
@@ -196,6 +192,7 @@ public class InterestrAPIImpl implements InterestrAPI {
 
                 } catch (JSONException e) {
                     e.printStackTrace();
+                    return null;
                 }
                 return token;
             }
@@ -206,8 +203,44 @@ public class InterestrAPIImpl implements InterestrAPI {
     }
 
     @Override
-    public void signup(String username, String email, String pass1, String pass2,Callback<User> callback) {
-        //TODO
+    public void signup(User user, Callback<User> callback) {
+        JSONObject userObj = new JSONObject();
+
+        try {
+            userObj.put("username", user.getUsername());
+            userObj.put("email", user.getEmail());
+            userObj.put("password", user.getPassword());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        APIJob<User> job = new APIJob<User>(
+                REQUEST_METHOD_POST, ENDPOINT_REGISTER,
+                userObj, callback
+        ) {
+            @Override
+            protected User extractData(String data) {
+                User user = new User();
+
+                try {
+                    JSONObject userObject = new JSONObject(data);
+
+                    user.setId(userObject.getInt("id"));
+                    user.setUsername(userObject.getString("username"));
+                    user.setEmail(userObject.getString("email"));
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    return null;
+                }
+
+
+                return user;
+            }
+        };
+
+        jobQueue.add(job);
+        networkHandler.post(job);
     }
 
     @Override
@@ -416,13 +449,22 @@ public class InterestrAPIImpl implements InterestrAPI {
                         post.setId(postObj.getInt("id"));
                         post.setOwner(postObj.getInt("owner"));
                         post.setGroupId(postObj.getInt("group"));
-                        post.setDataTemplateId(postObj.getInt("data_template"));
-                        post.setData(postObj.getJSONObject("data"));
+
+                        String str = postObj.getString("data_template");
+
+                        if(str.equals("null")) {
+                            post.setDataTemplateId(0);
+                        } else {
+                            post.setDataTemplateId(postObj.getInt("data_template"));
+                        }
+
+                        post.setData(postObj.getJSONArray("data"));
 
                         posts.add(post);
                     }
 
                 } catch (JSONException e) {
+                    e.printStackTrace();
                     return null;
                 }
 
@@ -459,9 +501,10 @@ public class InterestrAPIImpl implements InterestrAPI {
                     p.setOwner(obj.getInt("owner"));
                     p.setGroupId(obj.getInt("group"));
                     p.setDataTemplateId(obj.getInt("data_template"));
-                    p.setData(obj.getJSONObject("data"));
+                    p.setData(obj.getJSONArray("data"));
 
                 } catch (JSONException e) {
+                    e.printStackTrace();
                     return null;
                 }
                 return p;
@@ -497,13 +540,13 @@ public class InterestrAPIImpl implements InterestrAPI {
                         dataTemplate.setName(dataTemplateObj.getString("name"));
                         dataTemplate.setGroupId(dataTemplateObj.getInt("group"));
                         dataTemplate.setUserId(dataTemplateObj.getInt("user"));
-                        dataTemplate.setTemplate(Template.fromJSON(dataTemplateObj.getJSONObject("fields")));
-
+                        dataTemplate.setTemplate(Template.fromJSON(dataTemplateObj.getJSONArray("fields")));
 
                         dataTemplates.add(dataTemplate);
                     }
 
                 } catch (JSONException e) {
+                    e.printStackTrace();
                     return null;
                 }
 
@@ -541,9 +584,10 @@ public class InterestrAPIImpl implements InterestrAPI {
                     dataTemplate.setName(object.getString("name"));
                     dataTemplate.setGroupId(object.getInt("group"));
                     dataTemplate.setUserId(object.getInt("user"));
-                    dataTemplate.setTemplate(Template.fromJSON(object.getJSONObject("fields")));
+                    dataTemplate.setTemplate(Template.fromJSON(object.getJSONArray("fields")));
 
                 } catch (JSONException e) {
+                    e.printStackTrace();
                     return null;
                 }
 
@@ -592,6 +636,7 @@ public class InterestrAPIImpl implements InterestrAPI {
 
                 } catch (JSONException e) {
                     e.printStackTrace();
+                    return null;
                 }
                 return t;
             }
@@ -671,10 +716,12 @@ public class InterestrAPIImpl implements InterestrAPI {
                     if (r.isSuccessful()) {
                         ResponseBody rBody = r.body();
                         if (rBody != null) {
-                            retObj = extractData(rBody.string());
+                            String bodyString = rBody.string();
+
+                            retObj = extractData(bodyString);
                             if (retObj == null) {
                                 isError = true;
-                                errorMessage = rBody.string();
+                                errorMessage = bodyString;
                             }
                         } else {
                             retObj = null;

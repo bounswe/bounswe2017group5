@@ -20,8 +20,6 @@ import com.karacasoft.interestr.network.models.Group;
 import com.karacasoft.interestr.network.models.Token;
 import com.karacasoft.interestr.network.models.User;
 import com.karacasoft.interestr.pages.creategroup.CreateGroupFragment;
-import com.karacasoft.interestr.pages.datatemplates.DataTemplateCreatorFragment;
-import com.karacasoft.interestr.pages.datatemplates.data.Template;
 import com.karacasoft.interestr.pages.groups.GroupsFragment;
 import com.karacasoft.interestr.pages.login.LoginFragment;
 import com.karacasoft.interestr.pages.newsfeed.NewsFeedFragment;
@@ -35,7 +33,6 @@ public class MainActivity extends AppCompatActivity
         CreateGroupFragment.OnGroupSavedListener,
         LoginFragment.OnLoginFragmentInteractionListener,
         SignUpFragment.OnSignupSuccessfulListener,
-        DataTemplateCreatorFragment.OnDataTemplateSavedListener,
         FloatingActionsMenuHandler,
         FloatingActionButtonHandler,
         ErrorHandler,
@@ -147,13 +144,8 @@ public class MainActivity extends AppCompatActivity
                     .replace(R.id.content, GroupsFragment.newInstance(1))
                     .commit();
 
-        } else if (id == R.id.nav_slideshow) {
-            FragmentManager fm = getSupportFragmentManager();
-            fm.beginTransaction()
-                    .replace(R.id.content, SignUpFragment.newInstance())
-                    .commit();
-        }else if(id==R.id.nav_profile){
-            Intent intent = new Intent(MainActivity.this,CoordinatorLayoutActivity.class);
+        } else if(id==R.id.nav_profile){
+            Intent intent = new Intent(MainActivity.this, CoordinatorLayoutActivity.class);
             intent.setAction(CoordinatorLayoutActivity.ACTION_DISPLAY_USER);
             intent.putExtra(CoordinatorLayoutActivity.EXTRA_USER_ID,0);//todo add id
             startActivity(intent);
@@ -166,11 +158,10 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onGroupsListItemClicked(Group item) {
-        Intent intent = new Intent(MainActivity.this,CoordinatorLayoutActivity.class);
+        Intent intent = new Intent(MainActivity.this, CoordinatorLayoutActivity.class);
         intent.setAction(CoordinatorLayoutActivity.ACTION_DISPLAY_GROUP);
-        intent.putExtra(CoordinatorLayoutActivity.EXTRA_GROUP_ID,item.getId());
+        intent.putExtra(CoordinatorLayoutActivity.EXTRA_GROUP_ID, item.getId());
         startActivity(intent);
-        // TODO open group detail page
     }
 
     @Override
@@ -254,6 +245,11 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
+    public void setTitle(String title) {
+        toolbar.setTitle(title);
+    }
+
+    @Override
     public void changeMenu(int id) {
         getMenuInflater().inflate(id, menu);
     }
@@ -261,16 +257,6 @@ public class MainActivity extends AppCompatActivity
     @Override
     public Menu getMenu() {
         return this.menu;
-    }
-
-    @Override
-    public void onDataTemplateSaved(Template template) {
-        Snackbar.make(findViewById(R.id.content), "Data Template Saved", Snackbar.LENGTH_SHORT)
-                // TODO maybe add an action to go edit that template more??
-                .show();
-
-        FragmentManager fm = getSupportFragmentManager();
-        fm.popBackStack();
     }
 
     @Override

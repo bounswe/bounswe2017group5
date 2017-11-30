@@ -15,6 +15,7 @@ import com.github.clans.fab.FloatingActionButton;
 import com.karacasoft.interestr.ErrorHandler;
 import com.karacasoft.interestr.FloatingActionButtonHandler;
 import com.karacasoft.interestr.FloatingActionsMenuHandler;
+import com.karacasoft.interestr.InterestrApplication;
 import com.karacasoft.interestr.R;
 import com.karacasoft.interestr.network.InterestrAPI;
 import com.karacasoft.interestr.network.InterestrAPIImpl;
@@ -95,7 +96,7 @@ public class GroupsFragment extends Fragment {
             mColumnCount = getArguments().getInt(ARG_COLUMN_COUNT);
         }
 
-        api = new InterestrAPIImpl(getContext());
+        api = ((InterestrApplication)getActivity().getApplication()).getApi();
     }
 
     @Override

@@ -49,14 +49,11 @@ public class MyGroupRecyclerViewAdapter extends RecyclerView.Adapter<MyGroupRecy
         holder.mGroupMemberCountView.setText(StringUtils.pluralize(mValues.get(position).getMemberCount(), "Member"));
         imageLoader.displayImage(mValues.get(position).getPictureUrl(), holder.mGroupPictureView);
 
-        holder.mView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (null != mListener) {
-                    // Notify the active callbacks interface (the activity, if the
-                    // fragment is attached to one) that an item has been selected.
-                    mListener.onGroupsListItemClicked(holder.mItem);
-                }
+        holder.mView.setOnClickListener((view) -> {
+            if (null != mListener) {
+                // Notify the active callbacks interface (the activity, if the
+                // fragment is attached to one) that an item has been selected.
+                mListener.onGroupsListItemClicked(holder.mItem);
             }
         });
     }

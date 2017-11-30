@@ -20,18 +20,19 @@
             android:fitsSystemWindows="true"
             app:title="User/group name"
             >
-            <!--default image added, will be changed in pages-->
+            <!-- TODO default image added, will be changed in pages-->
             <ImageView
                 android:id="@+id/coordinator_layout_image"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:scaleType="centerCrop"
                 android:fitsSystemWindows="true"
-                android:src="@drawable/ic_menu_gallery"
+                app:srcCompat="@drawable/ic_done_black_24dp"
                 app:layout_collapseMode="parallax"
                 />
 
             <android.support.v7.widget.Toolbar
+                android:id="@+id/toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
                 app:layout_collapseMode="pin">
@@ -50,16 +51,26 @@
             android:id="@+id/coordinator_layout_activity_content"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
-
-            <com.github.clans.fab.FloatingActionButton
-                android:id="@+id/fab"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="bottom|end"
-                android:layout_margin="@dimen/fab_margin"
-                app:fab_colorNormal="@color/colorAccent"
-                app:fab_colorPressed="@color/colorAccentDark" />
-
         </FrameLayout>
     </android.support.v4.widget.NestedScrollView>
+
+    <com.github.clans.fab.FloatingActionButton
+        android:id="@+id/fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="@dimen/fab_margin"
+        app:fab_colorNormal="@color/colorAccent"
+        app:fab_colorPressed="@color/colorAccentDark" />
+
+    <com.github.clans.fab.FloatingActionMenu
+        android:id="@+id/fam"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="@dimen/fab_margin"
+        app:menu_colorNormal="@color/colorAccent"
+        app:menu_colorPressed="@color/colorAccentDark"
+        android:visibility="gone"/>
+
 </android.support.design.widget.CoordinatorLayout>

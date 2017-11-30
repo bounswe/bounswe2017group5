@@ -9,6 +9,9 @@ from .models import Post, Group, Comment, DataTemplate
 
 from rest_framework.authtoken.models import Token
 
+from django.contrib.auth import models as auth_models
+from . import models as core_models
+
 import json
 
 
@@ -26,6 +29,59 @@ class AuthTests(TestCase):
         json_response = json.loads(response.content)
 
         self.assertEqual(json_response['token'], Token.objects.get(user=self.test_user).key)
+
+class SignupTests(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.test_user = User.objects.create_user('user', 'e@mail.com', 'password123')
+
+    def test_signup_nonexisting_user(self):
+        response = self.client.post('/api/v1/register/',
+            {'username': 'name',
+            'email':'email@email.com',
+            'password':'password123'})
+
+        self.assertEqual(response.status_code, 200)
+
+        json_response = json.loads(response.content)
+
+        self.assertEqual(json_response['username'], 'name')
+        self.assertEqual(json_response['email'], 'email@email.com')
+        self.assertEqual(json_response['joined_groups'], [])
+        self.assertEqual(json_response['moderated_groups'], [])
+        self.assertEqual(json_response['data_templates'], [])
+        self.assertEqual(json_response['posts'], [])
+        self.assertEqual(json_response['comments'], [])
+
+    def test_signup_with_existing_username(self):
+        response = self.client.post('/api/v1/register/',
+           {'username': 'user',
+           'email':'email@email.com',
+           'password':'password123'})
+
+        self.assertEqual(response.status_code, 417)
+
+        json_response = json.loads(response.content)
+
+        self.assertEqual(json_response['username'],
+            ["A user with that username already exists."])
+
+    def test_signup_with_existing_email(self):
+        response = self.client.post('/api/v1/register/',
+            {'username': 'name2',
+            'email':'email@email.com',
+            'password':'password123'})
+        self.assertEqual(response.status_code, 200)
+
+        json_response = json.loads(response.content)
+
+        self.assertEqual(json_response['username'], 'name2')
+        self.assertEqual(json_response['email'], 'email@email.com')
+        self.assertEqual(json_response['joined_groups'], [])
+        self.assertEqual(json_response['moderated_groups'], [])
+        self.assertEqual(json_response['data_templates'], [])
+        self.assertEqual(json_response['posts'], [])
+        self.assertEqual(json_response['comments'], [])
 
 
 class PostTests(TestCase):
@@ -108,6 +164,40 @@ class GroupTests(TestCase):
         response = self.client.delete(test_url, follow=True)
 
         self.assertEqual(response.status_code, 410)
+
+class aaaaProfilePageTests(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+
+    def test_1_check_auto_creation(self):
+        # posts a user and checks if profile page is created
+        post_test_url = '/api/v1/register/'
+
+        user_dict = {
+            'username': 'naim',
+            'email':'e@mail.com',
+            'password':'10201'}
+        # post the user
+        response = self.client.post(post_test_url, user_dict)
+        json_response = json.loads(response.content)
+        user_id = json_response['id']
+        # get its id
+        profilepage = json_response['profilepage']
+        sakki_no_id = profilepage['id']
+        self.assertEqual(response.status_code, 200)
+        # try to retrieve a profile page with given id
+        profile_page_url = '/api/v1/profile_pages/' + str(sakki_no_id) + '/'  
+        response = self.client.get(profile_page_url)
+        json_response = json.loads(response.content)
+
+
+        self.assertEqual(json_response['name'], '')
+        self.assertEqual(json_response['surname'], '')
+        self.assertEqual(json_response['location'], '')
+        self.assertEqual(json_response['interests'], '')
+        self.assertEqual(json_response['date_of_birth'], '1900-01-01')
+        self.assertEqual(json_response['user'], user_id) # last user's id
+
 
 class CommentTests(TestCase):
 
@@ -227,3 +317,99 @@ class ApiDocTests(TestCase):
         response = self.client.get('/api/v1/docs/')
 
         self.assertEqual(response.status_code, 200)
+
+
+class SearchTests(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.user_pass = 'Ab12Cd34'
+        self.test_user1 = User.objects.create_user('mehmet', 'mehmet@mail.com', self.user_pass)
+        self.test_user2 = User.objects.create_user('ali', 'ali@mail.com', self.user_pass)
+        self.test_user3 = User.objects.create_user('mehmet ali', 'memoli@mail.com', self.user_pass)
+        self.test_group1 = Group.objects.create(name="awesome", description="good")
+        self.test_group2 = Group.objects.create(name="best", description="fine")
+        self.test_group3 = Group.objects.create(name="awesome best", description="great")
+
+
+    def count_users(self, query):
+        c = 0;
+        for User in auth_models.User.objects.all():
+            if query in User.username:
+                c = c + 1
+
+        return c
+
+    def count_groups(self, query):
+        d = 0;
+        for Group in core_models.Group.objects.all():
+            if query in Group.name:
+                d = d + 1
+
+        return d
+
+    #search for the first user
+    def test_user_search1(self):
+        response = self.client.get('/api/v1/users/' + '?q=' + self.test_user1.username)
+        self.assertEqual(response.status_code, 200)
+
+        json_response = json.loads(response.content)
+        self.assertEqual(json_response['count'], self.count_users(self.test_user1.username))
+
+    #search for the second user
+    def test_user_search2(self):
+        response = self.client.get('/api/v1/users/' + '?q=' + self.test_user2.username)
+        self.assertEqual(response.status_code, 200)
+
+        json_response = json.loads(response.content)
+        self.assertEqual(json_response['count'], self.count_users(self.test_user2.username))
+
+    #search for the third user
+    def test_user_search3(self):
+        response = self.client.get('/api/v1/users/' + '?q=' + self.test_user3.username)
+        self.assertEqual(response.status_code, 200)
+
+        json_response = json.loads(response.content)
+        self.assertEqual(json_response['count'], self.count_users(self.test_user3.username))
+
+    #search for a user that does not exist
+    def test_user_search4(self):
+        response = self.client.get('/api/v1/users/' + '?q=' + 'dummy')
+        self.assertEqual(response.status_code, 200)
+
+        json_response = json.loads(response.content)
+        self.assertEqual(json_response['count'], self.count_users('dummy'))
+
+
+
+
+    #search for the first group
+    def test_group_search1(self):
+        response = self.client.get('/api/v1/groups/' + '?q=' + self.test_group1.name)
+        self.assertEqual(response.status_code, 200)
+
+        json_response = json.loads(response.content)
+        self.assertEqual(json_response['count'], self.count_groups(self.test_group1.name))
+
+    #search for the second group
+    def test_group_search2(self):
+        response = self.client.get('/api/v1/groups/' + '?q=' + self.test_group2.name)
+        self.assertEqual(response.status_code, 200)
+
+        json_response = json.loads(response.content)
+        self.assertEqual(json_response['count'], self.count_groups(self.test_group2.name))
+
+    #search for the third group
+    def test_group_search3(self):
+        response = self.client.get('/api/v1/groups/' + '?q=' + self.test_group3.name)
+        self.assertEqual(response.status_code, 200)
+
+        json_response = json.loads(response.content)
+        self.assertEqual(json_response['count'], self.count_groups(self.test_group3.name))
+
+    #search for a group that does not exist
+    def test_group_search4(self):
+        response = self.client.get('/api/v1/groups/' + '?q=' + 'dummy')
+        self.assertEqual(response.status_code, 200)
+
+        json_response = json.loads(response.content)
+        self.assertEqual(json_response['count'], self.count_groups('dummy'))

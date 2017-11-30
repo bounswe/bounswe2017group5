@@ -42,7 +42,15 @@ class PostSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = core_models.Post
-        fields = ('id', 'owner', 'text', 'group', 'data_template', 'created', 'updated', 'comments' )
+        fields = ('id', 'owner', 'group', 'data_template', 'data', 'created', 'updated', 'comments', )
+
+
+class ProfilePageSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = core_models.ProfilePage
+        fields = ('id', 'name', 'surname', 'date_of_birth',
+         'location', 'interests', 'user',)
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -51,15 +59,9 @@ class UserSerializer(serializers.ModelSerializer):
     data_templates = DataTemplateSerializer(many=True, read_only=True)
     comments = CommentSerializer(many=True, read_only=True) 
     posts = PostSerializer(many=True, read_only=True)
-
+    profilepage = ProfilePageSerializer(read_only=True, many=False)
     class Meta:
         model = auth_models.User
-        fields = ('id', 'username', 'email', 'joined_groups', 'moderated_groups', 'data_templates', 'posts', 'comments', )
 
-
-class ProfilePageSerializer(serializers.ModelSerializer):
-    user = UserSerializer(read_only = True)
-
-    class Meta:
-        model = core_models.ProfilePage
-        fields = ('id', 'name', 'surname', 'date_of_birth', 'location', 'interests', 'user',)
+        fields = ('id', 'username', 'email', 'joined_groups', 'moderated_groups',
+         'data_templates', 'posts', 'comments', 'profilepage')

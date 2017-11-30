@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import json
+
 from django.db import models
 from django.contrib.auth import models as auth_models
 from django.utils import timezone
-
+import datetime
 from django.contrib.postgres.fields import JSONField
 import inspect
 from enum import Enum
@@ -35,22 +37,23 @@ class ChoiceEnum(Enum):
 # Models START
 
 class ProfilePage(BaseModel):
-    name = models.CharField(max_length=30)
-    surname = models.CharField(max_length=30)
-    date_of_birth = models.DateField(blank=True)
+    name = models.CharField(max_length=30, blank=True, default='')
+    surname = models.CharField(max_length=30, blank=True, default='')
+    date_of_birth = models.DateField(blank=True, default=datetime.date(1900, 1, 1))
     location = models.TextField(blank=True, default='')
     interests = models.TextField(blank=True, default='')
-    user = models.OneToOneField(auth_models.User, on_delete=models.CASCADE)
+    user = models.OneToOneField(auth_models.User, on_delete=models.CASCADE, 
+        verbose_name="user")
 
 
 class Tag(BaseModel):
-    label = models.CharField(max_length=40)
+    label = models.TextField()
     url = models.URLField()
     concepturi = models.URLField(unique=True)
-    description = models.TextField()
+    description = models.TextField(blank=True, null=True)
 
     def __str__(self):
-        return self.label+'('+self.concepturi+')'
+        return self.label +' (' + self.concepturi + ')'
 
 
 class Group(BaseModel):
@@ -77,14 +80,13 @@ class Group(BaseModel):
 
 
 class Post(BaseModel):
-    owner = models.ForeignKey(auth_models.User, related_name="posts", default=None)
-    text = models.TextField(default='')
-    group = models.ForeignKey(Group, related_name='posts', default=None) 
+    owner = models.ForeignKey(auth_models.User, related_name="posts", default=None, null=True)
+    group = models.ForeignKey(Group, related_name='posts', on_delete=models.CASCADE, default=None, null=True)
     data_template = models.ForeignKey('api.DataTemplate', related_name='posts', default=None, null=True)
-    data = JSONField(default=None, null=True)
-     
+    data = JSONField()
+
     def __str__(self):
-        return self.text
+        return json.dumps(self.data)
 
 
 class Comment(BaseModel):

@@ -37,6 +37,8 @@ Please check our comprehensive [Wiki Page](https://github.com/bounswe/bounswe201
 * [Class Diagram](https://github.com/bounswe/bounswe2017group5/wiki/Class-Diagram)
 * [Sequence Diagrams](https://github.com/bounswe/bounswe2017group5/wiki/Sequence-Diagrams)
 * [Test Cases](https://github.com/bounswe/bounswe2017group5/wiki/Test-Cases)
+* [Android Software Design](https://github.com/bounswe/bounswe2017group5/wiki/Android-Software-Design)
+* [Documentation for the JSON Structure of Data Template Fields and Posts](https://github.com/bounswe/bounswe2017group5/wiki/Documentation-for-the-JSON-Structure-of-Data-Template-Fields-and-Posts)
 
 ## Development
 ```

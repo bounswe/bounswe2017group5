@@ -39,6 +39,24 @@
       }
       return cookieValue;
     }
+    window.onload = function() {
+      window.search = function() {
+        var searchQuery = $("#search-input").val();
+        if (!searchQuery.length) {
+          swal('Sorry...', 'Please enter at least 1 character to search.', 'error');
+          return;
+        }
+        window.location.href = "{% url 'website:search' %}?q=" + searchQuery;
+      }
+
+      // Search on enter
+      $("#search-input").on('keydown', function(e) {
+        if (e.keyCode === 13) {
+          e.preventDefault();
+          window.search();
+        }
+      })
+    }
   </script>
 </head>
 

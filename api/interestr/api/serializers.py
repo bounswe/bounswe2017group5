@@ -42,7 +42,7 @@ class PostSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = core_models.Post
-        fields = ('id', 'owner', 'group', 'data_template', 'data', 'created', 'updated', 'comments', )
+        fields = ('id', 'owner', 'group', 'data_template', 'data', 'comments', 'created', 'updated',)
 
 
 class ProfilePageSerializer(serializers.ModelSerializer):

@@ -7,6 +7,8 @@ from rest_framework.test import APIClient
 from django.contrib.auth.models import User
 from .models import Post, Group, Comment, DataTemplate
 
+
+
 from rest_framework.authtoken.models import Token
 
 from django.contrib.auth import models as auth_models
@@ -307,6 +309,59 @@ class DataTemplateTests(TestCase):
         self.assertEqual(response.status_code, 204)
         response = self.client.get('/api/v1/data_templates/' + str(self.test_data_template.id) + '/')
         self.assertEqual(response.status_code, 404)
+
+class RecommendationTests(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.test_user1 = User.objects.create_user('ramazan', 'ramazan@wow.com', 'wowpass123')
+        self.test_user2 = User.objects.create_user('murat', 'murat@wow.com', 'wowpass123')
+        self.test_user3 = User.objects.create_user('mahmut', 'mahmut@wow.com', 'wowpass123')
+        self.test_user4 = User.objects.create_user('enes', 'enes@wow.com', 'wowpass123')
+        self.test_user5 = User.objects.create_user('orbay', 'orbay@wow.com', 'wowpass123')
+
+        self.test_group1 = Group.objects.create(name="Chess Fans", description="All about chess.")
+        self.test_group2 = Group.objects.create(name="Classic Music Lovers", description="Every thing related to classic music.")
+        self.test_group3 = Group.objects.create(name="History Junkies", description="History is simply past.")
+        self.test_group4 = Group.objects.create(name="Amateur Basketball", description="Keep the amateur spirit.")
+        self.test_group5 = Group.objects.create(name="Heavy Lifting", description="Let's lift!")
+
+        self.test_group1.members.add(self.test_user1, self.test_user4)
+        self.test_group2.members.add(self.test_user1, self.test_user2)
+
+    def recommend_groups(self,user, limit=None):
+        self.client.force_login(user)
+        limit_slug = ("?limit=" + str(limit)) if limit else ""
+        response = self.client.get('/api/v1/recommend_groups/'+ limit_slug)
+        json_response = json.loads(response.content)
+        return list(map(lambda x: Group.objects.get(id=x["id"]),json_response["results"]))
+
+  
+
+    def test_length(self):
+        self.test_group5.members.add(self.test_user5, self.test_user4)
+        self.test_group4.members.add(self.test_user5, self.test_user2)
+        
+        recommendations=self.recommend_groups(self.test_user3, 4)
+        self.assertEqual(len(recommendations), 4)
+
+    def test_type(self):
+        self.test_group5.members.add(self.test_user5, self.test_user4)
+        self.test_group4.members.add(self.test_user5, self.test_user3)
+
+        recommendations=self.recommend_groups(self.test_user3, 3)
+        for recommendation in recommendations:
+            self.assertEqual(recommendation.__class__.__name__,"Group")
+    
+    def test_quality(self):
+        self.test_group3.members.add(self.test_user2, self.test_user4)
+        self.test_group4.members.add(self.test_user3, self.test_user5)
+        self.test_group5.members.add(self.test_user1, self.test_user5)
+        
+        recommendations=self.recommend_groups(self.test_user4, 3)
+        # as user3 has two co-members in group2, one in group5, zero in group4
+        best_recommendations = [self.test_group2,self.test_group5,self.test_group4]
+        for i in range(3):
+            self.assertEqual(recommendations[i],best_recommendations[i])
 
 
 class ApiDocTests(TestCase):

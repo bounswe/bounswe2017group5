@@ -30,6 +30,7 @@ from django.views.decorators.csrf import csrf_exempt
 
 import urllib
 import json
+import random
 
 from . import serializers as core_serializers
 from .http import ErrorResponse
@@ -85,7 +86,7 @@ class DataTemplateList(generics.ListCreateAPIView):
     """
     serializer_class = core_serializers.DataTemplateSerializer
     pagination_class = DataTemplateLimitOffSetPagination
-    
+
     def get_queryset(self):
         """
         Optionally restricts the returned purchases to a given user,
@@ -106,7 +107,7 @@ class PostList(generics.ListCreateAPIView):
     post:
     Create a new data post instance.
     """
-    
+
     serializer_class = core_serializers.PostSerializer
     pagination_class = PostLimitOffsetPagination
 
@@ -314,6 +315,43 @@ def search_wikidata(request, limit=15):
         response.append(model_to_dict(tag))
 
     return JsonResponse({"results": response})
+
+@api_view(['GET'])
+def recommend_groups(request, limit=5):
+    """
+    Returns recommended groups on the basis of the other groups of the 
+    users that the given user has a common group.
+    """
+    def distance(group1, group2):
+        """
+        Calculates the distance between groups based on how much they 
+        'agree' on their members
+        """
+        members1 = group1.members.all().values_list('id', flat=True)
+        members2 = group2.members.all().values_list('id', flat=True)
+        
+        return len(members1) + len(members2) - 2*len(members1 & members2)+random.random()
+
+    def total_distance(group, group_list):
+        """
+        Sum of all distances a group has to groups from a list
+        """
+        return sum(list(map(lambda group2: distance(group,group2), group_list)))
+    
+    user = request.user
+    limit = int(request.GET.get("limit",limit))
+    groups = core_models.Group.objects.all()
+    users_groups = user.joined_groups.all()
+
+    #list of groups that the user is not a member of.
+    candidates = [group for group in groups if group not in users_groups]
+    #sort candidate groups according to their similarities to users current groups
+    candidates = sorted(candidates, key=lambda group: total_distance(group, users_groups))
+
+    #in case there are not enough candidates as the requested number
+    limit = min(len(candidates),limit)
+    candidates = list(map(lambda group3: {"id":group3.id, "name": group3.name},candidates[:limit]))
+    return JsonResponse({"results": candidates})
 
 class SignUpView(APIView):
     def post(self, request):

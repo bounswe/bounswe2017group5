@@ -8,10 +8,10 @@
 <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
   <ul class="nav navbar-nav navbar-right">
     <li class="nav-search">
-      <input type="text" value="" class="form-control" placeholder="Search...">
+      <input type="text" value="{{ search_term }}" class="form-control" placeholder="Search..." id="search-input">
     </li>
     <li>
-      <a href="javascript:void(0);">
+      <a href="javascript:void(0);" onclick="window.search()">
         <i class="fa fa-search"></i>
       </a>
     </li>
@@ -180,8 +180,23 @@
           {% endfor %}
         </div>
         <div class="comments">
-          <a class="text-muted" href="javascript:void(0);">0 Comments</a>
-        </div>
+		<div class="comments-header" onclick="$(this).next().slideToggle()" ><span>{{ post.comments.count }} Comments</span>
+
+    		</div>
+		<div class="comments-contents" style="display: none">
+
+		<div class="form-group" id="commentForm{{post.id}}">
+		    <input name="text" class="form-control" id="comment-text-post-{{post.id}}" type="text" onkeypress="submitComment(event,this)" placeholder="Press Enter to send your comment!">
+		</div>
+
+		<div class="comments-old-contents" style="text-align: left">
+          {% for comment in post.comments.all%}
+	  <hr> </hr>
+	  <p style="font-size: 14px">{{ comment.text}} - <span style="color: #3af">{{comment.owner.username }}</span> <span style="color: #9199a1">{{comment.created}}</span></p>
+          {% endfor %}
+		</div>
+		</div>
+	</div>
       </div>
       {% endfor %}
     </div>
@@ -248,7 +263,8 @@
     formFields = document.getElementById('formFields');
     currentTemplateText = document.getElementById('currentTemplateText');
 
-    function createTemplateOnClick() {
+
+function createTemplateOnClick() {
         templateName.value = '';
         templateFields.innerHTML = '';
         isUpdatingTemplate = false;
@@ -393,13 +409,6 @@
 
       inputElemCount = 0;
 
-/*
-<div class="form-group" id="formFields">
-            <label for="name">Text: </label>
-            <input name="text" class="form-control" id="text" type="text" placeholder="Text of the post">
-
-          </div>
-*/
 
       inputContainer = document.createElement('div');
       inputContainer.classList.add('col-sm-10', 'template-input-container');
@@ -648,6 +657,11 @@
             var divLabel = document.createElement('div');
             divLabel.classList.add('template-input-label', 'checkbox');
             divLabel.innerHTML = label.innerHTML;
+if(e.which == 13 && !e.shiftKey) {
+        $(this).closest("form").submit();
+        e.preventDefault();
+        return false;
+    }
             $(label).replaceWith(divLabel);
           });
           templateFields.classList.remove('hidden');
@@ -760,6 +774,29 @@
           location.reload();
         }).fail((xhr, status, err) => swal('Oops...', 'Unexpected error, couldn\'t send the post.', 'error'));
     }
+
+function submitComment(e, commentText){
+
+if(e.which == 13 && !e.shiftKey) {
+            $.ajax({
+          method: 'POST',
+          url: '{% url "api:comments" %}',
+          data: {
+	      text: commentText.value,
+              post: commentText.id.replace('comment-text-post-',''),
+              owner: '{{ user.id }}',
+          },
+          beforeSend: (xhr) => { xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken')); }
+        }).done(() => {
+	  commentText.value = '';
+          location.reload();
+        }).fail((xhr, status, err) => swal('Oops...', 'Unexpected error, couldn\'t send the comment.', 'error'));
+
+
+        e.preventDefault();
+        return false;
+    }
+}
 
   </script>
 

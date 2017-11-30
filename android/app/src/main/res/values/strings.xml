@@ -34,5 +34,7 @@
     <string name="user_reported">User reported.</string>
     <string name="template_name">Template Name</string>
     <string name="profile">Profile</string>
+    <string name="group_description">Group Description</string>
+    <string name="location">Location</string>
 
 </resources>

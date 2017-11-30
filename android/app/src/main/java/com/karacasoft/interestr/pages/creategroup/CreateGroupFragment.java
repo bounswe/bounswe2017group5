@@ -14,7 +14,12 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageView;
 
+import com.karacasoft.interestr.ErrorHandler;
+import com.karacasoft.interestr.FloatingActionButtonHandler;
+import com.karacasoft.interestr.InterestrApplication;
 import com.karacasoft.interestr.R;
+import com.karacasoft.interestr.network.InterestrAPI;
+import com.karacasoft.interestr.network.InterestrAPIResult;
 import com.karacasoft.interestr.network.models.Group;
 
 import mabbas007.tagsedittext.TagsEditText;
@@ -32,8 +37,13 @@ public class CreateGroupFragment extends Fragment {
 
     private ImageView edtGroupImage;
     private EditText edtGroupName;
+    private EditText edtGroupDescription;
     private TagsEditText edtGroupTags;
 
+    private InterestrAPI api;
+    private ErrorHandler errorHandler;
+
+    private FloatingActionButtonHandler fabHandler;
 
     public static CreateGroupFragment newInstance(Group group) {
         CreateGroupFragment createGroupFragment = new CreateGroupFragment();
@@ -71,6 +81,7 @@ public class CreateGroupFragment extends Fragment {
 
         edtGroupImage = v.findViewById(R.id.edt_group_image);
         edtGroupName = v.findViewById(R.id.edt_group_name);
+        edtGroupDescription = v.findViewById(R.id.edt_group_description);
         edtGroupTags = v.findViewById(R.id.group_tags);
 
         return v;
@@ -81,6 +92,13 @@ public class CreateGroupFragment extends Fragment {
         super.onAttach(context);
 
         onGroupSavedListener = (OnGroupSavedListener) context;
+
+        fabHandler = (FloatingActionButtonHandler) context;
+        errorHandler = (ErrorHandler) context;
+
+        fabHandler.hideFloatingActionButton();
+
+        api = ((InterestrApplication) getActivity().getApplication()).getApi();
     }
 
     @Override
@@ -93,6 +111,7 @@ public class CreateGroupFragment extends Fragment {
         Group g = new Group();
 
         g.setName(edtGroupName.getText().toString());
+        g.setDescription(edtGroupDescription.getText().toString());
         g.getTags().addAll(edtGroupTags.getTags());
 
         return g;
@@ -103,9 +122,19 @@ public class CreateGroupFragment extends Fragment {
         if(item.getItemId() == R.id.action_save) {
             Group g = getGroup();
 
-            // TODO save group to database
+            api.createGroup(g, new InterestrAPI.Callback<Group>() {
+                @Override
+                public void onResult(InterestrAPIResult<Group> result) {
+                    getActivity().runOnUiThread(() -> onGroupSavedListener.onGroupSaved(result.get()));
+                }
 
-            onGroupSavedListener.onGroupSaved(g);
+                @Override
+                public void onError(String error_message) {
+                    getActivity().runOnUiThread(() -> errorHandler.onError(error_message));
+                }
+            });
+
+
             return true;
         }
         return super.onOptionsItemSelected(item);

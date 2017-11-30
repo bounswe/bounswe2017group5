@@ -328,7 +328,7 @@ public class InterestrAPIImpl implements InterestrAPI {
     @Override
     public void getGroups(final Callback<ArrayList<Group>> callback) {
 
-        APIJob<ArrayList<Group>> job = new APIJob<ArrayList<Group>>(REQUEST_METHOD_GET, ENDPOINT_GROUPS, null, callback) {
+        APIJob<ArrayList<Group>> job = new APIJob<ArrayList<Group>>(REQUEST_METHOD_GET, ENDPOINT_GROUPS + "?limit=20&offset=0", null, callback) {
             @Override
             protected ArrayList<Group> extractData(String data) {
                 ArrayList<Group> groups = new ArrayList<>();
@@ -429,7 +429,7 @@ public class InterestrAPIImpl implements InterestrAPI {
     @Override
     public void getPosts(int group_id, Callback<ArrayList<Post>> callback) {
         APIJob<ArrayList<Post>> job = new APIJob<ArrayList<Post>>(
-                REQUEST_METHOD_GET, ENDPOINT_POSTS + "?group=" + group_id,
+                REQUEST_METHOD_GET, ENDPOINT_POSTS + "?group=" + group_id + "&limit=20&offset=0",
                 null, callback
         ) {
             @Override
@@ -519,7 +519,7 @@ public class InterestrAPIImpl implements InterestrAPI {
     @Override
     public void getDataTemplates(int group_id, Callback<ArrayList<DataTemplate>> callback) {
         APIJob<ArrayList<DataTemplate>> job = new APIJob<ArrayList<DataTemplate>>(
-                REQUEST_METHOD_GET, ENDPOINT_DATA_TEMPLATES + "?group=" + group_id,
+                REQUEST_METHOD_GET, ENDPOINT_DATA_TEMPLATES + "?group=" + group_id + "&limit=20&offset=0",
                 null, callback
         ) {
             @Override

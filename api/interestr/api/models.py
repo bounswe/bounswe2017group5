@@ -93,7 +93,7 @@ class Vote(BaseModel):
     up = models.NullBooleanField(default=None)
 
     def __str__(self):
-        return self.owner + ' -> ' + self.post + ' ' + self.up
+        return str(self.owner.id) + ' -> ' + str(self.post.id) + ' ' + str(self.up)
 
     class Meta:
         unique_together = (('owner', 'post'), )

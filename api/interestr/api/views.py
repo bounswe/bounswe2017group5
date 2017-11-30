@@ -1,14 +1,21 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+from django.forms import model_to_dict
 from rest_framework.authtoken.models import Token
 from rest_framework import generics
 from rest_framework.decorators import api_view
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
+
 from django.shortcuts import render
 
 from django.http import HttpResponse, JsonResponse
 
 from django.contrib.auth import models as auth_models
+
+from api.models import Tag
+
 from . import models as core_models
 from django.contrib.auth import authenticate
 
@@ -16,6 +23,8 @@ from .pagination import GroupLimitOffsetPagination
 from .pagination import PostLimitOffsetPagination
 from .pagination import UserLimitOffsetPagination
 from .pagination import DataTemplateLimitOffSetPagination
+
+from django.db.models import Q
 
 from django.views.decorators.csrf import csrf_exempt
 
@@ -26,15 +35,25 @@ import random
 from . import serializers as core_serializers
 from .http import ErrorResponse
 
+
 ### List Views BEGIN
 
-class UserList(generics.ListAPIView):
+class UserList(generics.ListCreateAPIView):
     """
     Return a list of all the existing users.
     """
-    queryset = auth_models.User.objects.all()
     serializer_class = core_serializers.UserSerializer
     pagination_class = UserLimitOffsetPagination
+
+    def get_queryset(self, *args, **kwargs):
+        query_list = auth_models.User.objects.all()
+        query = self.request.GET.get("q")
+        if query:
+            query_list = query_list.filter(
+                Q(username__icontains=query)
+            ).distinct()
+        return query_list
+
 
 class GroupList(generics.ListCreateAPIView):
     """
@@ -44,9 +63,18 @@ class GroupList(generics.ListCreateAPIView):
     post:
     Create a new group instance.
     """
-    queryset = core_models.Group.objects.all()
     serializer_class = core_serializers.GroupSerializer
     pagination_class = GroupLimitOffsetPagination
+
+    def get_queryset(self, *args, **kwargs):
+        query_list = core_models.Group.objects.all()
+        query = self.request.GET.get("q")
+        if query:
+            query_list = query_list.filter(
+                Q(name__icontains=query)
+            ).distinct()
+        return query_list
+
 
 class DataTemplateList(generics.ListCreateAPIView):
     """
@@ -56,9 +84,20 @@ class DataTemplateList(generics.ListCreateAPIView):
     post:
     Create a new data template instance.
     """
-    queryset = core_models.DataTemplate.objects.all()
     serializer_class = core_serializers.DataTemplateSerializer
     pagination_class = DataTemplateLimitOffSetPagination
+    
+    def get_queryset(self):
+        """
+        Optionally restricts the returned purchases to a given user,
+        by filtering against a `username` query parameter in the URL.
+        """
+        queryset = core_models.DataTemplate.objects.all()
+        group_id = self.request.query_params.get('group', None)
+        if group_id is not None:
+            queryset = queryset.filter(group=group_id)
+        return queryset
+
 
 class PostList(generics.ListCreateAPIView):
     """
@@ -68,9 +107,20 @@ class PostList(generics.ListCreateAPIView):
     post:
     Create a new data post instance.
     """
-    queryset = core_models.Post.objects.all()
+    
     serializer_class = core_serializers.PostSerializer
     pagination_class = PostLimitOffsetPagination
+
+    def get_queryset(self):
+        """
+        Optionally restricts the returned purchases to a given user,
+        by filtering against a `username` query parameter in the URL.
+        """
+        queryset = core_models.Post.objects.all()
+        group_id = self.request.query_params.get('group', None)
+        if group_id is not None:
+            queryset = queryset.filter(group=group_id)
+        return queryset
 
 class TagList(generics.ListCreateAPIView):
     """
@@ -82,6 +132,18 @@ class TagList(generics.ListCreateAPIView):
     """
     queryset = core_models.Tag.objects.all()
     serializer_class = core_serializers.TagSerializer
+
+
+class CommentList(generics.ListCreateAPIView):
+    """
+    get:
+    Return a list of all the existing comments.
+
+    post:
+    Create a new data comment instance.
+    """
+    queryset = core_models.Comment.objects.all()
+    serializer_class = core_serializers.CommentSerializer
 
 
 ### List Views END
@@ -99,6 +161,7 @@ class UserDetail(generics.RetrieveUpdateAPIView):
     queryset = auth_models.User.objects.all()
     serializer_class = core_serializers.UserSerializer
 
+
 class GroupDetail(generics.RetrieveUpdateDestroyAPIView):
     """
     get:
@@ -112,6 +175,7 @@ class GroupDetail(generics.RetrieveUpdateDestroyAPIView):
     """
     queryset = core_models.Group.objects.all()
     serializer_class = core_serializers.GroupSerializer
+
 
 class DataTemplateDetail(generics.RetrieveUpdateDestroyAPIView):
     """
@@ -127,6 +191,7 @@ class DataTemplateDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = core_models.DataTemplate.objects.all()
     serializer_class = core_serializers.DataTemplateSerializer
 
+
 class PostDetail(generics.RetrieveUpdateDestroyAPIView):
     """
     get:
@@ -140,6 +205,7 @@ class PostDetail(generics.RetrieveUpdateDestroyAPIView):
     """
     queryset = core_models.Post.objects.all()
     serializer_class = core_serializers.PostSerializer
+
 
 class TagDetail(generics.RetrieveUpdateDestroyAPIView):
     """
@@ -156,60 +222,78 @@ class TagDetail(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = core_serializers.TagSerializer
 
 
+class CommentDetail(generics.RetrieveUpdateDestroyAPIView):
+    """
+    get:
+    Return the details of the comment with the given id.
+
+    update:
+    Update the comment detail with the given id.
+
+    delete:
+    Delete the comment detail with the given id.
+    """
+    queryset = core_models.Comment.objects.all()
+    serializer_class = core_serializers.CommentSerializer
+
+
 ### Detail Views END
 
-@api_view(['PUT', 'DELETE'])
-def memberGroupOperation(request, pk):
-    """
-    Removes or adds the authenticated user from/to the group
-    whose id is pk.
-    """
-    #check auth
-    try:
+class CurrentUserView(APIView):
+    def get(self, request):
+        serializer = core_serializers.UserSerializer(request.user)
+        return JsonResponse(serializer.data)
+
+class MemberGroupOperation(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def put(self, request, pk):
         group = core_models.Group.objects.get(pk=pk)
-    except core_models.Group.DoesNotExist:
-        return HttpResponse(status=404)
-
-    # get authenticated user.
-    user = request.user
-    if not user.is_authenticated():
-        return HttpResponse(status=403)
-
-    if request.method == 'PUT':
-        if group.members.filter(id=user.id).count() == 1:
-            # handle, user is already a member.
+        # handle, user is already a member.
+        if group.members.filter(id=request.user.id).count() == 1:
             return HttpResponse(status=410)
-        else:
-            group.members.add(user)
-            group.save()
-            serializer = core_serializers.GroupSerializer(group)
-            return JsonResponse(serializer.data)
+        group.members.add(request.user);
+        group.save()
+        serializer = core_serializers.GroupSerializer(group)
+        return JsonResponse(serializer.data)
 
-    elif request.method == 'DELETE':
-        if group.members.filter(id=user.id).count() == 0:
-            # handle, user isn't a member to begin with.
+    def delete(self, request, pk):
+        group = core_models.Group.objects.get(pk=pk)
+        # handle, user isn't a member to begin with.
+        if group.members.filter(id=request.user.id).count() == 0:
             return HttpResponse(status=410)
-        else:
-            group.members.remove(user)
-            group.save()
-            serializer = core_serializers.GroupSerializer(group)
-            return JsonResponse(serializer.data)
+        group.members.remove(request.user);
+        group.save()
+        serializer = core_serializers.GroupSerializer(group)
+        return JsonResponse(serializer.data)
+
 
 @api_view(['GET'])
 def search_wikidata(request, limit=15):
     """
     Returns wikidata search results for the specified name in the requests GET field.
     """
-    searched_name = urllib.quote_plus(request.GET["name"])
-    url = "http://www.wikidata.org//w/api.php?action=wbsearchentities&format=json&search="+searched_name+"&language=en&type=item&limit="+str(limit)
+    searched_name = urllib.quote_plus(request.GET["term"])
+    url = "http://www.wikidata.org//w/api.php?action=wbsearchentities&format=json&search=" + searched_name + "&language=en&type=item&limit=" + str(
+        limit)
     response = urllib.urlopen(url)
-    data = json.loads(response.read())
- 
-    data = data["search"]
-    fields = ('label', 'url','description', 'concepturi', 'created', 'updated')
-    data = [{k:tag_data[k] for k in fields if k in tag_data} for tag_data in data]
+    data = json.loads(response.read())["search"]
+    response = []
 
-    return JsonResponse({"resuts":data})
+    for tag_data in data:
+        try:
+            tag = Tag.objects.get(concepturi=tag_data["concepturi"])
+            tag.label = tag_data["label"]
+            tag.url = tag_data["url"]
+            tag.description = tag_data["description"] if "description" in tag_data else None
+        except:
+            tag = Tag(label=tag_data["label"], url=tag_data["url"],
+                      description=tag_data["description"] if "description" in tag_data else None,
+                      concepturi=tag_data["concepturi"])
+        tag.save()
+        response.append(model_to_dict(tag))
+
+    return JsonResponse({"results": response})
 
 @api_view(['GET'])
 def recommend_groups(request, limit=5):
@@ -248,5 +332,16 @@ def recommend_groups(request, limit=5):
     candidates = list(map(lambda group3: {"id":group3.id, "name": group3.name},candidates[:limit]))
     return JsonResponse({"results": candidates})
 
-
-
+class SignUpView(APIView):
+    def post(self, request):
+        serialized = core_serializers.UserSerializer(data=request.data)
+        if serialized.is_valid():
+            auth_models.User.objects.create_user(
+                email = request.data['email'],
+                username = request.data['username'],
+                password = request.data['password'] )
+            user_to_send = auth_models.User.objects.get(username = request.data['username'])
+            out_serializer = core_serializers.UserSerializer(user_to_send)
+            return JsonResponse(out_serializer.data)
+        else:
+            return JsonResponse(serialized._errors, status=417)

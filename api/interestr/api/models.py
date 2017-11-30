@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import json
+
 from django.db import models
 from django.contrib.auth import models as auth_models
 from django.utils import timezone
@@ -35,22 +37,22 @@ class ChoiceEnum(Enum):
 # Models START
 
 class Tag(BaseModel):
-    label = models.CharField(max_length=40)
+    label = models.TextField()
     url = models.URLField()
     concepturi = models.URLField(unique=True)
-    description = models.TextField()
+    description = models.TextField(blank=True, null=True)
 
     def __str__(self):
-        return self.label+'('+self.concepturi+')'
+        return self.label +' (' + self.concepturi + ')'
 
 class Group(BaseModel):
-    name = models.CharField(max_length=40)
+    name = models.CharField(max_length=40, unique=True)
     description = models.TextField(blank=True, default='')
     location = models.TextField(blank=True, default='')
-    tags = models.ManyToManyField(Tag, related_name='groups')
+    tags = models.ManyToManyField(Tag, blank=True, related_name='groups')
     is_private = models.BooleanField(blank=True, default=False)
-    members = models.ManyToManyField(auth_models.User, related_name='joined_groups')
-    moderators = models.ManyToManyField(auth_models.User, related_name='moderated_groups')
+    members = models.ManyToManyField(auth_models.User, blank=True, related_name='joined_groups')
+    moderators = models.ManyToManyField(auth_models.User, blank=True, related_name='moderated_groups')
     picture = models.ImageField(blank=True, null=True)
 
     def __str__(self):
@@ -65,17 +67,22 @@ class Group(BaseModel):
         else:
             return '/static/assets/img/group_default_icon.png'
 
-
 class Post(BaseModel):
     owner = models.ForeignKey(auth_models.User, related_name="posts", default=None, null=True)
-    text = models.TextField(default='')
     group = models.ForeignKey(Group, related_name='posts', on_delete=models.CASCADE, default=None, null=True)
     data_template = models.ForeignKey('api.DataTemplate', related_name='posts', default=None, null=True)
-    data = JSONField(default=None, null=True)
+    data = JSONField()
+
+    def __str__(self):
+        return json.dumps(self.data)
+
+class Comment(BaseModel):
+    owner = models.ForeignKey(auth_models.User, related_name="comments", default=None)
+    text = models.TextField(default='', blank=True)
+    post = models.ForeignKey(Post, related_name='comments', default=None)
 
     def __str__(self):
         return self.text
-
 
 class DataTemplate(BaseModel):
     name = models.CharField(max_length=40)

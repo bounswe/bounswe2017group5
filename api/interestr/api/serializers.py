@@ -50,7 +50,7 @@ class ProfilePageSerializer(serializers.ModelSerializer):
     class Meta:
         model = core_models.ProfilePage
         fields = ('id', 'name', 'surname', 'date_of_birth',
-         'location', 'interests', 'user',)
+         'location', 'interests', 'user')
 
 
 class UserSerializer(serializers.ModelSerializer):

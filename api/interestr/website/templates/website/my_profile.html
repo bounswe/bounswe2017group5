@@ -1,6 +1,6 @@
 {% extends 'website/base.html' %}
 
-{% block title %}News Feed{% endblock %}
+{% block title %}My Profile{% endblock %}
 
 {% block navbaritems %}
 <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
@@ -32,18 +32,22 @@
 
 <div class="main">
   <div class="container">
-    <h1>News Feed</h1>
+    <h1>Profile</h1>
     <hr>
 
-    <div class="news">
-      {% if object_list %}
-        {% for news_item in object_list %}
+    <form action="" method="POST">
 
-        {% endfor %}
-      {% else %}
-        No news to show!
-      {% endif %}
-    </div>
+      {% csrf_token %}
+
+      {% for field in form %}
+      <div class="form-group">
+        <label for="{{ field.auto_id }}">{{ field.label }}:</label>
+        {{ field }}
+      </div>
+      {% endfor %}
+
+      <button type="submit" class="btn btn-warning btn-fill btn-wide">Save</button>
+    </form>
   </div>
 </div>
 

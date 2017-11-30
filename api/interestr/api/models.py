@@ -42,8 +42,8 @@ class ProfilePage(BaseModel):
     date_of_birth = models.DateField(blank=True, default=datetime.date(1900, 1, 1))
     location = models.TextField(blank=True, default='')
     interests = models.TextField(blank=True, default='')
-    user = models.OneToOneField(auth_models.User, on_delete=models.CASCADE, 
-        verbose_name="user")
+    user = models.OneToOneField(auth_models.User, on_delete=models.CASCADE,
+        verbose_name="user", related_name='profile')
 
 
 class Tag(BaseModel):

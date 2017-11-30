@@ -179,7 +179,7 @@
           var downcaster = votecaster.getElementsByClassName('vote-down').item(0);
 
           var caststatus;
-          var basevote;
+          var basevote = 0;
 
           function refresh_current_vote() {
             if (voteid == absent_voteid) {
@@ -201,13 +201,13 @@
                   update_buttons();
 
                   if (caststatus === true) {
-                    basevote = parseInt(counter.textContent, 10) - 1;
+                    basevote = (parseInt(counter.textContent, 10) || 0) - 1;
                   }
                   else if (caststatus === false) {
-                    basevote = parseInt(counter.textContent, 10) + 1;
+                    basevote = (parseInt(counter.textContent, 10) || 0) + 1;
                   }
                   else {
-                    basevote = parseInt(counter.textContent, 10);
+                    basevote = (parseInt(counter.textContent, 10) || 0);
                   }
 
                   casteractive = true;
@@ -274,7 +274,7 @@
                 });
               }
               else {
-                // UPDATE THE 
+                // UPDATE THE
                 $.ajax({
                   method: 'PATCH',
                   url: '{% url "api:votedetail" 12345 %}'.replace(/12345/, voteid),
@@ -338,7 +338,7 @@
           </div>
         </div>
       </div>
-      {% endfor %}  
+      {% endfor %}
 		</div>
 	</div>
 

@@ -297,6 +297,8 @@
 
       {% for post in group.posts.all reversed %}
       <div class="group-detail-content">
+
+        <!-- Post Start -->
         <div class="header">
           <div class="text">
             <p class="title"><strong>{{ post.owner.username }}</strong></p>
@@ -311,32 +313,41 @@
           <p><strong>{{ question_response.question }}</strong>: <span>{{ question_response.response }}</span></p>
           {% endfor %}
         </div>
-        <div data-post-id="{{ post.id }}" data-vote-id="{{ post|vote_of_user:user.id }}" class="col-md-6">
-          <span class="vote-count">{{ post.vote_sum }}</span>
-          <span title="+1 Vote Up" class="fa fa-chevron-up vote vote-up"></span>
-          <span title="-1 Vote Down" class="fa fa-chevron-down vote vote-down"></span>
-        </div><script type="text/javascript">votecaster_onload(document.currentScript.previousSibling);</script>
-        <div class="col-md-6 comments">
-          <a class="text-muted" href="javascript:void(0);">0 Comments</a>
-        </div>
-        <div class="comments">
-      		<div class="comments-header" onclick="$(this).next().slideToggle()" ><span>{{ post.comments.count }} Comments</span>
+        <!-- Post Start -->
 
+        <div style="display: flex">
+          <!-- Votes Start -->
+          <div data-post-id="{{ post.id }}" data-vote-id="{{ post|vote_of_user:user.id }}" class="votecaster">
+            <span class="vote-count">{{ post.vote_sum }}</span>
+            <span title="+1 Vote Up" class="fa fa-chevron-up vote vote-up"></span>
+            <span title="-1 Vote Down" class="fa fa-chevron-down vote vote-down"></span>
+          </div><script type="text/javascript">votecaster_onload(document.currentScript.previousSibling);</script>
+          <!-- Votes Start -->
+
+          <!-- Comments Header Start -->
+          <div class="comments-header">
+        		<a onclick="$(this).parent().parent().next().slideToggle()" href="javascript:void(0);">
+              {{ post.comments.count }} Comments
+            </a>
           </div>
-      		<div class="comments-contents" style="display: none">
+          <!-- Comments Header End -->
+        </div>
 
-      		  <div class="form-group" id="commentForm{{post.id}}">
-      		    <input name="text" class="form-control" id="comment-text-post-{{post.id}}" type="text" onkeypress="submitComment(event,this)" placeholder="Press Enter to send your comment!">
-      		  </div>
+        <!-- Comments Contents Start -->
+        <div class="comments-contents" style="display: none">
+          <div class="form-group" id="commentForm{{post.id}}">
+            <input name="text" class="form-control" id="comment-text-post-{{post.id}}" type="text" onkeypress="submitComment(event,this)" placeholder="Press Enter to send your comment!">
+          </div>
 
-      		  <div class="comments-old-contents" style="text-align: left">
-                {% for comment in post.comments.all%}
-      	           <hr> </hr>
-      	           <p style="font-size: 14px">{{ comment.text}} - <span style="color: #3af">{{comment.owner.username }}</span> <span style="color: #9199a1">{{comment.created}}</span></p>
-                {% endfor %}
-      	    </div>
+          <div class="comments-old-contents" style="text-align: left">
+              {% for comment in post.comments.all%}
+                 <hr> </hr>
+                 <p style="font-size: 14px">{{ comment.text }} - <span style="color: #3af">{{comment.owner.username }}</span> <span style="color: #9199a1">{{comment.created}}</span></p>
+              {% endfor %}
           </div>
         </div>
+        <!-- Comments Contents End -->
+
       </div>
       {% endfor %}
 		</div>

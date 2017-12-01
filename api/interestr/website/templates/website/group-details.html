@@ -621,7 +621,7 @@ function createTemplateOnClick() {
       }
 
       if (inputElemCount == 1) {
-        (/*labelElem || */inputElem).id = legendElem.htmlFor = uniqueID();
+        inputElem.id = legendElem.htmlFor = uniqueID();
       }
 
       // Following are for the removal button
@@ -647,70 +647,42 @@ function createTemplateOnClick() {
       return fieldElem;
     }
 
-    function createInputField(legend = 'An input?', label = 'Input') {
-      return createTemplateField(true, this.type,
-        [
-          {
-            type: this.type,
-            side: 'R'
-          }
-        ],
-        legend);
-    }
-
-    function createCheckboxField(legend = 'A question?', label = 'Agree') {
-      return createTemplateField(true, this.type,
-        [
-          {
-            type: 'checkbox',
-            label: label,
-            side: 'R'
-          }
-        ],
-        legend);
-    }
-
-    function createMultiselField(legend = 'There are...', labels = ['Birds']) {
-      return createTemplateField(true, this.type,
-        labels.map(
-          label =>
-          {
-            return {
-              type: 'checkbox',
-              label: label,
-              side: 'R'
-            };
-          }
-        ),
-        legend);
-    }
-
-    function createTextareaField(legend = 'Your feedback') {
-      return createTemplateField(true, this.type,
-        [
-          {
-            type: 'textarea',
-            label: false
-          }
-        ],
-        legend);
-    }
-
     templateFieldTypes = {};
 
-    function registerTemplateField(type, creator, friendlyName) {
+    function registerTemplateField(type, friendlyName, defLegend, defInputs) {
       templateFieldTypes[type] = {
         friendlyName: friendlyName,
-        creator: creator.bind({ type: type })
+        creator: function (editable = true, legend = defLegend, inputs = defInputs) {
+          return createTemplateField(editable, type, inputs, legend);
+        }
       };
     }
 
-    registerTemplateField('checkbox', createCheckboxField, 'Checkbox');
-    registerTemplateField('multisel', createMultiselField, 'Multiple Selection');
-    registerTemplateField('textarea', createTextareaField, 'Text Area');
-    ['text', 'number', 'date', 'email', 'url', 'tel'].forEach(function(inputType) {
-        registerTemplateField(inputType, createInputField, inputType[0].toUpperCase() + inputType.substring(1));
-    });
+    function label2checkbox(label) {
+      return {
+        type: 'checkbox',
+        label: label,
+        side: 'R'
+      };
+    }
+
+    function labellessInput(type) {
+      return {
+        type: type,
+        label: false
+      };
+    }
+
+    registerTemplateField('checkbox', 'Checkbox', 'Doing stuff...', [label2checkbox('is allowed')]);
+    registerTemplateField('multisel', 'Multiple Selection', 'There are...', ['birds'].map(label2checkbox));
+    registerTemplateField('textarea', 'Text Area', 'Your feedback', [labellessInput('textarea')]);
+    
+    registerTemplateField('text', 'Text Line', 'Name', [labellessInput('text')]);
+    registerTemplateField('number', 'Number', 'Amount', [labellessInput('number')]);
+    registerTemplateField('date', 'Date', 'Date', [labellessInput('date')]);
+    registerTemplateField('email', 'E-mail', 'E-mail', [labellessInput('email')]);
+    registerTemplateField('url', 'URL', 'Website', [labellessInput('url')]);
+    registerTemplateField('tel', 'Phone Number', 'Phone Number', [labellessInput('tel')]);
 
     dropdown = document.getElementById('newFieldDropdown');
 
@@ -848,7 +820,7 @@ if(e.which == 13 && !e.shiftKey) {
       }
     }
 
-    defaultTemplateFields = [field2JSON(templateFieldTypes['text'].creator('Text'))];
+    defaultTemplateFields = [field2JSON(templateFieldTypes['text'].creator(false, 'Text'))];
     selectTemplate('-1', 'Default');
 
     function removeCurrentTemplate() {

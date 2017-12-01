@@ -327,7 +327,7 @@
           <!-- Comments Header Start -->
           <div class="comments-header">
         		<a onclick="$(this).parent().parent().next().slideToggle()" href="javascript:void(0);">
-              {{ post.comments.count }} Comments
+              {{ post.comments.count }} Comment{{ post.comments.count|pluralize }}
             </a>
           </div>
           <!-- Comments Header End -->

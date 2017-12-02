@@ -31,6 +31,7 @@ Please check our comprehensive [Wiki Page](https://github.com/bounswe/bounswe201
   * [Android](https://github.com/bounswe/bounswe2017group5/wiki/Mockup-android)
 * **Reports**
   * [Milestone 1 Report](https://github.com/bounswe/bounswe2017group5/wiki/Milestone-1-Report)
+  * [Milestone 2 Report](https://github.com/bounswe/bounswe2017group5/wiki/Milestone-2-Report)
 * [Use Case Diagram](https://github.com/bounswe/bounswe2017group5/wiki/Use-Case-Diagram)
 * [Use Cases](https://github.com/bounswe/bounswe2017group5/wiki/Use-Cases)
 * [Use Case Scenarios](https://github.com/bounswe/bounswe2017group5/wiki/Use-Case-Scenarios)

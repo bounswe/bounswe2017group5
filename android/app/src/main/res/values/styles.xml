@@ -40,9 +40,14 @@
     <style name="InterestrTheme.Text">
     </style>
 
-    <style name="InterestrTheme.TextEmphasis" parent="InterestrTheme.Text">
+    <style name="InterestrTheme.Text.Emphasis" parent="InterestrTheme.Text">
         <item name="android:textAllCaps">true</item>
         <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="InterestrTheme.Text.Small" parent="InterestrTheme.Text">
+        <item name="android:textSize">10sp</item>
+        <item name="android:textColor">@color/colorTextGray</item>
     </style>
 
 </resources>

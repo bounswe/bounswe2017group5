@@ -184,7 +184,7 @@ public class InterestrAPIImpl implements InterestrAPI {
             @Override
             protected Token extractData(String data) {
 
-                Token token = null;
+                Token token;
                 try {
                     JSONObject obj = new JSONObject(data);
 
@@ -265,14 +265,7 @@ public class InterestrAPIImpl implements InterestrAPI {
                 try {
                     JSONObject obj = new JSONObject(data);
 
-                    g = new Group();
-
-                    g.setId(obj.getInt("id"));
-                    g.setName(obj.getString("name"));
-                    g.setDescription(obj.getString("description"));
-                    g.setMemberCount(obj.getInt("size"));
-                    g.setPictureUrl(obj.getString("picture"));
-
+                    g = Group.fromJSON(obj);
                 } catch (JSONException e) {
                     e.printStackTrace();
                     return null;
@@ -305,13 +298,7 @@ public class InterestrAPIImpl implements InterestrAPI {
                 try {
                     JSONObject obj = new JSONObject(data);
 
-                    g = new Group();
-
-                    g.setId(obj.getInt("id"));
-                    g.setName(obj.getString("name"));
-                    g.setDescription(obj.getString("description"));
-                    g.setMemberCount(obj.getInt("size"));
-                    g.setPictureUrl(obj.getString("picture"));
+                    g = Group.fromJSON(obj);
 
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -341,12 +328,7 @@ public class InterestrAPIImpl implements InterestrAPI {
                     for (int i = 0; i < array.length(); i++) {
                         JSONObject obj = array.getJSONObject(i);
 
-                        Group g = new Group();
-                        g.setId(obj.getInt("id"));
-                        g.setName(obj.getString("name"));
-                        g.setDescription(obj.getString("description"));
-                        g.setMemberCount(obj.getInt("size"));
-                        g.setPictureUrl(obj.getString("picture"));
+                        Group g = Group.fromJSON(obj);
                         groups.add(g);
                     }
                 } catch (JSONException e) {
@@ -371,19 +353,12 @@ public class InterestrAPIImpl implements InterestrAPI {
                 callback) {
             @Override
             protected Group extractData(String data) {
-                Group g = null;
+                Group g;
 
                 try {
                     JSONObject obj = new JSONObject(data);
 
-                    g = new Group();
-
-                    g.setId(obj.getInt("id"));
-                    g.setName(obj.getString("name"));
-                    g.setDescription(obj.getString("description"));
-                    g.setMemberCount(obj.getInt("size"));
-                    g.setPictureUrl(obj.getString("picture"));
-
+                    g = Group.fromJSON(obj);
                 } catch (JSONException e) {
                     e.printStackTrace();
                     return null;
@@ -444,21 +419,7 @@ public class InterestrAPIImpl implements InterestrAPI {
                     for (int i = 0; i < results.length(); i++) {
                         JSONObject postObj = results.getJSONObject(i);
 
-                        Post post = new Post();
-
-                        post.setId(postObj.getInt("id"));
-                        post.setOwner(postObj.getInt("owner"));
-                        post.setGroupId(postObj.getInt("group"));
-
-                        String str = postObj.getString("data_template");
-
-                        if(str.equals("null")) {
-                            post.setDataTemplateId(0);
-                        } else {
-                            post.setDataTemplateId(postObj.getInt("data_template"));
-                        }
-
-                        post.setData(postObj.getJSONArray("data"));
+                        Post post = Post.fromJSON(postObj);
 
                         posts.add(post);
                     }
@@ -493,16 +454,11 @@ public class InterestrAPIImpl implements InterestrAPI {
         APIJob<Post> job = new APIJob<Post>(REQUEST_METHOD_POST, ENDPOINT_POSTS, postObject, callback) {
             @Override
             protected Post extractData(String data) {
-                Post p = new Post();
+                Post p;
                 try {
                     JSONObject obj = new JSONObject(data);
 
-                    p.setId(obj.getInt("id"));
-                    p.setOwner(obj.getInt("owner"));
-                    p.setGroupId(obj.getInt("group"));
-                    p.setDataTemplateId(obj.getInt("data_template"));
-                    p.setData(obj.getJSONArray("data"));
-
+                    p = Post.fromJSON(obj);
                 } catch (JSONException e) {
                     e.printStackTrace();
                     return null;
@@ -534,13 +490,7 @@ public class InterestrAPIImpl implements InterestrAPI {
                     for (int i = 0; i < results.length(); i++) {
                         JSONObject dataTemplateObj = results.getJSONObject(i);
 
-                        DataTemplate dataTemplate = new DataTemplate();
-
-                        dataTemplate.setId(dataTemplateObj.getInt("id"));
-                        dataTemplate.setName(dataTemplateObj.getString("name"));
-                        dataTemplate.setGroupId(dataTemplateObj.getInt("group"));
-                        dataTemplate.setUserId(dataTemplateObj.getInt("user"));
-                        dataTemplate.setTemplate(Template.fromJSON(dataTemplateObj.getJSONArray("fields")));
+                        DataTemplate dataTemplate = DataTemplate.fromJSON(dataTemplateObj);
 
                         dataTemplates.add(dataTemplate);
                     }
@@ -576,16 +526,11 @@ public class InterestrAPIImpl implements InterestrAPI {
                 ENDPOINT_DATA_TEMPLATES, dataTemplateObject, callback) {
             @Override
             protected DataTemplate extractData(String data) {
-                DataTemplate dataTemplate = new DataTemplate();
+                DataTemplate dataTemplate;
                 try {
                     JSONObject object = new JSONObject(data);
 
-                    dataTemplate.setId(object.getInt("id"));
-                    dataTemplate.setName(object.getString("name"));
-                    dataTemplate.setGroupId(object.getInt("group"));
-                    dataTemplate.setUserId(object.getInt("user"));
-                    dataTemplate.setTemplate(Template.fromJSON(object.getJSONArray("fields")));
-
+                    dataTemplate = DataTemplate.fromJSON(object);
                 } catch (JSONException e) {
                     e.printStackTrace();
                     return null;
@@ -624,16 +569,11 @@ public class InterestrAPIImpl implements InterestrAPI {
         ) {
             @Override
             protected Tag extractData(String data) {
-                Tag t = new Tag();
+                Tag t;
                 try {
                     JSONObject object = new JSONObject(data);
 
-                    t.setId(object.getInt("id"));
-                    t.setLabel(object.getString("label"));
-                    t.setUrl(object.getString("url"));
-                    t.setDescription(object.getString("description"));
-                    t.setConceptUri(object.getString("concepturi"));
-
+                    t = Tag.fromJSON(object);
                 } catch (JSONException e) {
                     e.printStackTrace();
                     return null;
@@ -647,7 +587,7 @@ public class InterestrAPIImpl implements InterestrAPI {
     }
 
 
-    public abstract class APIJob<T> implements Runnable {
+    private abstract class APIJob<T> implements Runnable {
 
         Callback<T> callback;
 

@@ -27,7 +27,7 @@
 
             <TextView
                 android:id="@+id/field_type"
-                style="@style/InterestrTheme.TextEmphasis"
+                style="@style/InterestrTheme.Text.Emphasis"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp"

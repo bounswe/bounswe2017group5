@@ -9,10 +9,10 @@
     <color name="colorDarkButton">#333333</color>
 
 
-    <color name="button_text_color_enabled">#ffffff</color>
-    <color name="button_text_color_disabled">#aaaaaa</color>
-    <color name="button_text_color_pressed">#000000</color>
+    <color name="buttonTextColorEnabled">#ffffff</color>
+    <color name="buttonTextColorDisabled">#aaaaaa</color>
+    <color name="buttonTextColorPressed">#000000</color>
 
-    <color name="text_gray">#808080</color>
+    <color name="colorTextGray">#808080</color>
 
 </resources>

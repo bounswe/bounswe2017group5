@@ -112,7 +112,7 @@ public class CreateGroupFragment extends Fragment {
 
         g.setName(edtGroupName.getText().toString());
         g.setDescription(edtGroupDescription.getText().toString());
-        g.getTags().addAll(edtGroupTags.getTags());
+        //g.getTags().addAll(edtGroupTags.getTags());
 
         return g;
     }

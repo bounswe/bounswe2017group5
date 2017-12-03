@@ -141,8 +141,8 @@ public class GroupDetailFragment extends Fragment {
                 gDescription.setText(g.getDescription());
                 gMemberNum.setText(StringUtils.pluralize(g.getMemberCount(), "Member"));
                 gTags.setText("");
-                for (String tag : g.getTags()) {
-                    gTags.append(tag + ", ");
+                for (Tag tag : g.getTags()) {
+                    gTags.append(tag.getLabel() + ", ");
                 }
 
                 toolbarHandler.setTitle(g.getName());

@@ -808,11 +808,6 @@ function createTemplateOnClick() {
             var divLabel = document.createElement('div');
             divLabel.classList.add('template-input-label', 'checkbox');
             divLabel.innerHTML = label.innerHTML;
-if(e.which == 13 && !e.shiftKey) {
-        $(this).closest("form").submit();
-        e.preventDefault();
-        return false;
-    }
             $(label).replaceWith(divLabel);
           });
           templateFields.classList.remove('hidden');

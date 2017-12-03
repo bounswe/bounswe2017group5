@@ -7,18 +7,23 @@ from django.contrib.auth import models as auth_models
 # These will help us display the data much better with
 # the other serializers.
 
-class UserNameAndIdSerializer(serializers.ModelSerializer):
+class UserIdNameSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = auth_models.User
         fields = ('id', 'username', )
 
-
-class GroupNameAndIdSerializer(serializers.ModelSerializer):
+class GroupIdNameDescriptionSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = core_models.Group
-        fields = ('id', 'name', )
+        fields = ('id', 'name', 'description', )
+
+class DataTemplateIdNameFieldsSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = core_models.DataTemplate
+        fields = ('id', 'name', 'fields', )
 
 #END
 #===Mid level serializers===
@@ -26,8 +31,8 @@ class GroupNameAndIdSerializer(serializers.ModelSerializer):
 
 
 class DataTemplateSerializer(serializers.ModelSerializer):
-    user = UserNameAndIdSerializer()
-    group = GroupNameAndIdSerializer()
+    user = UserIdNameSerializer()
+    group = GroupIdNameDescriptionSerializer()
 
     class Meta:
         model = core_models.DataTemplate
@@ -38,14 +43,14 @@ class TagSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = core_models.Tag
-        fields = ('id','label', 'url','description', 'concepturi', 'created', 'updated', 'groups' )
+        fields = ('id','label', 'url','description', 'concepturi', 'created', 'updated', )
 
 
 class GroupSerializer(serializers.ModelSerializer):
-    data_templates = DataTemplateSerializer(many=True, read_only=True)
+    data_templates = DataTemplateIdNameFieldsSerializer(many=True, read_only=True)
     tags = TagSerializer(many=True, read_only=True)
-    members = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
-    moderators = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
+    members = UserIdNameSerializer(many=True, read_only=True)
+    moderators = UserIdNameSerializer(many=True, read_only=True)
 
     class Meta:
         model = core_models.Group
@@ -55,23 +60,23 @@ class GroupSerializer(serializers.ModelSerializer):
 
 
 class CommentSerializer(serializers.ModelSerializer):
-    owner = UserNameAndIdSerializer()
+    owner = UserIdNameSerializer()
 
     class Meta:
         model = core_models.Comment
         fields = ('id', 'owner', 'text', 'post', 'created', 'updated',)
 
 class VoteSerializer(serializers.ModelSerializer):
-    owner = UserNameAndIdSerializer()
+    owner = UserIdNameSerializer()
 
     class Meta:
         model = core_models.Vote
         fields = ('id', 'owner', 'post', 'up', 'created', 'updated',)
 
 class PostSerializer(serializers.ModelSerializer):
-    owner = UserNameAndIdSerializer()
-    group = GroupNameAndIdSerializer()
-    data_template = DataTemplateSerializer()
+    owner = UserIdNameSerializer()
+    group = GroupIdNameDescriptionSerializer()
+    data_template = DataTemplateIdNameFieldsSerializer()
     comments = CommentSerializer(many=True, read_only=True)
     votes = VoteSerializer(many=True, read_only=True)
 
@@ -89,15 +94,13 @@ class ProfilePageSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
-    joined_groups = GroupSerializer(many=True, read_only=True)
-    moderated_groups = GroupSerializer(many=True, read_only=True)
-    data_templates = DataTemplateSerializer(many=True, read_only=True)
-    comments = CommentSerializer(many=True, read_only=True) 
+    joined_groups = GroupIdNameDescriptionSerializer(many=True, read_only=True)
+    moderated_groups = GroupIdNameDescriptionSerializer(many=True, read_only=True)
+    data_templates = DataTemplateIdNameFieldsSerializer(many=True, read_only=True)
     posts = PostSerializer(many=True, read_only=True)
-    votes = VoteSerializer(many=True, read_only=True)
     profilepage = ProfilePageSerializer(read_only=True, many=False)
 
     class Meta:
         model = auth_models.User
         fields = ('id', 'username', 'email', 'joined_groups', 'moderated_groups',
-         'data_templates', 'posts', 'comments', 'profilepage', 'votes')
+         'data_templates', 'posts', 'profilepage', 'votes', )

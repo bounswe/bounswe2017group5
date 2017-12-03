@@ -197,8 +197,16 @@ small {
   margin: 0;
 }
 
-.group-detail-content .comments {
+.group-detail-content .comments-header {
   text-align: right;
+}
+
+.votecaster, .comments-header {
+  flex-grow: 1;
+}
+
+.comments-contents {
+  padding-top: 10px;
 }
 
 .avatar {

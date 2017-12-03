@@ -13,7 +13,6 @@ class UserIdNameSerializer(serializers.ModelSerializer):
         model = auth_models.User
         fields = ('id', 'username', )
 
-
 class GroupIdNameDescriptionSerializer(serializers.ModelSerializer):
     
     class Meta:

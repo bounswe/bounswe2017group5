@@ -3,7 +3,31 @@ from rest_framework import serializers
 from . import models as core_models
 from django.contrib.auth import models as auth_models
 
+#===Mid level serializers===
+# These will help us display the data much better with
+# the other serializers.
+
+class UserNameAndIdSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = auth_models.User
+        fields = ('id', 'username', )
+
+
+class GroupNameAndIdSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = core_models.Group
+        fields = ('id', 'name', )
+
+#END
+#===Mid level serializers===
+
+
+
 class DataTemplateSerializer(serializers.ModelSerializer):
+    user = UserNameAndIdSerializer()
+    group = GroupNameAndIdSerializer()
 
     class Meta:
         model = core_models.DataTemplate
@@ -31,18 +55,23 @@ class GroupSerializer(serializers.ModelSerializer):
 
 
 class CommentSerializer(serializers.ModelSerializer):
+    owner = UserNameAndIdSerializer()
 
     class Meta:
         model = core_models.Comment
         fields = ('id', 'owner', 'text', 'post', 'created', 'updated',)
 
 class VoteSerializer(serializers.ModelSerializer):
+    owner = UserNameAndIdSerializer()
 
     class Meta:
         model = core_models.Vote
         fields = ('id', 'owner', 'post', 'up', 'created', 'updated',)
 
 class PostSerializer(serializers.ModelSerializer):
+    owner = UserNameAndIdSerializer()
+    group = GroupNameAndIdSerializer()
+    data_template = DataTemplateSerializer()
     comments = CommentSerializer(many=True, read_only=True)
     votes = VoteSerializer(many=True, read_only=True)
 

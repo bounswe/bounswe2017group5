@@ -387,8 +387,10 @@
     var dropdown;
     var removeButton;
     var removeSymbol;
-    var editTextInput;
-    var editTextInputInitial;
+    var spanEditorInput;
+    var spanEditorInitial;
+    var selectEditorTextarea;
+    var selectEditorInitial;
     var modal;
     var submitButton;
     var selectedTemplate;
@@ -406,7 +408,7 @@
     currentTemplateText = document.getElementById('currentTemplateText');
 
 
-function createTemplateOnClick() {
+    function createTemplateOnClick() {
         templateName.value = '';
         templateFields.innerHTML = '';
         isUpdatingTemplate = false;
@@ -428,33 +430,27 @@ function createTemplateOnClick() {
         updateCreateFormFields(currentFields);
     }
 
-    function type2Input(type, options) {
+    function input2Element(input, editable) {
       var el;
       var opt;
       var optEl;
 
-      switch (type) {
-          case 'textarea':
-              el = document.createElement('textarea');
-              el.classList.add('form-control');
-              break;
-          case 'select':
-              el = document.createElement('select');
-              for (var opt of options) {
-                optEl = document.createElement('option');
-                optEl.textContent = opt;
-
-                el.appendChild(optEl);
-              }
-              break;
-          default:
-              el = document.createElement('input');
-              el.type = type;
-              el.className = 'form-control';
-              if (type == 'checkbox') {
-                el.classList.add('form-check-input');
-              }
-              break;
+      switch (input.type) {
+        case 'textarea':
+          el = document.createElement('textarea');
+          el.classList.add('form-control');
+          break;
+        case 'select':
+          el = makeSelect(input.options, editable);
+          break;
+        default:
+          el = document.createElement('input');
+          el.type = input.type;
+          el.className = 'form-control';
+          if (input.type == 'checkbox') {
+            el.classList.add('form-check-input');
+          }
+          break;
       }
 
       return el;
@@ -472,43 +468,118 @@ function createTemplateOnClick() {
       }
     }
 
-    function replaceInputWithSpan() {
-      if (editTextInput) {
-        var span = makeChangableSpan(editTextInput.value || editTextInputInitial);
-        editTextInput.parentNode.replaceChild(span, editTextInput);
+    function replaceTextareaWithSelect() {
+      if (selectEditorTextarea) {
+        selectEditorTextarea.textContent = selectEditorTextarea.textContent.trim();
+        var select = makeSelect((selectEditorTextarea.textContent || selectEditorInitial).split('\n'));
+        selectEditorTextarea.parentNode.replaceChild(select, selectEditorTextarea);
 
-        editTextInput = null;
+        selectEditorTextarea = null;
+
+        modal.focus();
+      }
+    }
+
+    function replaceSelectWithTextarea(select) {
+      replaceTextareaWithSelect();
+
+      var optionTexts = Array.from(select.getElementsByTagName('option'))
+        .map(option => option.textContent);
+
+      selectEditorInitial = optionTexts.join('\n');
+
+      selectEditorTextarea = document.createElement('textarea');
+      selectEditorTextarea.textContent = selectEditorInitial;
+      // spanEditorInput.size = span.textContent.length;
+      selectEditorTextarea.style['z-index'] = '123';
+      selectEditorTextarea.style['overflow'] = 'hidden';
+      selectEditorTextarea.textContent = selectEditorInitial;
+
+      selectEditorTextarea.oninput = function (event) {
+        var optionTextLengths = selectEditorTextarea.textContent.split('\n').map(a => a.length);
+        
+        selectEditorTextarea.cols = (Math.max(...optionTextLengths) + 2).toString();
+        selectEditorTextarea.rows = optionTextLengths.length.toString();
+      }
+
+      selectEditorTextarea.oninput();
+
+      selectEditorTextarea.onkeypress = function (event) {
+        if (event.ctrlKey && event.key == 'Enter') replaceTextareaWithSelect();
+      }
+
+      select.parentNode.replaceChild(selectEditorTextarea, select);
+      selectEditorTextarea.focus();
+      selectEditorTextarea.select();
+    }
+
+    function makeSelect(options, editable = true) {
+      var select = document.createElement('select');
+      var option;
+      var optionElement;
+
+      for (option of options) {
+        optionElement = document.createElement('option');
+        optionElement.textContent = option;
+
+        select.appendChild(optionElement);
+      }
+
+      if (editable) {
+        select.onclick = function (event) {
+          replaceSelectWithTextarea(select);
+          event.stopPropagation();
+        };
+        // select.onkeydown = function (event) {
+        //   if (event.key == 'Enter') replaceInputWithSpan(select);
+        // }
+        select.tabIndex = '1';
+      }
+
+      return select;
+    }
+
+    function replaceInputWithSpan() {
+      if (spanEditorInput) {
+        var span = makeSpan(spanEditorInput.value || spanEditorInitial);
+        spanEditorInput.parentNode.replaceChild(span, spanEditorInput);
+
+        spanEditorInput = null;
 
         modal.focus();
       }
     }
 
     modal.onclick = function (event) {
-      if (event.target != editTextInput) {
+      if (event.target != spanEditorInput) {
         replaceInputWithSpan();
+      }
+
+      if (event.target != selectEditorTextarea) {
+        replaceTextareaWithSelect();
       }
     };
 
     function replaceSpanWithInput(span) {
       replaceInputWithSpan();
 
-      editTextInputInitial = span.textContent;
+      spanEditorInitial = span.textContent;
 
-      editTextInput = document.createElement('input');
-      editTextInput.size = span.textContent.length;
-      editTextInput.style ='z-index:123';
-      editTextInput.value = editTextInputInitial;
+      spanEditorInput = document.createElement('input');
+      spanEditorInput.size = span.textContent.length;
+      spanEditorInput.style ='z-index:123';
+      spanEditorInput.value = spanEditorInitial;
 
-      editTextInput.onkeypress = function (event) {
-        if (event.key == 'Enter') replaceInputWithSpan(editTextInput);
+      spanEditorInput.onkeypress = function (event) {
+        if (event.key == 'Enter') replaceInputWithSpan();
       };
 
-      span.parentNode.replaceChild(editTextInput, span);
-      editTextInput.focus();
-      editTextInput.select();
+      span.parentNode.replaceChild(spanEditorInput, span);
+      spanEditorInput.focus();
+      spanEditorInput.select();
     }
 
-    function makeChangableSpan(str, editable = true) {
+    function makeSpan(str, editable = true) {
       var span = document.createElement('span');
       span.textContent = str;
 
@@ -526,7 +597,7 @@ function createTemplateOnClick() {
       return span;
     }
 
-    function createTemplateField(editable, type, inputs, legend = 'Field legend') {
+    function createTemplateField(editable, type, legend, inputs) {
       var input;
       var label;
       var inputElemCount;
@@ -546,7 +617,7 @@ function createTemplateOnClick() {
       legendElem = document.createElement(editable ? 'div' : 'label');
       legendElem.style = 'z-index:123';
       legendElem.classList.add('col-form-legend', 'col-sm-2');
-      legendElem.appendChild(makeChangableSpan(legend, editable));
+      legendElem.appendChild(makeSpan(legend, editable));
       fieldElem.appendChild(legendElem);
 
       inputElemCount = 0;
@@ -556,7 +627,7 @@ function createTemplateOnClick() {
       inputContainer.classList.add('col-sm-10', 'template-input-container');
 
       function appendInput(input) {
-        inputElem = type2Input(input.type);
+        inputElem = input2Element(input, editable);
 
         if (input.label) {
           labelElem = document.createElement(editable ? 'div' : 'label');
@@ -573,7 +644,7 @@ function createTemplateOnClick() {
           }
           labelElem.appendChild(inputElem);
 
-          text = makeChangableSpan(input.label, editable);
+          text = makeSpan(input.label, editable);
           if (input.side == 'R') {
             labelElem.appendChild(text);
           }
@@ -601,7 +672,6 @@ function createTemplateOnClick() {
           createOptionBtn.classList.add('btn', 'btn-primary');
           createOptionBtn.style = 'height:40px;width:44px;flex:none;';
           createOptionBtn.onclick = function(e) {
-              inputContainer.removeChild(createOptionBtn);
               appendInput({
                 type: 'checkbox',
                 label: 'new',
@@ -652,8 +722,12 @@ function createTemplateOnClick() {
     function registerTemplateField(type, friendlyName, defLegend, defInputs) {
       templateFieldTypes[type] = {
         friendlyName: friendlyName,
-        creator: function (editable = true, legend = defLegend, inputs = defInputs) {
-          return createTemplateField(editable, type, inputs, legend);
+        creator: function (
+            editable = true,
+            legend = defLegend,
+            inputs = Array.isArray(defInputs) ? defInputs : [defInputs]
+          ) {
+          return createTemplateField(editable, type, legend, inputs);
         }
       };
     }
@@ -673,16 +747,26 @@ function createTemplateOnClick() {
       };
     }
 
-    registerTemplateField('checkbox', 'Checkbox', 'Doing stuff...', [label2checkbox('is allowed')]);
+    function options2select(options) {
+      return {
+        type: 'select',
+        label: false,
+        options: options
+      }
+    }
+
+    registerTemplateField('checkbox', 'Checkbox', 'Doing stuff...', label2checkbox('is allowed'));
     registerTemplateField('multisel', 'Multiple Selection', 'There are...', ['birds'].map(label2checkbox));
-    registerTemplateField('textarea', 'Text Area', 'Your feedback', [labellessInput('textarea')]);
+    registerTemplateField('textarea', 'Text Area', 'Your feedback', labellessInput('textarea'));
     
-    registerTemplateField('text', 'Text Line', 'Name', [labellessInput('text')]);
-    registerTemplateField('number', 'Number', 'Amount', [labellessInput('number')]);
-    registerTemplateField('date', 'Date', 'Date', [labellessInput('date')]);
-    registerTemplateField('email', 'E-mail', 'E-mail', [labellessInput('email')]);
-    registerTemplateField('url', 'URL', 'Website', [labellessInput('url')]);
-    registerTemplateField('tel', 'Phone Number', 'Phone Number', [labellessInput('tel')]);
+    registerTemplateField('text', 'Text Line', 'Name', labellessInput('text'));
+    registerTemplateField('number', 'Number', 'Amount', labellessInput('number'));
+    registerTemplateField('date', 'Date', 'Date', labellessInput('date'));
+    registerTemplateField('email', 'E-mail', 'E-mail', labellessInput('email'));
+    registerTemplateField('url', 'URL', 'Website', labellessInput('url'));
+    registerTemplateField('tel', 'Phone Number', 'Phone Number', labellessInput('tel'));
+
+    registerTemplateField('select', 'Dropdown', 'Currency', options2select(['USD', 'EUR', 'TRY']));
 
     dropdown = document.getElementById('newFieldDropdown');
 
@@ -708,8 +792,17 @@ function createTemplateOnClick() {
         return {
           type: input2type(input.querySelector('input')),
           label: $(input).find('span').last().text(),
-          side: si == 0 ? 'L' : 'R',
+          side: si == 0 ? 'L' : 'R'
         };
+      }
+
+      if (input.tagName == 'SELECT') {
+        return {
+          type: input2type(input),
+          label: false,
+          options: Array.from(input.getElementsByTagName('option'))
+              .map(option => option.textContent)
+        }
       }
 
       return {
@@ -746,6 +839,8 @@ function createTemplateOnClick() {
         submitButton.disabled = true;
 
         replaceInputWithSpan();
+        replaceTextareaWithSelect();
+
         templateFields.classList.add('hidden');
         $("div.template-input-label").each((i, label) => {
           var realLabel = document.createElement('label');
@@ -790,14 +885,14 @@ if(e.which == 13 && !e.shiftKey) {
     function updateFormFields(fieldObjects) {
       formFields.innerHTML = '';
       for (var field of fieldObjects) {
-        formFields.appendChild(createTemplateField(false, field.type, field.inputs, field.legend));
+        formFields.appendChild(createTemplateField(false, field.type, field.legend, field.inputs));
       }
     }
 
     function updateCreateFormFields(fieldObjects) {
         fields.innerHTML = '';
         for (var field of fieldObjects) {
-          fields.appendChild(createTemplateField(true, field.type, field.inputs, field.legend));
+          fields.appendChild(createTemplateField(true, field.type, field.legend, field.inputs));
         }
     }
 

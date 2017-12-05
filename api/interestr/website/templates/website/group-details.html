@@ -845,7 +845,7 @@ function createTemplateOnClick() {
           url: '{% url "api:datatemplatedetail" 12345 %}'.replace(/12345/, id.toString())
         }).done(function (templateData) {
           currentFields = templateData.fields;
-          if (templateData.group == {{ group.id }}) {
+          if (templateData.group.id == {{ group.id }}) {
             updateFormFields(templateData.fields);
           }
         });

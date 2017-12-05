@@ -213,6 +213,13 @@ class DataTemplateDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = core_models.DataTemplate.objects.all()
     serializer_class = core_serializers.DataTemplateSerializer
 
+    def get_serializer_class(self, *args, **kwargs):  
+         try: #without try-catch the api docs will break
+             if self.request.method in ["POST","PUT", "PATCH"]:  
+                 return core_serializers.DataTemplateSimpleSerializer  
+             return core_serializers.DataTemplateSerializer    
+         except:  
+             return core_serializers.DataTemplateSerializer   
 
 class PostDetail(generics.RetrieveUpdateDestroyAPIView):
     """

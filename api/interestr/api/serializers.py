@@ -28,6 +28,11 @@ class DataTemplateIdNameFieldsSerializer(serializers.ModelSerializer):
 #END
 #===Mid level serializers===
 
+class DataTemplateSimpleSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = core_models.DataTemplate
+        fields = ('id', 'name', 'group', 'user', 'created', 'updated', 'fields' )
 
 
 class DataTemplateSerializer(serializers.ModelSerializer):

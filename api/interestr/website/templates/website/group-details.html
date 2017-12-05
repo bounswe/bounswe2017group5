@@ -808,11 +808,6 @@ function createTemplateOnClick() {
             var divLabel = document.createElement('div');
             divLabel.classList.add('template-input-label', 'checkbox');
             divLabel.innerHTML = label.innerHTML;
-if(e.which == 13 && !e.shiftKey) {
-        $(this).closest("form").submit();
-        e.preventDefault();
-        return false;
-    }
             $(label).replaceWith(divLabel);
           });
           templateFields.classList.remove('hidden');
@@ -850,7 +845,7 @@ if(e.which == 13 && !e.shiftKey) {
           url: '{% url "api:datatemplatedetail" 12345 %}'.replace(/12345/, id.toString())
         }).done(function (templateData) {
           currentFields = templateData.fields;
-          if (templateData.group == {{ group.id }}) {
+          if (templateData.group.id == {{ group.id }}) {
             updateFormFields(templateData.fields);
           }
         });

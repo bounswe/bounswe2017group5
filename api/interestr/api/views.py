@@ -84,7 +84,7 @@ class DataTemplateList(generics.ListCreateAPIView):
     post:
     Create a new template instance.
     """
-    serializer_class = core_serializers.DataTemplateSerializer
+    serializer_class = core_serializers.DataTemplateSimpleSerializer
     pagination_class = DataTemplateLimitOffSetPagination
 
     def get_queryset(self):

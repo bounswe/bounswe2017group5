@@ -808,7 +808,14 @@
 
     dropdown = document.getElementById('newFieldDropdown');
 
-    for (const type in templateFieldTypes) {
+    function templateFieldTypesSorted(accordingTo) {
+      return Object.getOwnPropertyNames(templateFieldTypes).sort((a, b) =>
+        templateFieldTypes[a][accordingTo].localeCompare(templateFieldTypes[b][accordingTo])
+      );
+    }
+
+    // for (const type in templateFieldTypes) {
+    for (const type of templateFieldTypesSorted('friendlyName')) {
       dropdownItem = document.createElement('li');
       dropdownItemInner = document.createElement('a');
       dropdownItemInner.href = 'javascript:void(0);';

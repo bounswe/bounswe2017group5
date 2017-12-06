@@ -480,6 +480,34 @@
       }
     }
 
+    // Credits: https://stackoverflow.com/a/21015393
+    function getTextWidth(text, font) {
+      getTextWidth.context.font = font;
+      return getTextWidth.context.measureText(text).width;
+    }
+    getTextWidth.canvas = document.createElement("canvas");
+    getTextWidth.context = getTextWidth.canvas.getContext("2d");
+
+    function getComputedFont(element) {
+      var cs = window.getComputedStyle(element);
+      return [
+        //'font-style',
+        //'font-variant',
+        //'font-weight',
+        //'font-stretch',
+        'font-size',
+        //'line-height',
+        'font-family'
+        ].map(s => cs.getPropertyValue(s)).join(' ');
+    }
+
+    function getComputedExtraWidth(element) {
+      var cs = window.getComputedStyle(element);
+      return ['padding-left', 'padding-right', 'border-left-width', 'border-right-width'].
+        map(s => Number.parseFloat(cs.getPropertyValue(s))).
+        reduce((a, b) => a + b);
+    }
+
     function replaceSelectWithTextarea(select) {
       replaceTextareaWithSelect();
 
@@ -490,27 +518,34 @@
 
       selectEditorTextarea = document.createElement('textarea');
       selectEditorTextarea.textContent = selectEditorInitial;
-      // spanEditorInput.size = span.textContent.length;
       selectEditorTextarea.style['z-index'] = '123';
       selectEditorTextarea.style['overflow'] = 'hidden';
+      selectEditorTextarea.style['padding'] = '5px';
       selectEditorTextarea.textContent = selectEditorInitial;
 
       selectEditorTextarea.oninput = function (event) {
-        var optionTextLengths = selectEditorTextarea.textContent.split('\n').map(a => a.length);
+        var font = getComputedFont(selectEditorTextarea);
+        var optionTextLengths = selectEditorTextarea.textContent.split('\n')
+          .map(a => Math.ceil(getTextWidth(a, font)));
         
-        selectEditorTextarea.cols = (Math.max(...optionTextLengths) + 2).toString();
-        selectEditorTextarea.rows = optionTextLengths.length.toString();
+        // Resizes the textarea in width
+        selectEditorTextarea.style['width'] = Math.max(...optionTextLengths) +
+          getComputedExtraWidth(selectEditorTextarea) + 'px';
+        
+        // Resizes the textarea in height
+        selectEditorTextarea.style.height = "5px";
+        selectEditorTextarea.style.height = (selectEditorTextarea.scrollHeight)+"px";
       }
-
-      selectEditorTextarea.oninput();
 
       selectEditorTextarea.onkeypress = function (event) {
         if (event.ctrlKey && event.key == 'Enter') replaceTextareaWithSelect();
       }
 
       select.parentNode.replaceChild(selectEditorTextarea, select);
+
       selectEditorTextarea.focus();
       selectEditorTextarea.select();
+      selectEditorTextarea.oninput();
     }
 
     function makeSelect(options, editable = true) {
@@ -519,10 +554,13 @@
       var optionElement;
 
       for (option of options) {
-        optionElement = document.createElement('option');
-        optionElement.textContent = option;
+        option = option.trim();
+        if (option) {
+          optionElement = document.createElement('option');
+          optionElement.textContent = option;
 
-        select.appendChild(optionElement);
+          select.appendChild(optionElement);
+        }
       }
 
       if (editable) {
@@ -952,21 +990,26 @@ if(e.which == 13 && !e.shiftKey) {
 
     function sendPost() {
         var questionResponses = $(formFields).find('> .form-group').map((i, el) => {
-            var question = $(el).find('> label').text(), response = '';
+          var question = $(el).find('> label').text(), response = '';
 
-            var checkboxes = $(el).find('input[type="checkbox"]');
+          var checkboxes = $(el).find('input[type="checkbox"]');
+          var dropdowns = $(el).find('select');
 
-            if (checkboxes.length) {
-                var checkedCheckboxes = checkboxes.filter((i, el) => el.checked).map((i, el) => el.value);
-                response = Array.from(checkedCheckboxes).join(', ');
-            } else {
-              var inputOrTextarea = $(el).find('textarea');
-              if (!inputOrTextarea.length) {
-                  inputOrTextarea = $(el).find('input');
-              }
-              response = inputOrTextarea.get(0).value;
+          if (checkboxes.length) {
+            var checkedCheckboxes = checkboxes.filter((i, el) => el.checked).map((i, el) => el.value);
+            response = Array.from(checkedCheckboxes).join(', ');
+          }
+          else if (dropdowns.length) {
+            response = dropdowns.get(0).value;
+          }
+          else {
+            var inputOrTextarea = $(el).find('textarea');
+            if (!inputOrTextarea.length) {
+                inputOrTextarea = $(el).find('input');
             }
-            return { question: question, response: response };
+            response = inputOrTextarea.get(0).value;
+          }
+          return { question: question, response: response };
         });
 
         $.ajax({

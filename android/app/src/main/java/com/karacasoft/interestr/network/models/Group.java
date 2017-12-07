@@ -125,7 +125,7 @@ public class Group implements Serializable{
                 JSONObject dataTemplateObj = dataTemplatesArr.getJSONObject(i);
 
                 try {
-                    g.getDataTemplates().add(DataTemplate.fromJSONReduced(dataTemplateObj));
+                    g.getDataTemplates().add(DataTemplate.fromJSON(dataTemplateObj));
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -145,6 +145,16 @@ public class Group implements Serializable{
                 }
             }
         }
+
+        return g;
+    }
+
+    public static Group fromSmallJSON(JSONObject obj) throws JSONException {
+        Group g = new Group();
+
+        g.setId(obj.getInt("id"));
+        g.setName(obj.getString("name"));
+        g.setDescription(obj.getString("description"));
 
         return g;
     }

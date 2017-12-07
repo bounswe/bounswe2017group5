@@ -56,6 +56,7 @@ public class InterestrAPIImpl implements InterestrAPI {
     private static final String ENDPOINT_POSTS = API_HOME + "/posts/";
     private static final String ENDPOINT_DATA_TEMPLATES = API_HOME + "/data_templates/";
     private static final String ENDPOINT_TAGS = API_HOME + "/tags/";
+    private static final String ENDPOINT_ME = API_HOME + "/me/";
 
     private static final String REQUEST_METHOD_GET = "GET";
     private static final String REQUEST_METHOD_POST = "POST";
@@ -158,6 +159,27 @@ public class InterestrAPIImpl implements InterestrAPI {
                 .putBoolean(PREF_LOGGED_IN, true)
                 .putString(PREF_TOKEN, token.getKey())
                 .apply();
+    }
+
+    @Override
+    public void getProfile(Callback<User> callback) {
+        APIJob<User> job = new APIJob<User>(REQUEST_METHOD_GET, ENDPOINT_ME, null, callback) {
+            @Override
+            protected User extractData(String data) {
+                User u = null;
+                try {
+                    JSONObject object = new JSONObject(data);
+
+                    u = User.fromJSON(object);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                return u;
+            }
+        };
+
+        jobQueue.add(job);
+        networkHandler.post(job);
     }
 
     @Override
@@ -596,6 +618,8 @@ public class InterestrAPIImpl implements InterestrAPI {
         JSONObject requestData;
 
         boolean cancelled = false;
+
+        boolean isPaged = false;
 
         public APIJob(String requestMethod, String requestEndpoint, JSONObject requestData, Callback<T> callback) {
             this.requestMethod = requestMethod;

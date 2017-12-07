@@ -39,6 +39,8 @@ public interface InterestrAPI {
     public void logout();
     public void authenticate(Token token);
 
+    public void getProfile(Callback<User> callback);
+
     public interface Callback<T> {
         public void onResult(InterestrAPIResult<T> result);
         public void onError(String error_message);

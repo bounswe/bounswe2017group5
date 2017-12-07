@@ -66,8 +66,11 @@ public class SignUpFragment extends Fragment {
 
         signup.setOnClickListener(
             (view)-> {
-                User user = new User(username.getText().toString(), pass1.getText().toString(),
-                        email.getText().toString());
+                User user = new User();
+
+                user.setUsername(username.getText().toString());
+                user.setPassword(pass1.getText().toString());
+                user.setEmail(email.getText().toString());
 
                 api.signup(user, signupCallBack);
             }

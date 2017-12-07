@@ -91,4 +91,9 @@ public class MockInterestrAPIImpl implements InterestrAPI {
     public void authenticate(Token token) {
 
     }
+
+    @Override
+    public void getProfile(Callback<User> callback) {
+
+    }
 }

@@ -132,25 +132,4 @@ public class DataTemplate {
         return t;
     }
 
-
-    /**
-     * Parses a JSONObject into a DataTemplate and returns it. The difference from
-     * {@link DataTemplate#fromJSON(JSONObject)} is this one only requires <code>id</code>,
-     * <code>name</code> and <code>fields</code> fields to exist.
-     *
-     * @param obj JSONObject to be parsed
-     * @return A DataTemplate object
-     * @throws JSONException if the format of the JSON is not correct
-     */
-    public static DataTemplate fromJSONReduced(JSONObject obj) throws JSONException {
-        DataTemplate t = new DataTemplate();
-
-        t.setId(obj.getInt("id"));
-        t.setName(obj.getString("name"));
-        t.setTemplate(Template.fromJSON(obj.getJSONArray("fields")));
-
-        return t;
-    }
-
-
 }

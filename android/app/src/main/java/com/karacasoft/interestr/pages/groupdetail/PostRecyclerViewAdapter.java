@@ -24,7 +24,7 @@ import java.util.List;
  */
 
 public class PostRecyclerViewAdapter extends RecyclerView.Adapter<PostRecyclerViewAdapter.ViewHolder>{
-    List<Post> postList = new ArrayList<>();
+    private List<Post> postList = new ArrayList<>();
 
     public PostRecyclerViewAdapter(List<Post> posts){
         postList = posts;
@@ -40,6 +40,8 @@ public class PostRecyclerViewAdapter extends RecyclerView.Adapter<PostRecyclerVi
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         holder.mPost = postList.get(position);
+
+        holder.mPostOwnerView.setText(holder.mPost.getOwnerName());
 
         StringBuilder postContent = new StringBuilder();
 
@@ -71,14 +73,14 @@ public class PostRecyclerViewAdapter extends RecyclerView.Adapter<PostRecyclerVi
     }
 
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
-        public final View mView;
-        public final TextView mPostOwnerView;
-        public final TextView mPostContentView;
-        public final Button mPostDetailButton;
-        public Post mPost;
+    class ViewHolder extends RecyclerView.ViewHolder {
+        final View mView;
+        final TextView mPostOwnerView;
+        final TextView mPostContentView;
+        final Button mPostDetailButton;
+        Post mPost;
 
-        public ViewHolder(View view) {
+        ViewHolder(View view) {
             super(view);
             mView = view;
             mPostOwnerView = view.findViewById(R.id.tv_post_owner);

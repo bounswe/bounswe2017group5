@@ -15,6 +15,16 @@ import java.util.ArrayList;
 
 public class MockInterestrAPIImpl implements InterestrAPI {
     @Override
+    public void setLimit(int limit) {
+
+    }
+
+    @Override
+    public void setOffset(int offset) {
+
+    }
+
+    @Override
     public void login(String username, String password, Callback<Token> callback) {
         if(username.equals("Error"))
         {
@@ -90,6 +100,11 @@ public class MockInterestrAPIImpl implements InterestrAPI {
     @Override
     public void authenticate(Token token) {
 
+    }
+
+    @Override
+    public boolean isLoggedIn() {
+        return false;
     }
 
     @Override

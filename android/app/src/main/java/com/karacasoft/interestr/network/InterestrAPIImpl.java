@@ -76,6 +76,9 @@ public class InterestrAPIImpl implements InterestrAPI {
 
     private ArrayList<APIJob> jobQueue = new ArrayList<>();
 
+    private int limit = 10;
+    private int offset = 0;
+
     public InterestrAPIImpl(Context context) {
         this.mContext = context;
 
@@ -191,6 +194,16 @@ public class InterestrAPIImpl implements InterestrAPI {
     }
 
     @Override
+    public void setLimit(int limit) {
+        this.limit = limit;
+    }
+
+    @Override
+    public void setOffset(int offset) {
+        this.offset = offset;
+    }
+
+    @Override
     public void login(String username, String password, Callback<Token> callback) {
         JSONObject data = new JSONObject();
 
@@ -200,6 +213,7 @@ public class InterestrAPIImpl implements InterestrAPI {
 
         } catch (JSONException e) {
             // This should never happen.
+            e.printStackTrace();
         }
 
         APIJob<Token> job = new APIJob<Token>(REQUEST_METHOD_POST, ENDPOINT_LOGIN, data, callback) {
@@ -225,6 +239,11 @@ public class InterestrAPIImpl implements InterestrAPI {
     }
 
     @Override
+    public boolean isLoggedIn() {
+        return authToken.getKey() != null;
+    }
+
+    @Override
     public void signup(User user, Callback<User> callback) {
         JSONObject userObj = new JSONObject();
 
@@ -233,6 +252,7 @@ public class InterestrAPIImpl implements InterestrAPI {
             userObj.put("email", user.getEmail());
             userObj.put("password", user.getPassword());
         } catch (JSONException e) {
+            // This should never happen.
             e.printStackTrace();
         }
 
@@ -337,7 +357,8 @@ public class InterestrAPIImpl implements InterestrAPI {
     @Override
     public void getGroups(final Callback<ArrayList<Group>> callback) {
 
-        APIJob<ArrayList<Group>> job = new APIJob<ArrayList<Group>>(REQUEST_METHOD_GET, ENDPOINT_GROUPS + "?limit=20&offset=0", null, callback) {
+        APIJob<ArrayList<Group>> job = new APIJob<ArrayList<Group>>(REQUEST_METHOD_GET, ENDPOINT_GROUPS +
+                "?limit=" + limit + "0&offset=" + offset, null, callback) {
             @Override
             protected ArrayList<Group> extractData(String data) {
                 ArrayList<Group> groups = new ArrayList<>();
@@ -426,7 +447,8 @@ public class InterestrAPIImpl implements InterestrAPI {
     @Override
     public void getPosts(int group_id, Callback<ArrayList<Post>> callback) {
         APIJob<ArrayList<Post>> job = new APIJob<ArrayList<Post>>(
-                REQUEST_METHOD_GET, ENDPOINT_POSTS + "?group=" + group_id + "&limit=20&offset=0",
+                REQUEST_METHOD_GET, ENDPOINT_POSTS + "?group=" + group_id +
+                "&limit=" + limit + "0&offset=" + offset,
                 null, callback
         ) {
             @Override
@@ -497,7 +519,8 @@ public class InterestrAPIImpl implements InterestrAPI {
     @Override
     public void getDataTemplates(int group_id, Callback<ArrayList<DataTemplate>> callback) {
         APIJob<ArrayList<DataTemplate>> job = new APIJob<ArrayList<DataTemplate>>(
-                REQUEST_METHOD_GET, ENDPOINT_DATA_TEMPLATES + "?group=" + group_id + "&limit=20&offset=0",
+                REQUEST_METHOD_GET, ENDPOINT_DATA_TEMPLATES + "?group=" + group_id +
+                "&limit=" + limit + "0&offset=" + offset,
                 null, callback
         ) {
             @Override
@@ -608,7 +631,6 @@ public class InterestrAPIImpl implements InterestrAPI {
         networkHandler.post(job);
     }
 
-
     private abstract class APIJob<T> implements Runnable {
 
         Callback<T> callback;
@@ -618,8 +640,6 @@ public class InterestrAPIImpl implements InterestrAPI {
         JSONObject requestData;
 
         boolean cancelled = false;
-
-        boolean isPaged = false;
 
         public APIJob(String requestMethod, String requestEndpoint, JSONObject requestData, Callback<T> callback) {
             this.requestMethod = requestMethod;
@@ -719,11 +739,7 @@ public class InterestrAPIImpl implements InterestrAPI {
         public void run() {
             beforeRequest();
 
-            Log.d("APIImpl request","Sending request");
-
             performRequest();
-
-            Log.d("APIImpl request","Sent request");
 
             afterRequest();
         }

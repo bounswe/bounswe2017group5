@@ -18,6 +18,9 @@ import okhttp3.Response;
 
 public interface InterestrAPI {
 
+    public void setLimit(int limit);
+    public void setOffset(int offset);
+
     public void login(String username, String password, Callback<Token> callback);
     public void signup(User user, Callback<User> callback);
 
@@ -38,6 +41,8 @@ public interface InterestrAPI {
 
     public void logout();
     public void authenticate(Token token);
+
+    public boolean isLoggedIn();
 
     public void getProfile(Callback<User> callback);
 

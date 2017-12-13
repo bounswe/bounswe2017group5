@@ -36,5 +36,7 @@
     <string name="profile">Profile</string>
     <string name="group_description">Group Description</string>
     <string name="location">Location</string>
+    <string name="feed">Feed</string>
+    <string name="recommended">Recommended</string>
 
 </resources>

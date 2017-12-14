@@ -95,7 +95,7 @@ class ProfilePageSerializer(serializers.ModelSerializer):
     class Meta:
         model = core_models.ProfilePage
         fields = ('id', 'name', 'surname', 'date_of_birth',
-         'location', 'interests', 'user')
+            'location', 'interests', 'user')
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -108,4 +108,4 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = auth_models.User
         fields = ('id', 'username', 'email', 'joined_groups', 'moderated_groups',
-         'data_templates', 'posts', 'profilepage', 'votes', )
+            'data_templates', 'posts', 'profilepage', 'votes', )

@@ -391,12 +391,14 @@ class SignUpView(APIView):
         serialized = core_serializers.UserSerializer(data=request.data)
         if serialized.is_valid():
             auth_models.User.objects.create_user(
-                email = request.data['email'],
-                username = request.data['username'],
-                password = request.data['password'] )
-            user_to_send = auth_models.User.objects.get(username = request.data['username'])
-            profile_page = core_models.ProfilePage(user = user_to_send)
+                email=request.data['email'],
+                username=request.data['username'],
+                password=request.data['password'] )
+            user_to_send = auth_models.User.objects.get(username=request.data['username'])
+            profile_page = core_models.ProfilePage(user=user_to_send)
             profile_page.save()
+            user_to_send.profilepage = profile_page
+            user_to_send.save()
             out_serializer = core_serializers.UserSerializer(user_to_send)
             return JsonResponse(out_serializer.data)
         else:

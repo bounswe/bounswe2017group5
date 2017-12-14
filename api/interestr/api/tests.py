@@ -39,27 +39,32 @@ class SignupTests(TestCase):
 
     def test_signup_nonexisting_user(self):
         response = self.client.post('/api/v1/register/',
-            {'username': 'name',
-            'email':'email@email.com',
-            'password':'password123'})
+            {
+                'username': 'name',
+                'email':'email@email.com',
+                'password':'password123'
+            })
 
         self.assertEqual(response.status_code, 200)
 
         json_response = json.loads(response.content)
-
-        self.assertEqual(json_response['username'], 'name')
-        self.assertEqual(json_response['email'], 'email@email.com')
-        self.assertEqual(json_response['joined_groups'], [])
-        self.assertEqual(json_response['moderated_groups'], [])
-        self.assertEqual(json_response['data_templates'], [])
-        self.assertEqual(json_response['posts'], [])
-        self.assertEqual(json_response['comments'], [])
+        try:
+            self.assertEqual(json_response['username'], 'name')
+            self.assertEqual(json_response['email'], 'email@email.com')
+            self.assertEqual(json_response['joined_groups'], [])
+            self.assertEqual(json_response['moderated_groups'], [])
+            self.assertEqual(json_response['data_templates'], [])
+            self.assertEqual(json_response['posts'], [])
+        except KeyError:
+            self.fail('User object definition is not correct')
 
     def test_signup_with_existing_username(self):
         response = self.client.post('/api/v1/register/',
-           {'username': 'user',
-           'email':'email@email.com',
-           'password':'password123'})
+            {
+                'username' : 'user',
+                'email' : 'email@email.com',
+                'password' : 'password123'
+            })
 
         self.assertEqual(response.status_code, 417)
 
@@ -70,20 +75,23 @@ class SignupTests(TestCase):
 
     def test_signup_with_existing_email(self):
         response = self.client.post('/api/v1/register/',
-            {'username': 'name2',
-            'email':'email@email.com',
-            'password':'password123'})
+            {
+                'username' : 'name2',
+                'email' : 'email@email.com',
+                'password' : 'password123'
+            })
         self.assertEqual(response.status_code, 200)
 
         json_response = json.loads(response.content)
-
-        self.assertEqual(json_response['username'], 'name2')
-        self.assertEqual(json_response['email'], 'email@email.com')
-        self.assertEqual(json_response['joined_groups'], [])
-        self.assertEqual(json_response['moderated_groups'], [])
-        self.assertEqual(json_response['data_templates'], [])
-        self.assertEqual(json_response['posts'], [])
-        self.assertEqual(json_response['comments'], [])
+        try:
+            self.assertEqual(json_response['username'], 'name2')
+            self.assertEqual(json_response['email'], 'email@email.com')
+            self.assertEqual(json_response['joined_groups'], [])
+            self.assertEqual(json_response['moderated_groups'], [])
+            self.assertEqual(json_response['data_templates'], [])
+            self.assertEqual(json_response['posts'], [])
+        except KeyError:
+            self.fail('User object definition is not correct')
 
 
 class PostTests(TestCase):
@@ -91,7 +99,10 @@ class PostTests(TestCase):
         self.client = APIClient()
         self.test_user = User.objects.create_user('owner', 'wow@wow.com', 'wowpass123')
         self.test_group = Group.objects.create(name="Shout!", description="WE ALSO LOVE CAPS:)")
-        self.test_post = Post.objects.create(owner=self.test_user, text='text',group=self.test_group)
+        self.test_post = Post.objects.create(owner=self.test_user, data=[{
+            'question' : 'IS YOUR CAPS LOCK ON?',
+            'response' : 'YES'
+        }],group=self.test_group)
 
     def test_existing_post(self):
         response = self.client.get('/api/v1/posts/' + str(self.test_post.id) + '/')
@@ -167,7 +178,7 @@ class GroupTests(TestCase):
 
         self.assertEqual(response.status_code, 410)
 
-class aaaaProfilePageTests(TestCase):
+class ProfilePageTests(TestCase):
     def setUp(self):
         self.client = APIClient()
 
@@ -176,9 +187,10 @@ class aaaaProfilePageTests(TestCase):
         post_test_url = '/api/v1/register/'
 
         user_dict = {
-            'username': 'naim',
-            'email':'e@mail.com',
-            'password':'10201'}
+            'username' : 'naim',
+            'email' : 'e@mail.com',
+            'password' : '10201'
+        }
         # post the user
         response = self.client.post(post_test_url, user_dict)
         json_response = json.loads(response.content)
@@ -208,8 +220,18 @@ class CommentTests(TestCase):
         self.test_user1 = User.objects.create_user('zahidov', 'zahid@mail.com', "kayinco137")
         self.test_user2 = User.objects.create_user('asimov', 'asim@mail.com', "darling")
         self.test_group = Group.objects.create(name="Soviet Fans", description="We also love Russia:)")
-        self.test_post1 = Post.objects.create(owner=self.test_user1, text='Who is your favorite leader?', group=self.test_group)
-        self.test_post2 = Post.objects.create(owner=self.test_user2, text='What is your favorite city?', group=self.test_group)
+        self.test_post1 = Post.objects.create(owner=self.test_user1, data=[
+                {
+                    'question' : 'Who is your favorite leader?',
+                    'response' : 'Putin is the Kiiing!'
+                }
+            ], group=self.test_group)
+        self.test_post2 = Post.objects.create(owner=self.test_user2, data=[
+                {
+                    'question' : 'What is your favorite city?',
+                    'response' : 'Stalingrad!'
+                }
+            ], group=self.test_group)
         self.test_comment1 = Comment.objects.create(owner=self.test_user1, text="Putin is the \n Kiiing!", post= self.test_post1)
         self.test_comment2 = Comment.objects.create(owner=self.test_user1, text="Stalingrad!", post= self.test_post2)
 
@@ -220,8 +242,11 @@ class CommentTests(TestCase):
         self.assertEqual(self.test_user1.comments.count(), 2)        
         self.assertEqual(self.test_user2.comments.count(), 0)
 
-        comment_fields =  {'text':"Kim Yong is the \n new Kiiing!" , "post" : self.test_post1.id,
-                           'owner': self.test_user2.id}
+        comment_fields =  {
+            'text' : 'Kim Yong is the \n new Kiiing!',
+            'post' : self.test_post1.id,
+            'owner': self.test_user2.id
+        }
         response = self.client.post('/api/v1/comments/', comment_fields, format='json')
         self.assertEqual(response.status_code, 201)
         #check comment counts after insertion
@@ -230,8 +255,11 @@ class CommentTests(TestCase):
         self.assertEqual(self.test_user1.comments.count(), 2)        
         self.assertEqual(self.test_user2.comments.count(), 1)
 
-        comment_fields =  {'text':"Petersburg of course!" , "post" : self.test_post2.id,
-                           'owner': self.test_user1.id}
+        comment_fields =  {
+            'text' : 'Petersburg of course!',
+            'post' : self.test_post2.id,
+            'owner': self.test_user1.id
+        }
         response = self.client.post('/api/v1/comments/', comment_fields, format='json')
         self.assertEqual(response.status_code, 201)
         #check comment counts after insertion
@@ -245,17 +273,19 @@ class CommentTests(TestCase):
         response = self.client.get('/api/v1/comments/' + str(self.test_comment1.id) + '/')
         self.assertEqual(response.status_code, 200)
         json_response = json.loads(response.content)
-        self.assertEqual(json_response['text'], self.test_comment1.text)
-
-        response = self.client.get('/api/v1/users/' + str(self.test_user1.id) + '/')
-        self.assertEqual(response.status_code, 200)
-        json_response = json.loads(response.content)
-        self.assertEqual(json_response['comments'][0]['text'], self.test_comment1.text)
-
+        
+        try:
+            self.assertEqual(json_response['text'], self.test_comment1.text)
+        except KeyError:
+            self.fail("Comment should have field named 'text'")
+        
         response = self.client.get('/api/v1/posts/' + str(self.test_post1.id) + '/')
         self.assertEqual(response.status_code, 200)
         json_response = json.loads(response.content)
-        self.assertEqual(json_response['comments'][0]['text'], self.test_comment1.text)
+        try:
+            self.assertEqual(json_response['comments'][0]['text'], self.test_comment1.text)
+        except KeyError:
+            self.fail("Created comment does not exist in the posts list")
 
     def test_non_existing_comment(self):
         response = self.client.get('/api/v1/comments/' + str(999) + '/')
@@ -387,7 +417,7 @@ class SearchTests(TestCase):
 
 
     def count_users(self, query):
-        c = 0;
+        c = 0
         for User in auth_models.User.objects.all():
             if query in User.username:
                 c = c + 1
@@ -395,7 +425,7 @@ class SearchTests(TestCase):
         return c
 
     def count_groups(self, query):
-        d = 0;
+        d = 0
         for Group in core_models.Group.objects.all():
             if query in Group.name:
                 d = d + 1

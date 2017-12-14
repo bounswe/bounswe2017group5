@@ -1,5 +1,13 @@
 from . import models
 
+def responseErrorMessage(response, functionality, shouldNotFail=True):
+	return '%s, %s with\n Status Code: %d\n Response: %s\n' % (
+			functionality,
+			'fails' if shouldNotFail else 'does not fail',
+			response.status_code,
+			response.content
+		)
+
 def createDummyComment(user, post, i=0):
 	return models.Comment.objects.create(
 			owner=user,

@@ -16,7 +16,8 @@ from . import models as core_models
 
 import json
 
-from . import dummy
+from . import test_utils
+from test_utils import responseErrorMessage as responseError
 
 
 # Create your tests here.
@@ -28,7 +29,8 @@ class AuthTests(TestCase):
     def test_token_auth(self):
         response = self.client.post('/api/v1/login/', {'username': 'name', 'password': 'wowpass123'})
 
-        self.assertEqual(response.status_code, 200, 'Login fails with response:\n%s' % response.content)
+        self.assertEqual(response.status_code, 200, 
+            responseError(response, 'Login'))
 
         json_response = json.loads(response.content)
 
@@ -50,7 +52,8 @@ class SignupTests(TestCase):
                 'password':'password123'
             })
 
-        self.assertEqual(response.status_code, 200, 'Sign Up fails with response:\n%s' % response.content)
+        self.assertEqual(response.status_code, 200, 
+            responseError(response, 'Sign Up'))
 
         json_response = json.loads(response.content)
         try:
@@ -71,7 +74,8 @@ class SignupTests(TestCase):
                 'password' : 'password123'
             })
 
-        self.assertEqual(response.status_code, 417, 'Sign Up does not fail with response:\n%s' % response.content)
+        self.assertEqual(response.status_code, 417, 
+            responseError(response, 'Sign Up', False))
 
     def test_signup_with_existing_email(self):
         response = self.client.post('/api/v1/register/',
@@ -80,21 +84,23 @@ class SignupTests(TestCase):
                 'email' : self.test_user.email,
                 'password' : 'password123'
             })
-        self.assertEqual(response.status_code, 417, 'Sign Up does not fail with response:\n%s' % response.content)
+        self.assertEqual(response.status_code, 417, 
+            responseError(response, 'Sign Up', False))
 
 
 class PostTests(TestCase):
     def setUp(self):
         self.client = APIClient()
         self.test_user = User.objects.create_user('owner', 'wow@wow.com', 'wowpass123')
-        self.test_group = dummy.createDummyGroup()
-        self.test_data_template = dummy.createDummyDataTemplate(self.test_user, self.test_group)
-        self.test_post = dummy.createDummyPost(self.test_user, self.test_group, self.test_data_template)
+        self.test_group = test_utils.createDummyGroup()
+        self.test_data_template = test_utils.createDummyDataTemplate(self.test_user, self.test_group)
+        self.test_post = test_utils.createDummyPost(self.test_user, self.test_group, self.test_data_template)
 
     def test_existing_post(self):
         response = self.client.get('/api/v1/posts/' + str(self.test_post.id) + '/')
 
-        self.assertEqual(response.status_code, 200, 'Get existing post, fails with response:\n%s' % response.content)
+        self.assertEqual(response.status_code, 200,
+            responseError(response, 'Get Existing Post'))
 
         json_response = json.loads(response.content)
 
@@ -110,7 +116,7 @@ class PostTests(TestCase):
         response = self.client.get('/api/v1/posts/' + str(999) + '/')
 
         self.assertEqual(response.status_code, 404, 
-            'Get non existing post, does not fail with response:\n%s' % response.content)
+            responseError(response, 'Get Non-Existing Post', False))
 
 
 class GroupTests(TestCase):
@@ -119,7 +125,7 @@ class GroupTests(TestCase):
         self.client = APIClient()
         self.test_user1 = User.objects.create_user('user', 'e@mail.com', '1234')
         self.test_user2 = User.objects.create_user('iser', 'g@mail.com', '4321')
-        self.test_group = dummy.createDummyGroup()
+        self.test_group = test_utils.createDummyGroup()
 
     def test_add_users_to_group(self):
 
@@ -130,7 +136,7 @@ class GroupTests(TestCase):
         json_response = json.loads(response.content)
 
         self.assertEqual(response.status_code, 200, 
-            'Add to group, fails with response:\n%s' % response.content)
+            responseError(response, 'Add To Group'))
 
         try:    
             self.assertEqual(json_response['name'], self.test_group.name)
@@ -143,7 +149,7 @@ class GroupTests(TestCase):
         response = self.client.put(test_url, follow=True)
         json_response = json.loads(response.content)
         self.assertEqual(response.status_code, 200, 
-            'Add to group, fails with response:\n%s' % response.content)
+            responseError(response, 'Add To Group'))
 
         try:
             self.assertEqual(json_response['name'], self.test_group.name)
@@ -158,7 +164,7 @@ class GroupTests(TestCase):
         test_url = '/api/v1/users/groups/' + str(test_group_id) + '/'
         response = self.client.put(test_url, follow=True)
         self.assertEqual(response.status_code, 410, 
-            'Add existing user to group, does not fail with response:\n%s' % response.content)
+            responseError(response, 'Add Existing User To Group', False))
 
     def test_remove_users_from_group(self):
         self.test_group.members.add(self.test_user1)
@@ -169,7 +175,7 @@ class GroupTests(TestCase):
         self.client.login(username= 'user', password='1234')
         response = self.client.delete(test_url, follow=True)
         self.assertEqual(response.status_code, 200, 
-            'Remove user from group, fails with response:\n%s' % response.content)
+            responseError(response, 'Remove From Group'))
         json_response = json.loads(response.content)
         try:
             self.assertEqual(json_response['name'], self.test_group.name)
@@ -187,7 +193,7 @@ class GroupTests(TestCase):
         response = self.client.delete(test_url, follow=True)
 
         self.assertEqual(response.status_code, 410,
-            'Remove non-existent user from group, does not fail with response:\n%s' % response.content)
+            responseError(response, 'Remove Non-Existing User From Group', False))
 
 class ProfilePageTests(TestCase):
     def setUp(self):
@@ -210,7 +216,8 @@ class ProfilePageTests(TestCase):
             # get its id
             profilepage = json_response['profilepage']
             sakki_no_id = profilepage['id']
-            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.status_code, 200, 
+                responseError(response, 'Create User'))
             # try to retrieve a profile page with given id
             profile_page_url = '/api/v1/profile_pages/' + str(sakki_no_id) + '/'  
             response = self.client.get(profile_page_url)
@@ -233,13 +240,13 @@ class CommentTests(TestCase):
         self.client = APIClient()
         self.test_user1 = User.objects.create_user('zahidov', 'zahid@mail.com', 'kayinco137')
         self.test_user2 = User.objects.create_user('asimov', 'asim@mail.com', 'darling')
-        self.test_group = dummy.createDummyGroup()
-        self.test_data_template1 = dummy.createDummyDataTemplate(self.test_user1, self.test_group, 1)
-        self.test_data_template2 = dummy.createDummyDataTemplate(self.test_user1, self.test_group, 2)
-        self.test_post1 = dummy.createDummyPost(self.test_user1, self.test_group, self.test_data_template1, 1)
-        self.test_post2 = dummy.createDummyPost(self.test_user2, self.test_group, self.test_data_template2, 2)
-        self.test_comment1 = dummy.createDummyComment(self.test_user1, self.test_post1, 1)
-        self.test_comment2 = dummy.createDummyComment(self.test_user1, self.test_post2, 2)
+        self.test_group = test_utils.createDummyGroup()
+        self.test_data_template1 = test_utils.createDummyDataTemplate(self.test_user1, self.test_group, 1)
+        self.test_data_template2 = test_utils.createDummyDataTemplate(self.test_user1, self.test_group, 2)
+        self.test_post1 = test_utils.createDummyPost(self.test_user1, self.test_group, self.test_data_template1, 1)
+        self.test_post2 = test_utils.createDummyPost(self.test_user2, self.test_group, self.test_data_template2, 2)
+        self.test_comment1 = test_utils.createDummyComment(self.test_user1, self.test_post1, 1)
+        self.test_comment2 = test_utils.createDummyComment(self.test_user1, self.test_post2, 2)
 
     def test_create_comment(self):
         #check prior comment counts
@@ -255,7 +262,8 @@ class CommentTests(TestCase):
             'post' : self.test_post1.id
         }
         response = self.client.post('/api/v1/comments/', comment_fields, format='json')
-        self.assertEqual(response.status_code, 201, "Comment create failed with response:\n%s" % response.content)
+        self.assertEqual(response.status_code, 201, 
+            responseError(response, 'Create Comment'))
         #check comment counts after insertion
         self.assertEqual(self.test_post1.comments.count(), 2)        
         self.assertEqual(self.test_post2.comments.count(), 1)
@@ -269,7 +277,8 @@ class CommentTests(TestCase):
             'post' : self.test_post2.id
         }
         response = self.client.post('/api/v1/comments/', comment_fields, format='json')
-        self.assertEqual(response.status_code, 201, "Comment create failed with response:\n%s" % response.content)
+        self.assertEqual(response.status_code, 201,
+            responseError(response, 'Create Comment'))
         #check comment counts after insertion
         self.assertEqual(self.test_post1.comments.count(), 2)        
         self.assertEqual(self.test_post2.comments.count(), 2)
@@ -279,7 +288,8 @@ class CommentTests(TestCase):
 
     def test_existing_comment(self):
         response = self.client.get('/api/v1/comments/' + str(self.test_comment1.id) + '/')
-        self.assertEqual(response.status_code, 200, "Comment get failed with response:\n%s" % response.content)
+        self.assertEqual(response.status_code, 200,
+            responseError(response, 'Get Comment'))
         json_response = json.loads(response.content)
         
         try:
@@ -288,7 +298,8 @@ class CommentTests(TestCase):
             self.fail("Comment should have field named 'text'")
         
         response = self.client.get('/api/v1/posts/' + str(self.test_post1.id) + '/')
-        self.assertEqual(response.status_code, 200, "Post get failed with response:\n%s" % response.content)
+        self.assertEqual(response.status_code, 200,
+            responseError(response, 'Get Comment'))
         json_response = json.loads(response.content)
         try:
             self.assertEqual(json_response['comments'][0]['text'], self.test_comment1.text)
@@ -298,12 +309,12 @@ class CommentTests(TestCase):
     def test_non_existing_comment(self):
         response = self.client.get('/api/v1/comments/' + str(999) + '/')
         self.assertEqual(response.status_code, 404,
-            'Non-existent comment get does not fail with response:\n%s' % response.content)
+            responseError(response, 'Get Non-Existing Comment', False))
 
     def test_delete_comment(self):
         response = self.client.delete('/api/v1/comments/' + str(self.test_comment1.id) + '/')
         self.assertEqual(response.status_code, 204,
-            'Comment delete fails with response:\n%s' % response.content)
+            responseError(response, 'Delete Comment'))
         #check comment counts after deletion
         self.assertEqual(self.test_post1.comments.count(), 0)        
         self.assertEqual(self.test_post2.comments.count(), 1)
@@ -315,8 +326,8 @@ class DataTemplateTests(TestCase):
     def setUp(self):
         self.client = APIClient()
         self.test_user = User.objects.create_user('owner', 'wow@wow.com', 'wowpass123')
-        self.test_group = dummy.createDummyGroup()
-        self.test_data_template = dummy.createDummyDataTemplate(self.test_user, self.test_group)
+        self.test_group = test_utils.createDummyGroup()
+        self.test_data_template = test_utils.createDummyDataTemplate(self.test_user, self.test_group)
 
     def test_create_template(self):
         self.client.force_authenticate(user=self.test_user)
@@ -327,13 +338,13 @@ class DataTemplateTests(TestCase):
         }
         response = self.client.post('/api/v1/data_templates/', 
             template_fields, format='json')
-        self.assertEqual(response.status_code, 201, 
-            'Data Template create fails with response:\n%s' % response.content)
+        self.assertEqual(response.status_code, 201,
+            responseError(response, 'Create Data Template'))
 
     def test_existing_template(self):
         response = self.client.get('/api/v1/data_templates/' + str(self.test_data_template.id) + '/')
         self.assertEqual(response.status_code, 200,
-            'Data Template get fails with response:\n%s' % response.content)
+            responseError(response, 'Get Data Template'))
         json_response = json.loads(response.content)
         try:
             self.assertEqual(json_response['name'], self.test_data_template.name)
@@ -343,15 +354,16 @@ class DataTemplateTests(TestCase):
     def test_non_existing_template(self):
         response = self.client.get('/api/v1/data_templates/' + str(999) + '/')
         self.assertEqual(response.status_code, 404,
-            'Non-existing Data Template get, does not fail with response:\n%s' % response.content)
+            responseError(response, 'Get Non-Existing Data Template', False))
 
     def test_delete_template(self):
         response = self.client.delete('/api/v1/data_templates/' + str(self.test_data_template.id) + '/')
         self.assertEqual(response.status_code, 204,
-            'Data Template delete fails with response:\n%s' % response.content)
+            responseError(response, 'Delete Data Template'))
+
         response = self.client.get('/api/v1/data_templates/' + str(self.test_data_template.id) + '/')
         self.assertEqual(response.status_code, 404,
-            'Non-existing Data Template get, does not fail with response:\n%s' % response.content)
+            responseError(response, 'Get Non-Existing Data Template', False))
 
 class RecommendationTests(TestCase):
     def setUp(self):
@@ -426,7 +438,8 @@ class ApiDocTests(TestCase):
     def test_doc_working(self):
         response = self.client.get('/api/v1/docs/')
 
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 200,
+            responseError(response, 'Get Documentation'))
 
 
 class SearchTests(TestCase):
@@ -460,7 +473,8 @@ class SearchTests(TestCase):
     #search for users
     def test_user_search_user_names(self):
         response = self.client.get('/api/v1/users/' + '?q=' + self.test_user1.username)
-        self.assertEqual(response.status_code, 200, 'Search user fails with response:\n%s' % response.content)
+        self.assertEqual(response.status_code, 200,
+            responseError(response, 'Search User'))
 
         json_response = json.loads(response.content)
         try:
@@ -469,7 +483,8 @@ class SearchTests(TestCase):
             self.fail('Search response should have a field named \'count\'')
 
         response = self.client.get('/api/v1/users/' + '?q=' + self.test_user2.username)
-        self.assertEqual(response.status_code, 200, 'Search user fails with response:\n%s' % response.content)
+        self.assertEqual(response.status_code, 200,
+            responseError(response, 'Search User'))
 
         json_response = json.loads(response.content)
         try:
@@ -479,7 +494,8 @@ class SearchTests(TestCase):
 
 
         response = self.client.get('/api/v1/users/' + '?q=' + self.test_user3.username)
-        self.assertEqual(response.status_code, 200, 'Search user fails with response:\n%s' % response.content)
+        self.assertEqual(response.status_code, 200,
+            responseError(response, 'Search User'))
 
         json_response = json.loads(response.content)
         try:
@@ -491,7 +507,8 @@ class SearchTests(TestCase):
     #search for a user that does not exist
     def test_user_search_dummy(self):
         response = self.client.get('/api/v1/users/' + '?q=' + 'dummy')
-        self.assertEqual(response.status_code, 200, 'Search user fails with response:\n%s' % response.content)
+        self.assertEqual(response.status_code, 200,
+            responseError(response, 'Search User'))
 
         json_response = json.loads(response.content)
         try:
@@ -504,7 +521,8 @@ class SearchTests(TestCase):
     #search for groups
     def test_group_search_group_names(self):
         response = self.client.get('/api/v1/groups/' + '?q=' + self.test_group1.name)
-        self.assertEqual(response.status_code, 200, 'Search group fails with response:\n%s' % response.content)
+        self.assertEqual(response.status_code, 200,
+            responseError(response, 'Search Group'))
 
         json_response = json.loads(response.content)
         try:
@@ -514,7 +532,8 @@ class SearchTests(TestCase):
 
 
         response = self.client.get('/api/v1/groups/' + '?q=' + self.test_group2.name)
-        self.assertEqual(response.status_code, 200, 'Search group fails with response:\n%s' % response.content)
+        self.assertEqual(response.status_code, 200,
+            responseError(response, 'Search Group'))
 
         json_response = json.loads(response.content)
         try:
@@ -524,7 +543,8 @@ class SearchTests(TestCase):
 
 
         response = self.client.get('/api/v1/groups/' + '?q=' + self.test_group3.name)
-        self.assertEqual(response.status_code, 200, 'Search group fails with response:\n%s' % response.content)
+        self.assertEqual(response.status_code, 200,
+            responseError(response, 'Search Group'))
 
         json_response = json.loads(response.content)
         try:
@@ -535,7 +555,8 @@ class SearchTests(TestCase):
     #search for a group that does not exist
     def test_group_search_dummy_query(self):
         response = self.client.get('/api/v1/groups/' + '?q=' + 'dummy')
-        self.assertEqual(response.status_code, 200, 'Search group fails with response:\n%s' % response.content)
+        self.assertEqual(response.status_code, 200,
+            responseError(response, 'Search Group'))
 
         json_response = json.loads(response.content)
         try:

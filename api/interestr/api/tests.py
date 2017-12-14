@@ -111,7 +111,7 @@ class PostTests(TestCase):
 
         json_response = json.loads(response.content)
 
-        self.assertEqual(json_response['owner'], self.test_user.id)
+        self.assertEqual(json_response['owner']['id'], self.test_user.id)
 
     def test_non_existing_post(self):
         response = self.client.get('/api/v1/posts/' + str(999) + '/')
@@ -242,23 +242,25 @@ class CommentTests(TestCase):
         self.assertEqual(self.test_user1.comments.count(), 2)        
         self.assertEqual(self.test_user2.comments.count(), 0)
 
+        self.client.force_authenticate(self.test_user2)
+
         comment_fields =  {
             'text' : 'Kim Yong is the \n new Kiiing!',
-            'post' : self.test_post1.id,
-            'owner': self.test_user2.id
+            'post' : self.test_post1.id
         }
         response = self.client.post('/api/v1/comments/', comment_fields, format='json')
-        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.status_code, 201, "Response returned : %s" % response)
         #check comment counts after insertion
         self.assertEqual(self.test_post1.comments.count(), 2)        
         self.assertEqual(self.test_post2.comments.count(), 1)
         self.assertEqual(self.test_user1.comments.count(), 2)        
         self.assertEqual(self.test_user2.comments.count(), 1)
 
+        self.client.force_authenticate(self.test_user1)
+
         comment_fields =  {
             'text' : 'Petersburg of course!',
-            'post' : self.test_post2.id,
-            'owner': self.test_user1.id
+            'post' : self.test_post2.id
         }
         response = self.client.post('/api/v1/comments/', comment_fields, format='json')
         self.assertEqual(response.status_code, 201)

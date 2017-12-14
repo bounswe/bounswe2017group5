@@ -63,9 +63,8 @@ class GroupSerializer(serializers.ModelSerializer):
          'moderators', 'picture', 'data_templates', 'tags', )
         read_only_fields = ('members', 'moderators',)
 
-
 class CommentSerializer(serializers.ModelSerializer):
-    owner = UserIdNameSerializer()
+    owner = UserIdNameSerializer(read_only=True)
 
     class Meta:
         model = core_models.Comment
@@ -79,7 +78,7 @@ class VoteSerializer(serializers.ModelSerializer):
         fields = ('id', 'owner', 'post', 'up', 'created', 'updated',)
 
 class PostSerializer(serializers.ModelSerializer):
-    owner = UserIdNameSerializer()
+    owner = UserIdNameSerializer(read_only=True)
     group = GroupIdNameDescriptionSerializer()
     data_template = DataTemplateIdNameFieldsSerializer()
     comments = CommentSerializer(many=True, read_only=True)

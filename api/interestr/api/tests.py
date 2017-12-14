@@ -89,12 +89,64 @@ class SignupTests(TestCase):
 
 
 class PostTests(TestCase):
+
     def setUp(self):
         self.client = APIClient()
         self.test_user = User.objects.create_user('owner', 'wow@wow.com', 'wowpass123')
         self.test_group = test_utils.createDummyGroup()
         self.test_data_template = test_utils.createDummyDataTemplate(self.test_user, self.test_group)
         self.test_post = test_utils.createDummyPost(self.test_user, self.test_group, self.test_data_template)
+
+
+    def test_create_post(self):
+        self.client.force_authenticate(self.test_user)
+
+        post_data = {
+            'group' : self.test_group.id,
+            'data_template' : self.test_data_template.id,
+            'data' : [
+                {
+                    'question' : self.test_data_template.fields[0]['legend'],
+                    'response' : 'Dummy Response'
+                }
+            ]
+        }
+
+        response = self.client.post('/api/v1/posts/', post_data, format='json')
+
+        self.assertEqual(response.status_code, 201,
+            responseError(response, 'Create Post'))
+
+        json_response = json.loads(response.content)
+
+        try:
+            self.assertEqual(json_response['owner'], self.test_user.id)
+        except KeyError:
+            self.fail('Data Template object should have field \'owner\'')
+
+
+
+    def test_update_post(self):
+        self.client.force_authenticate(self.test_user)
+
+        post_data = {
+            'id' : self.test_post.id,
+            'group' : self.test_group.id,
+            'data_template' : self.test_data_template.id,
+            'data' : [
+                {
+                    'question' : self.test_data_template.fields[0]['legend'],
+                    'response' : 'Updated Response'
+                }
+            ]
+        }
+
+        response = self.client.put('/api/v1/posts/%d/' % self.test_post.id,
+            post_data, format='json')
+
+        self.assertEqual(response.status_code, 200,
+            responseError(response, 'Update Post'))
+
 
     def test_existing_post(self):
         response = self.client.get('/api/v1/posts/' + str(self.test_post.id) + '/')
@@ -117,6 +169,14 @@ class PostTests(TestCase):
 
         self.assertEqual(response.status_code, 404, 
             responseError(response, 'Get Non-Existing Post', False))
+
+
+
+    def test_delete_own_post(self):
+        response = self.client.delete('/api/v1/posts/%d/' % self.test_post.id)
+
+        self.assertEqual(response.status_code, 204,
+            responseError(response, 'Remove Post'))
 
 
 class GroupTests(TestCase):

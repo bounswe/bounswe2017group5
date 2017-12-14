@@ -3,6 +3,8 @@ from rest_framework import serializers
 from . import models as core_models
 from django.contrib.auth import models as auth_models
 
+from serializer_utils import get_or_none
+
 #===Mid level serializers===
 # These will help us display the data much better with
 # the other serializers.
@@ -87,6 +89,13 @@ class PostSerializer(serializers.ModelSerializer):
     class Meta:
         model = core_models.Post
         fields = ('id', 'owner', 'group', 'data_template', 'data', 'created', 'updated', 'comments', 'votes')
+
+
+class PostCreateSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = core_models.Post
+        fields = ('id', 'owner', 'group', 'data_template', 'data')
 
 
 class ProfilePageSerializer(serializers.ModelSerializer):

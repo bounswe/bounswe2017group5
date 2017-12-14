@@ -11,7 +11,6 @@ from django.contrib.postgres.fields import JSONField
 import inspect
 from enum import Enum
 
-
 # BaseModel, do not touch this...
 class BaseModel(models.Model):
     created = models.DateTimeField(auto_now_add=True)

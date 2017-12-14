@@ -108,8 +108,16 @@ class PostList(generics.ListCreateAPIView):
     Create a new post instance.
     """
 
-    serializer_class = core_serializers.PostSerializer
     pagination_class = PostLimitOffsetPagination
+
+
+    def get_serializer_class(self, *args, **kwargs):
+        try: #without try-catch the api docs will break
+            if self.request.method in ["POST", "PUT", "PATCH"]:
+                return core_serializers.PostCreateSerializer
+            return core_serializers.PostSerializer
+        except:
+            return core_serializers.PostSerializer
 
     def get_queryset(self):
         """
@@ -121,6 +129,10 @@ class PostList(generics.ListCreateAPIView):
         if group_id is not None:
             queryset = queryset.filter(group=group_id)
         return queryset
+
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
+
 
 class TagList(generics.ListCreateAPIView):
     """
@@ -214,15 +226,14 @@ class DataTemplateDetail(generics.RetrieveUpdateDestroyAPIView):
     Delete the data template detail with the given id.
     """
     queryset = core_models.DataTemplate.objects.all()
-    serializer_class = core_serializers.DataTemplateSerializer
 
     def get_serializer_class(self, *args, **kwargs):  
-         try: #without try-catch the api docs will break
-             if self.request.method in ["POST","PUT", "PATCH"]:  
-                 return core_serializers.DataTemplateSimpleSerializer  
-             return core_serializers.DataTemplateSerializer    
-         except:  
-             return core_serializers.DataTemplateSerializer   
+        try: #without try-catch the api docs will break
+            if self.request.method in ["POST", "PUT", "PATCH"]:  
+                return core_serializers.DataTemplateSimpleSerializer  
+            return core_serializers.DataTemplateSerializer    
+        except:  
+            return core_serializers.DataTemplateSerializer   
 
 class PostDetail(generics.RetrieveUpdateDestroyAPIView):
     """
@@ -236,7 +247,14 @@ class PostDetail(generics.RetrieveUpdateDestroyAPIView):
     Delete the post detail with the given id.
     """
     queryset = core_models.Post.objects.all()
-    serializer_class = core_serializers.PostSerializer
+
+    def get_serializer_class(self, *args, **kwargs):  
+        try: #without try-catch the api docs will break
+            if self.request.method in ["POST", "PUT", "PATCH"]:  
+                return core_serializers.PostCreateSerializer
+            return core_serializers.PostSerializer    
+        except:  
+            return core_serializers.PostSerializer   
 
 
 class TagDetail(generics.RetrieveUpdateDestroyAPIView):

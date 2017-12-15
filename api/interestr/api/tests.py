@@ -17,7 +17,7 @@ from . import models as core_models
 import json
 
 from . import test_utils
-from test_utils import responseErrorMessage as responseError
+from .test_utils import responseErrorMessage as responseError
 
 
 # Create your tests here.

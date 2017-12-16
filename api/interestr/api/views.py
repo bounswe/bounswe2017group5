@@ -170,7 +170,17 @@ class VoteList(generics.ListCreateAPIView):
     Create a new vote instance.
     """
     queryset = core_models.Vote.objects.all()
-    serializer_class = core_serializers.VoteSerializer
+
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
+
+    def get_serializer_class(self, *args, **kwargs):
+        try:  # without try-catch the api docs will break
+            if self.request.method in ["POST", "PUT", "PATCH"]:
+                return core_serializers.VoteCreateSerializer
+            return core_serializers.VoteSerializer
+        except:
+            return core_serializers.VoteSerializer
 
 
 class ProfilePageList(generics.ListAPIView):
@@ -314,8 +324,14 @@ class VoteDetail(generics.RetrieveUpdateDestroyAPIView):
     Delete the vote detail with the given id.
     """
     queryset = core_models.Vote.objects.all()
-    serializer_class = core_serializers.VoteSerializer
 
+    def get_serializer_class(self, *args, **kwargs):
+        try:  # without try-catch the api docs will break
+            if self.request.method in ["POST", "PUT", "PATCH"]:
+                return core_serializers.VoteCreateSerializer
+            return core_serializers.VoteSerializer
+        except:
+            return core_serializers.VoteSerializer
 
 #  Detail Views END
 
@@ -400,7 +416,8 @@ def recommend_groups(request, limit=5):
         return sum(list(map(lambda group2: distance(group, group2), group_list)))
 
     user = request.user
-    limit = int(request.GET.get("limit", limit))
+    if request.GET:
+        limit = int(request.GET.get("limit", limit))
     groups = core_models.Group.objects.all()
     users_groups = user.joined_groups.all()
 
@@ -413,7 +430,7 @@ def recommend_groups(request, limit=5):
     # in case there are not enough candidates as the requested number
     limit = min(len(candidates), limit)
     candidates = list(
-        map(lambda group3: {"id": group3.id, "name": group3.name}, sample(candidates, limit)))
+        map(lambda group3: core_serializers.GroupSerializer(group3).data, sample(candidates, limit)))
     return JsonResponse({"results": candidates})
 
 
@@ -424,7 +441,8 @@ def recommend_posts(request, limit=5):
     """
 
     user = request.user
-    limit = int(request.GET.get("limit", limit))
+    if request.GET:
+        limit = int(request.GET.get("limit", limit))
     posts = core_models.Post.objects.all()
     user_posts = user.posts.all()
 
@@ -437,7 +455,7 @@ def recommend_posts(request, limit=5):
     # in case there are not enough candidates as the requested number
     limit = min(len(candidates), limit)
     candidates = list(
-        map(lambda post: {"id": post.id, "data": post.data, "owner": post.owner.id}, sample(candidates, limit)))
+        map(lambda post: core_serializers.PostSerializer(post).data, sample(candidates, limit)))
     return JsonResponse({"results": candidates})
 
 

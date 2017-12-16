@@ -116,7 +116,7 @@ class HomePageView(View):
 
     def dispatch(self, request, *args, **kwargs):
         if request.user.is_authenticated():
-            return redirect('website:groups')
+            return redirect('website:news')
         return super(HomePageView, self).dispatch(request, *args, **kwargs)
 
     def get(self, request):

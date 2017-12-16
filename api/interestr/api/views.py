@@ -34,6 +34,7 @@ import random
 
 from . import serializers as core_serializers
 from .http import ErrorResponse
+from random import sample
 
 
 # List Views BEGIN
@@ -412,7 +413,7 @@ def recommend_groups(request, limit=5):
     # in case there are not enough candidates as the requested number
     limit = min(len(candidates), limit)
     candidates = list(
-        map(lambda group3: {"id": group3.id, "name": group3.name}, candidates[:limit]))
+        map(lambda group3: {"id": group3.id, "name": group3.name}, sample(candidates, limit)))
     return JsonResponse({"results": candidates})
 
 
@@ -435,7 +436,7 @@ def recommend_posts(request, limit=5):
     # in case there are not enough candidates as the requested number
     limit = min(len(candidates), limit)
     candidates = list(
-        map(lambda post: {"id": post.id, "data": post.data, "owner": post.owner}, candidates[:limit]))
+        map(lambda post: {"id": post.id, "data": post.data, "owner": post.owner.id}, sample(candidates, limit)))
     return JsonResponse({"results": candidates})
 
 

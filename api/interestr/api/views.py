@@ -36,7 +36,7 @@ from . import serializers as core_serializers
 from .http import ErrorResponse
 
 
-### List Views BEGIN
+# List Views BEGIN
 
 class UserList(generics.ListCreateAPIView):
     """
@@ -172,6 +172,7 @@ class VoteList(generics.ListCreateAPIView):
     queryset = core_models.Vote.objects.all()
     serializer_class = core_serializers.VoteSerializer
 
+
 class ProfilePageList(generics.ListAPIView):
     """
     get:
@@ -183,9 +184,10 @@ class ProfilePageList(generics.ListAPIView):
     queryset = core_models.ProfilePage.objects.all()
     serializer_class = core_serializers.ProfilePageSerializer
 
-### List Views END
+# List Views END
 
-### Detail Views BEGIN
+# Detail Views BEGIN
+
 
 class UserDetail(generics.RetrieveUpdateAPIView):
     """
@@ -286,6 +288,7 @@ class CommentDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = core_models.Comment.objects.all()
     serializer_class = core_serializers.CommentSerializer
 
+
 class ProfilePageDetail(generics.RetrieveUpdateAPIView):
     """
     get:
@@ -296,6 +299,7 @@ class ProfilePageDetail(generics.RetrieveUpdateAPIView):
     """
     queryset = core_models.ProfilePage.objects.all()
     serializer_class = core_serializers.ProfilePageSerializer
+
 
 class VoteDetail(generics.RetrieveUpdateDestroyAPIView):
     """
@@ -312,12 +316,13 @@ class VoteDetail(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = core_serializers.VoteSerializer
 
 
-### Detail Views END
+#  Detail Views END
 
 class CurrentUserView(APIView):
     def get(self, request):
         serializer = core_serializers.UserSerializer(request.user)
         return JsonResponse(serializer.data)
+
 
 class MemberGroupOperation(APIView):
     permission_classes = (IsAuthenticated,)
@@ -327,7 +332,7 @@ class MemberGroupOperation(APIView):
         # handle, user is already a member.
         if group.members.filter(id=request.user.id).count() == 1:
             return HttpResponse(status=410)
-        group.members.add(request.user);
+        group.members.add(request.user)
         group.save()
         serializer = core_serializers.GroupSerializer(group)
         return JsonResponse(serializer.data)
@@ -337,7 +342,7 @@ class MemberGroupOperation(APIView):
         # handle, user isn't a member to begin with.
         if group.members.filter(id=request.user.id).count() == 0:
             return HttpResponse(status=410)
-        group.members.remove(request.user);
+        group.members.remove(request.user)
         group.save()
         serializer = core_serializers.GroupSerializer(group)
         return JsonResponse(serializer.data)
@@ -370,6 +375,7 @@ def search_wikidata(request, limit=15):
 
     return JsonResponse({"results": response})
 
+
 @api_view(['GET'])
 def recommend_groups(request, limit=5):
     """
@@ -383,29 +389,55 @@ def recommend_groups(request, limit=5):
         """
         members1 = group1.members.all().values_list('id', flat=True)
         members2 = group2.members.all().values_list('id', flat=True)
-        
-        return len(members1) + len(members2) - 2*len(members1 & members2)+random.random()
+
+        return len(members1) + len(members2) - 2 * len(members1 & members2) + random.random()
 
     def total_distance(group, group_list):
         """
         Sum of all distances a group has to groups from a list
         """
-        return sum(list(map(lambda group2: distance(group,group2), group_list)))
-    
+        return sum(list(map(lambda group2: distance(group, group2), group_list)))
+
     user = request.user
-    limit = int(request.GET.get("limit",limit))
+    limit = int(request.GET.get("limit", limit))
     groups = core_models.Group.objects.all()
     users_groups = user.joined_groups.all()
 
-    #list of groups that the user is not a member of.
+    # list of groups that the user is not a member of.
     candidates = [group for group in groups if group not in users_groups]
-    #sort candidate groups according to their similarities to users current groups
-    candidates = sorted(candidates, key=lambda group: total_distance(group, users_groups))
+    # sort candidate groups according to their similarities to users current groups
+    candidates = sorted(
+        candidates, key=lambda group: total_distance(group, users_groups))
 
-    #in case there are not enough candidates as the requested number
-    limit = min(len(candidates),limit)
-    candidates = list(map(lambda group3: {"id":group3.id, "name": group3.name},candidates[:limit]))
+    # in case there are not enough candidates as the requested number
+    limit = min(len(candidates), limit)
+    candidates = list(
+        map(lambda group3: {"id": group3.id, "name": group3.name}, candidates[:limit]))
     return JsonResponse({"results": candidates})
+
+
+@api_view(['GET'])
+def recommend_posts(request, limit=5):
+    """
+    Returns recommended posts on the basis of the used data templates
+    """
+
+    user = request.user
+    limit = int(request.GET.get("limit", limit))
+    posts = core_models.Post.objects.all()
+    user_posts = user.posts.all()
+
+    def matching_template_post_count(post):
+        return len(filter(lambda p: p.data_template == post.data_template, user_posts))
+    # sort candidate groups according to their similarities
+    candidates = sorted(list(set(posts) - set(user_posts)), key=matching_template_post_count)
+
+    # in case there are not enough candidates as the requested number
+    limit = min(len(candidates), limit)
+    candidates = list(
+        map(lambda post: {"id": post.id, "data": post.data, "owner": post.owner}, candidates[:limit]))
+    return JsonResponse({"results": candidates})
+
 
 class SignUpView(APIView):
     def post(self, request):

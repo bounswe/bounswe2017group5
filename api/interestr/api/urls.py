@@ -35,4 +35,5 @@ urlpatterns = [
     url(r'^users/groups/(?P<pk>\d+)/$', views.MemberGroupOperation.as_view(), name='groupoperation'),
     url(r'^search_wiki/$', views.search_wikidata, name="searchwiki"),
     url(r'^recommend_groups/$', views.recommend_groups, name='recommendgroups'),
+    url(r'^recommend_posts/$', views.recommend_posts, name='recommendposts'),
 ]

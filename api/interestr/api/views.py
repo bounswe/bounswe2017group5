@@ -108,8 +108,16 @@ class PostList(generics.ListCreateAPIView):
     Create a new post instance.
     """
 
-    serializer_class = core_serializers.PostSerializer
     pagination_class = PostLimitOffsetPagination
+
+
+    def get_serializer_class(self, *args, **kwargs):
+        try: #without try-catch the api docs will break
+            if self.request.method in ["POST", "PUT", "PATCH"]:
+                return core_serializers.PostCreateSerializer
+            return core_serializers.PostSerializer
+        except:
+            return core_serializers.PostSerializer
 
     def get_queryset(self):
         """
@@ -121,6 +129,10 @@ class PostList(generics.ListCreateAPIView):
         if group_id is not None:
             queryset = queryset.filter(group=group_id)
         return queryset
+
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
+
 
 class TagList(generics.ListCreateAPIView):
     """
@@ -144,6 +156,9 @@ class CommentList(generics.ListCreateAPIView):
     """
     queryset = core_models.Comment.objects.all()
     serializer_class = core_serializers.CommentSerializer
+
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
 
 
 class VoteList(generics.ListCreateAPIView):
@@ -211,15 +226,14 @@ class DataTemplateDetail(generics.RetrieveUpdateDestroyAPIView):
     Delete the data template detail with the given id.
     """
     queryset = core_models.DataTemplate.objects.all()
-    serializer_class = core_serializers.DataTemplateSerializer
 
     def get_serializer_class(self, *args, **kwargs):  
-         try: #without try-catch the api docs will break
-             if self.request.method in ["POST","PUT", "PATCH"]:  
-                 return core_serializers.DataTemplateSimpleSerializer  
-             return core_serializers.DataTemplateSerializer    
-         except:  
-             return core_serializers.DataTemplateSerializer   
+        try: #without try-catch the api docs will break
+            if self.request.method in ["POST", "PUT", "PATCH"]:  
+                return core_serializers.DataTemplateSimpleSerializer  
+            return core_serializers.DataTemplateSerializer    
+        except:  
+            return core_serializers.DataTemplateSerializer   
 
 class PostDetail(generics.RetrieveUpdateDestroyAPIView):
     """
@@ -233,7 +247,14 @@ class PostDetail(generics.RetrieveUpdateDestroyAPIView):
     Delete the post detail with the given id.
     """
     queryset = core_models.Post.objects.all()
-    serializer_class = core_serializers.PostSerializer
+
+    def get_serializer_class(self, *args, **kwargs):  
+        try: #without try-catch the api docs will break
+            if self.request.method in ["POST", "PUT", "PATCH"]:  
+                return core_serializers.PostCreateSerializer
+            return core_serializers.PostSerializer    
+        except:  
+            return core_serializers.PostSerializer   
 
 
 class TagDetail(generics.RetrieveUpdateDestroyAPIView):
@@ -391,12 +412,14 @@ class SignUpView(APIView):
         serialized = core_serializers.UserSerializer(data=request.data)
         if serialized.is_valid():
             auth_models.User.objects.create_user(
-                email = request.data['email'],
-                username = request.data['username'],
-                password = request.data['password'] )
-            user_to_send = auth_models.User.objects.get(username = request.data['username'])
-            profile_page = core_models.ProfilePage(user = user_to_send)
+                email=request.data['email'],
+                username=request.data['username'],
+                password=request.data['password'] )
+            user_to_send = auth_models.User.objects.get(username=request.data['username'])
+            profile_page = core_models.ProfilePage(user=user_to_send)
             profile_page.save()
+            user_to_send.profilepage = profile_page
+            user_to_send.save()
             out_serializer = core_serializers.UserSerializer(user_to_send)
             return JsonResponse(out_serializer.data)
         else:

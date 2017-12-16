@@ -38,11 +38,12 @@ class ChoiceEnum(Enum):
 class ProfilePage(BaseModel):
     name = models.CharField(max_length=30, blank=True, default='')
     surname = models.CharField(max_length=30, blank=True, default='')
-    date_of_birth = models.DateField(blank=True, default=datetime.date(1900, 1, 1))
+    date_of_birth = models.DateField(
+        blank=True, default=datetime.date(1900, 1, 1))
     location = models.TextField(blank=True, default='')
     interests = models.TextField(blank=True, default='')
     user = models.OneToOneField(auth_models.User, on_delete=models.CASCADE,
-        verbose_name="user", related_name='profile')
+                                verbose_name="user", related_name='profile')
 
 
 class Tag(BaseModel):
@@ -52,7 +53,7 @@ class Tag(BaseModel):
     description = models.TextField(blank=True, null=True)
 
     def __str__(self):
-        return self.label +' (' + self.concepturi + ')'
+        return self.label + ' (' + self.concepturi + ')'
 
 
 class Group(BaseModel):
@@ -61,8 +62,10 @@ class Group(BaseModel):
     location = models.TextField(blank=True, default='')
     tags = models.ManyToManyField(Tag, blank=True, related_name='groups')
     is_private = models.BooleanField(blank=True, default=False)
-    members = models.ManyToManyField(auth_models.User, blank=True, related_name='joined_groups')
-    moderators = models.ManyToManyField(auth_models.User, blank=True, related_name='moderated_groups')
+    members = models.ManyToManyField(
+        auth_models.User, blank=True, related_name='joined_groups')
+    moderators = models.ManyToManyField(
+        auth_models.User, blank=True, related_name='moderated_groups')
     picture = models.ImageField(blank=True, null=True)
 
     def __str__(self):
@@ -79,9 +82,12 @@ class Group(BaseModel):
 
 
 class Post(BaseModel):
-    owner = models.ForeignKey(auth_models.User, related_name="posts", default=None, null=True)
-    group = models.ForeignKey(Group, related_name='posts', on_delete=models.CASCADE, default=None, null=True)
-    data_template = models.ForeignKey('api.DataTemplate', related_name='posts', default=None, null=True)
+    owner = models.ForeignKey(
+        auth_models.User, related_name="posts", default=None, null=True)
+    group = models.ForeignKey(
+        Group, related_name='posts', on_delete=models.CASCADE, default=None, null=True)
+    data_template = models.ForeignKey(
+        'api.DataTemplate', related_name='posts', default=None, null=True)
     data = JSONField()
 
     def vote_sum(self):
@@ -92,16 +98,20 @@ class Post(BaseModel):
 
 
 class Comment(BaseModel):
-    owner = models.ForeignKey(auth_models.User, related_name="comments", default=None)
+    owner = models.ForeignKey(
+        auth_models.User, related_name="comments", default=None)
     text = models.TextField(default='', blank=True)
     post = models.ForeignKey(Post, related_name='comments', default=None)
 
     def __str__(self):
         return self.text
 
+
 class Vote(BaseModel):
-    owner = models.ForeignKey(auth_models.User, related_name="votes", on_delete=models.CASCADE)
-    post = models.ForeignKey(Post, related_name="votes", on_delete=models.CASCADE)
+    owner = models.ForeignKey(
+        auth_models.User, related_name="votes", on_delete=models.CASCADE)
+    post = models.ForeignKey(Post, related_name="votes",
+                             on_delete=models.CASCADE)
     up = models.NullBooleanField(default=None)
 
     def __str__(self):
@@ -109,10 +119,12 @@ class Vote(BaseModel):
 
     class Meta:
         unique_together = (('owner', 'post'), )
-                
+
+
 class DataTemplate(BaseModel):
     name = models.CharField(max_length=40)
-    group = models.ForeignKey(Group, related_name='data_templates', on_delete=models.SET_NULL, default=None, null=True)
+    group = models.ForeignKey(Group, related_name='data_templates',
+                              on_delete=models.SET_NULL, default=None, null=True)
     user = models.ForeignKey(auth_models.User, related_name='data_templates', on_delete=models.SET_NULL, default=None,
                              null=True)
     fields = JSONField()

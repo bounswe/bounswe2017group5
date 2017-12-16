@@ -196,7 +196,9 @@ class ProfileView(View):
     template_name = 'website/profile.html'
 
     def get_object(self, pk):
-        return User.objects.get(pk=pk).profile
+        user =  User.objects.get(pk=pk)
+        profile, _ = ProfilePage.objects.get_or_create(user=user)
+        return profile
 
     def get(self, request, pk):
         profile = self.get_object(pk)

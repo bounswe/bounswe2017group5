@@ -111,9 +111,8 @@ class PostList(generics.ListCreateAPIView):
 
     pagination_class = PostLimitOffsetPagination
 
-
     def get_serializer_class(self, *args, **kwargs):
-        try: #without try-catch the api docs will break
+        try:  # without try-catch the api docs will break
             if self.request.method in ["POST", "PUT", "PATCH"]:
                 return core_serializers.PostCreateSerializer
             return core_serializers.PostSerializer
@@ -230,13 +229,14 @@ class DataTemplateDetail(generics.RetrieveUpdateDestroyAPIView):
     """
     queryset = core_models.DataTemplate.objects.all()
 
-    def get_serializer_class(self, *args, **kwargs):  
-        try: #without try-catch the api docs will break
-            if self.request.method in ["POST", "PUT", "PATCH"]:  
-                return core_serializers.DataTemplateSimpleSerializer  
-            return core_serializers.DataTemplateSerializer    
-        except:  
-            return core_serializers.DataTemplateSerializer   
+    def get_serializer_class(self, *args, **kwargs):
+        try:  # without try-catch the api docs will break
+            if self.request.method in ["POST", "PUT", "PATCH"]:
+                return core_serializers.DataTemplateSimpleSerializer
+            return core_serializers.DataTemplateSerializer
+        except:
+            return core_serializers.DataTemplateSerializer
+
 
 class PostDetail(generics.RetrieveUpdateDestroyAPIView):
     """
@@ -251,13 +251,13 @@ class PostDetail(generics.RetrieveUpdateDestroyAPIView):
     """
     queryset = core_models.Post.objects.all()
 
-    def get_serializer_class(self, *args, **kwargs):  
-        try: #without try-catch the api docs will break
-            if self.request.method in ["POST", "PUT", "PATCH"]:  
+    def get_serializer_class(self, *args, **kwargs):
+        try:  # without try-catch the api docs will break
+            if self.request.method in ["POST", "PUT", "PATCH"]:
                 return core_serializers.PostCreateSerializer
-            return core_serializers.PostSerializer    
-        except:  
-            return core_serializers.PostSerializer   
+            return core_serializers.PostSerializer
+        except:
+            return core_serializers.PostSerializer
 
 
 class TagDetail(generics.RetrieveUpdateDestroyAPIView):
@@ -431,7 +431,8 @@ def recommend_posts(request, limit=5):
     def matching_template_post_count(post):
         return len(filter(lambda p: p.data_template == post.data_template, user_posts))
     # sort candidate groups according to their similarities
-    candidates = sorted(list(set(posts) - set(user_posts)), key=matching_template_post_count)
+    candidates = sorted(list(set(posts) - set(user_posts)),
+                        key=matching_template_post_count)
 
     # in case there are not enough candidates as the requested number
     limit = min(len(candidates), limit)
@@ -447,11 +448,12 @@ class SignUpView(APIView):
             auth_models.User.objects.create_user(
                 email=request.data['email'],
                 username=request.data['username'],
-                password=request.data['password'] )
-            user_to_send = auth_models.User.objects.get(username=request.data['username'])
+                password=request.data['password'])
+            user_to_send = auth_models.User.objects.get(
+                username=request.data['username'])
             profile_page = core_models.ProfilePage(user=user_to_send)
             profile_page.save()
-            user_to_send.profilepage = profile_page
+            user_to_send.profile = profile_page
             user_to_send.save()
             out_serializer = core_serializers.UserSerializer(user_to_send)
             return JsonResponse(out_serializer.data)

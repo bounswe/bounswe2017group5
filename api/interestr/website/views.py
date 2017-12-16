@@ -16,7 +16,9 @@ from django.contrib.auth.models import User
 from django.views import View
 
 from api.models import Group, ProfilePage
+from api.views import recommend_groups, recommend_posts
 from .forms import LoginForm, RegisterForm, CreateGroupForm, ProfileForm
+import json
 
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
@@ -160,8 +162,10 @@ class CreateGroupView(View):
 class NewsView(LoginRequiredMixin, generic.ListView):
     template_name = 'website/news.html'
 
-    def get_queryset(self):
-        return None
+    def get(self, request):
+        groups = json.loads(recommend_groups(request).content)['results']
+        posts = json.loads(recommend_posts(request).content)['results']
+        return render(request, self.template_name, {'recommended_groups': groups, 'recommended_posts': posts})
 
 class SearchView(LoginRequiredMixin, generic.ListView):
     template_name = 'website/search.html'

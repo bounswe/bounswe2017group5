@@ -29,7 +29,7 @@ class UserLoginView(View):
 
     def dispatch(self, request, *args, **kwargs):
         if request.user.is_authenticated():
-            return redirect('website:groups')
+            return redirect('website:news')
         return super(UserLoginView, self).dispatch(request, *args, **kwargs)
 
     #display blank form
@@ -58,7 +58,7 @@ class UserLoginView(View):
                 if user is not None:
                         if user.is_active: #if he/she is not banned
                                 login(request,user)
-                                return redirect('website:groups')
+                                return redirect('website:news')
 
                 return render(request,self.template_name, {'err_msg': 'Invalid credentials!'})
 

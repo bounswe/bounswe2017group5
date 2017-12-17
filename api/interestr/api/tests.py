@@ -372,13 +372,72 @@ class DataTemplateTests(TestCase):
         self.client.force_authenticate(user=self.test_user)
         template_fields = {
             'name': 'Basic template',
-            'fields': ['short_text', 'long_text'],
+            'fields': [{
+                'type': 'text',
+                'legend': 'Title',
+                'inputs': [
+                    {
+                        'type': 'text'
+                    }
+                ]
+            }],
             'group': self.test_group.id
         }
         response = self.client.post('/api/v1/data_templates/',
                                     template_fields, format='json')
         self.assertEqual(response.status_code, 201,
                          responseError(response, 'Create Data Template'))
+
+    def test_create_wrong_format_template(self):
+        self.client.force_authenticate(user=self.test_user)
+        template_fields = {
+            'name': 'Wrong Basic Template',
+            'fields': [{
+                'wrong': 'wrong'
+            }],
+            'group': self.test_group.id
+        }
+
+        response = self.client.post('/api/v1/data_templates/',
+                                    template_fields, format='json')
+        self.assertEqual(response.status_code, 400,
+                         responseError(response, 'Create Wrong Format Data Template', False))
+
+    def test_create_wrong_type_template(self):
+        self.client.force_authenticate(user=self.test_user)
+        template_fields = {
+            'name': 'Basic template',
+            'fields': [{
+                'type': 'wrong',
+                'legend': 'Title',
+                'inputs': [
+                    {
+                        'type': 'text'
+                    }
+                ]
+            }],
+            'group': self.test_group.id
+        }
+        response = self.client.post('/api/v1/data_templates/',
+                                    template_fields, format='json')
+        self.assertEqual(response.status_code, 400,
+                         responseError(response, 'Create Wrong Type Data Template', False))
+
+    def test_create_empty_inputs_template(self):
+        self.client.force_authenticate(user=self.test_user)
+        template_fields = {
+            'name': 'Basic template',
+            'fields': [{
+                'type': 'wrong',
+                'legend': 'Title',
+                'inputs': []
+            }],
+            'group': self.test_group.id
+        }
+        response = self.client.post('/api/v1/data_templates/',
+                                    template_fields, format='json')
+        self.assertEqual(response.status_code, 400,
+                         responseError(response, 'Create Empty Inputs Data Template', False))
 
     def test_existing_template(self):
         response = self.client.get(

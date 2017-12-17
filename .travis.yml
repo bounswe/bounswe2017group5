@@ -21,7 +21,6 @@ install:
 before_script:
   - cd interestr
   - psql -c "CREATE DATABASE travisci;" -U postgres
-  - python manage.py syncdb --noinput
 
 script:
   - python manage.py test

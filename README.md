@@ -63,3 +63,8 @@ Open `localhost:8000` in your browser - you should see the homepage of our proje
 ~~The project deploys on [PythonAnywhere](http://swegroup5.pythonanywhere.com/).~~
 
 ~~You can find the Api documentation of the project on [here](http://swegroup5.pythonanywhere.com/docs/).~~
+
+
+## License
+
+See the [LICENSE](LICENSE) file. Basically, you can do whatever you want as long as you include the original copyright and license notice in any copy of the software/source.

@@ -34,10 +34,55 @@ class DataTemplateIdNameFieldsSerializer(serializers.ModelSerializer):
 
 class DataTemplateSimpleSerializer(serializers.ModelSerializer):
 
+    VALID_TYPES = [
+        'checkbox',
+        'multisel',
+        'textarea',
+        'text',
+        'number',
+        'date',
+        'email',
+        'url',
+        'tel'
+    ]
+
     class Meta:
         model = core_models.DataTemplate
         fields = ('id', 'name', 'group', 'user',
                   'created', 'updated', 'fields')
+
+    def validate_fields(self, value):
+        """
+        Check that fields value is in correct format.
+        """
+        
+        errors = []
+
+        for field in value:
+            try:
+                i = 0
+                fieldType = field['type']
+                fieldLegend = field['legend']
+                fieldInputs = field['inputs']
+
+                if fieldType not in self.VALID_TYPES:
+                    errors.append("In the field[%d]: 'type' should be one of these: [ %s ]" % (i, ", ".join(self.VALID_TYPES)))
+
+                if not isinstance(fieldLegend, basestring):
+                    errors.append("In the field[%d]: 'legend' must be a string" % i)
+
+                if not fieldLegend.strip():
+                    errors.append("In the field[%d]: 'legend' must not be empty" % i)
+
+
+                i = i + 1
+            except KeyError:
+                errors.append("In the field[%d]: Elements should have 'type', 'legend' and 'inputs' fields." % i)
+
+        if errors:
+            raise serializers.ValidationError(errors)
+
+        return value
 
 
 class DataTemplateSerializer(serializers.ModelSerializer):

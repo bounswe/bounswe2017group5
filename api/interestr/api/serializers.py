@@ -81,12 +81,17 @@ class CommentSerializer(serializers.ModelSerializer):
 
 
 class VoteSerializer(serializers.ModelSerializer):
-    owner = UserIdNameSerializer()
+    owner = UserIdNameSerializer(read_only=True)
 
     class Meta:
         model = core_models.Vote
         fields = ('id', 'owner', 'post', 'up', 'created', 'updated',)
 
+class VoteCreateSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = core_models.Vote
+        fields = ('id', 'post', 'up')
 
 class PostSerializer(serializers.ModelSerializer):
     owner = UserIdNameSerializer(read_only=True)

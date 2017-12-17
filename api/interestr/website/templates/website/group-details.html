@@ -167,132 +167,128 @@
       </div>
 
       <script type="text/javascript">
-        function votecaster_onload(votecaster) {
-          var casteractive = false;
+      window.votecaster_onload = function (votecaster) {
+        var casteractive = false;
 
-          var postid = votecaster.getAttribute('data-post-id');
-          var voteid = votecaster.getAttribute('data-vote-id');
-          var absent_voteid = -1;
+        var postid = votecaster.getAttribute('data-post-id');
+        var voteid = votecaster.getAttribute('data-vote-id');
+        var absent_voteid = -1;
 
-          var counter = votecaster.getElementsByClassName('vote-count').item(0);
-          var upcaster = votecaster.getElementsByClassName('vote-up').item(0);
-          var downcaster = votecaster.getElementsByClassName('vote-down').item(0);
+        var counter = votecaster.getElementsByClassName('vote-count').item(0);
+        var upcaster = votecaster.getElementsByClassName('vote-up').item(0);
+        var downcaster = votecaster.getElementsByClassName('vote-down').item(0);
 
-          var caststatus;
-          var basevote = 0;
+        var caststatus;
+        var basevote = 0;
 
-          function refresh_current_vote() {
+        function refresh_current_vote() {
+          casteractive = false;
+          basevote = parseInt(counter.textContent, 10) || 0;
+
+          if (voteid == absent_voteid) {
+            caststatus = null;
+            casteractive = true;
+          }
+          else {
+            $.ajax({
+              method: 'GET',
+              url: '{% url "api:votedetail" 12345 %}'.replace(/12345/, voteid),
+              beforeSend: function(xhr) {
+                xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
+              }
+            }).done(function (msg) {
+              if (msg.owner.id == {{ user.id }} && msg.post == postid) {
+                caststatus = msg.up;
+                update_buttons();
+
+                if (caststatus === true) {
+                  basevote -= 1;
+                }
+                else if (caststatus === false) {
+                  basevote += 1;
+                }
+
+                casteractive = true;
+              }
+            });
+          }
+        }
+
+        refresh_current_vote();
+
+        function update_buttons() {
+          if (caststatus === true) {
+            upcaster.classList.add('voted');
+            downcaster.classList.remove('voted');
+          }
+          else if (caststatus === false) {
+            upcaster.classList.remove('voted');
+            downcaster.classList.add('voted');
+          } else {
+            upcaster.classList.remove('voted');
+            downcaster.classList.remove('voted');
+          }
+        }
+
+        upcaster.onclick = function (event) {
+          vote(true);
+        }
+
+        downcaster.onclick = function (event) {
+          vote(false);
+        }
+
+        function vote(up) {
+          if (casteractive) {
             casteractive = false;
-            basevote = parseInt(counter.textContent, 10) || 0;
 
-            if (voteid == absent_voteid) {
+            if (caststatus === up) {
               caststatus = null;
-              casteractive = true;
+              counter.textContent = basevote.toString();
             }
             else {
+              caststatus = up;
+              counter.textContent = (basevote + (up ? 1 : -1)).toString();
+            }
+
+            update_buttons();
+
+            if (voteid == absent_voteid) {
+              // CREATE VOTE, MAKE IT `UP`
               $.ajax({
-                method: 'GET',
-                url: '{% url "api:votedetail" 12345 %}'.replace(/12345/, voteid),
+                method: 'POST',
+                url: '{% url "api:votes" %}',
+                data: {
+                  post: postid,
+                  up: caststatus
+                },
                 beforeSend: function(xhr) {
                   xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
                 }
               }).done(function (msg) {
-                if (msg.owner == {{ user.id }} && msg.post == postid) {
-                  caststatus = msg.up;
-                  update_buttons();
-
-                  if (caststatus === true) {
-                    basevote -= 1;
-                  }
-                  else if (caststatus === false) {
-                    basevote += 1;
-                  }
-
-                  casteractive = true;
+                voteid = msg.id;
+                casteractive = true;
+              });
+            }
+            else {
+              $.ajax({
+                method: 'PATCH',
+                url: '{% url "api:votedetail" 12345 %}'.replace(/12345/, voteid),
+                data: {
+                  post: postid,
+                  up: caststatus
+                },
+                beforeSend: function(xhr) {
+                  xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
                 }
+              }).done(function (msg) {
+                casteractive = true;
               });
             }
           }
-
-          refresh_current_vote();
-
-          function update_buttons() {
-            if (caststatus === true) {
-              upcaster.classList.add('voted');
-              downcaster.classList.remove('voted');
-            }
-            else if (caststatus === false) {
-              upcaster.classList.remove('voted');
-              downcaster.classList.add('voted');
-            } else {
-              upcaster.classList.remove('voted');
-              downcaster.classList.remove('voted');
-            }
-          }
-
-          upcaster.onclick = function (event) {
-            vote(true);
-          }
-
-          downcaster.onclick = function (event) {
-            vote(false);
-          }
-
-          function vote(up) {
-            if (casteractive) {
-              casteractive = false;
-
-              if (caststatus === up) {
-                caststatus = null;
-                counter.textContent = basevote.toString();
-              }
-              else {
-                caststatus = up;
-                counter.textContent = (basevote + (up ? 1 : -1)).toString();
-              }
-
-              update_buttons();
-
-              if (voteid == absent_voteid) {
-                // CREATE VOTE, MAKE IT `UP`
-                $.ajax({
-                  method: 'POST',
-                  url: '{% url "api:votes" %}',
-                  data: {
-                    owner: '{{ user.id }}',
-                    post: postid,
-                    up: caststatus
-                  },
-                  beforeSend: function(xhr) {
-                    xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
-                  }
-                }).done(function (msg) {
-                  voteid = msg.id;
-                  casteractive = true;
-                });
-              }
-              else {
-                // UPDATE THE
-                $.ajax({
-                  method: 'PATCH',
-                  url: '{% url "api:votedetail" 12345 %}'.replace(/12345/, voteid),
-                  data: {
-                    //owner: '{{ user.id }}',
-                    //post: postid,
-                    up: caststatus
-                  },
-                  beforeSend: function(xhr) {
-                    xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
-                  }
-                }).done(function (msg) {
-                  casteractive = true;
-                });
-              }
-            }
-          }
         }
+      }
       </script>
-
       {% for post in group.posts.all reversed %}
       <div class="group-detail-content">
 
@@ -315,17 +311,17 @@
 
         <div style="display: flex">
           <!-- Votes Start -->
-          <div data-post-id="{{ post.id }}" data-vote-id="{{ post|vote_of_user:user.id }}" class="votecaster">
+          <div data-post-id="{{ post.id }}" data-vote-id="{{ post|vote_of_user:user.id }}" id="post-{{post.id}}" class="votecaster">
             <span class="vote-count">{{ post.vote_sum }}</span>
             <span title="+1 Vote Up" class="fa fa-chevron-up vote vote-up"></span>
             <span title="-1 Vote Down" class="fa fa-chevron-down vote vote-down"></span>
-          </div><script type="text/javascript">votecaster_onload(document.currentScript.previousSibling);</script>
+          </div><script type="text/javascript">votecaster_onload(document.getElementById("post-{{post.id}}"));</script>
           <!-- Votes Start -->
 
           <!-- Comments Header Start -->
           <div class="comments-header">
         		<a class="text-muted" onclick="$(this).parent().parent().next().slideToggle()" href="javascript:void(0);">
-              {{ post.comments.count }} Comment{{ post.comments.count|pluralize }}
+              {{ post.comments|length }} Comment{{ post.comments|length|pluralize }}
             </a>
           </div>
           <!-- Comments Header End -->
@@ -396,8 +392,10 @@
     var dropdown;
     var removeButton;
     var removeSymbol;
-    var editTextInput;
-    var editTextInputInitial;
+    var spanEditorInput;
+    var spanEditorInitial;
+    var selectEditorTextarea;
+    var selectEditorInitial;
     var modal;
     var submitButton;
     var selectedTemplate;
@@ -415,7 +413,7 @@
     currentTemplateText = document.getElementById('currentTemplateText');
 
 
-function createTemplateOnClick() {
+    function createTemplateOnClick() {
         templateName.value = '';
         templateFields.innerHTML = '';
         isUpdatingTemplate = false;
@@ -437,33 +435,27 @@ function createTemplateOnClick() {
         updateCreateFormFields(currentFields);
     }
 
-    function type2Input(type, options) {
+    function input2Element(input, editable) {
       var el;
       var opt;
       var optEl;
 
-      switch (type) {
-          case 'textarea':
-              el = document.createElement('textarea');
-              el.classList.add('form-control');
-              break;
-          case 'select':
-              el = document.createElement('select');
-              for (var opt of options) {
-                optEl = document.createElement('option');
-                optEl.textContent = opt;
-
-                el.appendChild(optEl);
-              }
-              break;
-          default:
-              el = document.createElement('input');
-              el.type = type;
-              el.className = 'form-control';
-              if (type == 'checkbox') {
-                el.classList.add('form-check-input');
-              }
-              break;
+      switch (input.type) {
+        case 'textarea':
+          el = document.createElement('textarea');
+          el.classList.add('form-control');
+          break;
+        case 'select':
+          el = makeSelect(input.options, editable);
+          break;
+        default:
+          el = document.createElement('input');
+          el.type = input.type;
+          el.className = 'form-control';
+          if (input.type == 'checkbox') {
+            el.classList.add('form-check-input');
+          }
+          break;
       }
 
       return el;
@@ -481,43 +473,156 @@ function createTemplateOnClick() {
       }
     }
 
-    function replaceInputWithSpan() {
-      if (editTextInput) {
-        var span = makeChangableSpan(editTextInput.value || editTextInputInitial);
-        editTextInput.parentNode.replaceChild(span, editTextInput);
+    function replaceTextareaWithSelect() {
+      if (selectEditorTextarea) {
+        selectEditorTextarea.textContent = selectEditorTextarea.textContent.trim();
+        var select = makeSelect((selectEditorTextarea.textContent || selectEditorInitial).split('\n'));
+        selectEditorTextarea.parentNode.replaceChild(select, selectEditorTextarea);
 
-        editTextInput = null;
+        selectEditorTextarea = null;
+
+        modal.focus();
+      }
+    }
+
+    // Credits: https://stackoverflow.com/a/21015393
+    function getTextWidth(text, font) {
+      getTextWidth.context.font = font;
+      return getTextWidth.context.measureText(text).width;
+    }
+    getTextWidth.canvas = document.createElement("canvas");
+    getTextWidth.context = getTextWidth.canvas.getContext("2d");
+
+    function getComputedFont(element) {
+      var cs = window.getComputedStyle(element);
+      return [
+        //'font-style',
+        //'font-variant',
+        //'font-weight',
+        //'font-stretch',
+        'font-size',
+        //'line-height',
+        'font-family'
+        ].map(s => cs.getPropertyValue(s)).join(' ');
+    }
+
+    function getComputedExtraWidth(element) {
+      var cs = window.getComputedStyle(element);
+      return ['padding-left', 'padding-right', 'border-left-width', 'border-right-width'].
+        map(s => Number.parseFloat(cs.getPropertyValue(s))).
+        reduce((a, b) => a + b);
+    }
+
+    function replaceSelectWithTextarea(select) {
+      replaceTextareaWithSelect();
+
+      var optionTexts = Array.from(select.getElementsByTagName('option'))
+        .map(option => option.textContent);
+
+      selectEditorInitial = optionTexts.join('\n');
+
+      selectEditorTextarea = document.createElement('textarea');
+      selectEditorTextarea.textContent = selectEditorInitial;
+      selectEditorTextarea.style['z-index'] = '123';
+      selectEditorTextarea.style['overflow'] = 'hidden';
+      selectEditorTextarea.style['padding'] = '5px';
+      selectEditorTextarea.textContent = selectEditorInitial;
+
+      selectEditorTextarea.oninput = function (event) {
+        var font = getComputedFont(selectEditorTextarea);
+        var optionTextLengths = selectEditorTextarea.textContent.split('\n')
+          .map(a => Math.ceil(getTextWidth(a, font)));
+        
+        // Resizes the textarea in width
+        selectEditorTextarea.style['width'] = Math.max(...optionTextLengths) +
+          getComputedExtraWidth(selectEditorTextarea) + 'px';
+        
+        // Resizes the textarea in height
+        selectEditorTextarea.style.height = "5px";
+        selectEditorTextarea.style.height = (selectEditorTextarea.scrollHeight)+"px";
+      }
+
+      selectEditorTextarea.onkeypress = function (event) {
+        if (event.ctrlKey && event.key == 'Enter') replaceTextareaWithSelect();
+      }
+
+      select.parentNode.replaceChild(selectEditorTextarea, select);
+
+      selectEditorTextarea.focus();
+      selectEditorTextarea.select();
+      selectEditorTextarea.oninput();
+    }
+
+    function makeSelect(options, editable = true) {
+      var select = document.createElement('select');
+      var option;
+      var optionElement;
+
+      for (option of options) {
+        option = option.trim();
+        if (option) {
+          optionElement = document.createElement('option');
+          optionElement.textContent = option;
+
+          select.appendChild(optionElement);
+        }
+      }
+
+      if (editable) {
+        select.onclick = function (event) {
+          replaceSelectWithTextarea(select);
+          event.stopPropagation();
+        };
+        // select.onkeydown = function (event) {
+        //   if (event.key == 'Enter') replaceInputWithSpan(select);
+        // }
+        select.tabIndex = '1';
+      }
+
+      return select;
+    }
+
+    function replaceInputWithSpan() {
+      if (spanEditorInput) {
+        var span = makeSpan(spanEditorInput.value || spanEditorInitial);
+        spanEditorInput.parentNode.replaceChild(span, spanEditorInput);
+
+        spanEditorInput = null;
 
         modal.focus();
       }
     }
 
     modal.onclick = function (event) {
-      if (event.target != editTextInput) {
+      if (event.target != spanEditorInput) {
         replaceInputWithSpan();
+      }
+
+      if (event.target != selectEditorTextarea) {
+        replaceTextareaWithSelect();
       }
     };
 
     function replaceSpanWithInput(span) {
       replaceInputWithSpan();
 
-      editTextInputInitial = span.textContent;
+      spanEditorInitial = span.textContent;
 
-      editTextInput = document.createElement('input');
-      editTextInput.size = span.textContent.length;
-      editTextInput.style ='z-index:123';
-      editTextInput.value = editTextInputInitial;
+      spanEditorInput = document.createElement('input');
+      spanEditorInput.size = span.textContent.length;
+      spanEditorInput.style ='z-index:123';
+      spanEditorInput.value = spanEditorInitial;
 
-      editTextInput.onkeypress = function (event) {
-        if (event.key == 'Enter') replaceInputWithSpan(editTextInput);
+      spanEditorInput.onkeypress = function (event) {
+        if (event.key == 'Enter') replaceInputWithSpan();
       };
 
-      span.parentNode.replaceChild(editTextInput, span);
-      editTextInput.focus();
-      editTextInput.select();
+      span.parentNode.replaceChild(spanEditorInput, span);
+      spanEditorInput.focus();
+      spanEditorInput.select();
     }
 
-    function makeChangableSpan(str, editable = true) {
+    function makeSpan(str, editable = true) {
       var span = document.createElement('span');
       span.textContent = str;
 
@@ -535,7 +640,7 @@ function createTemplateOnClick() {
       return span;
     }
 
-    function createTemplateField(editable, type, inputs, legend = 'Field legend') {
+    function createTemplateField(editable, type, legend, inputs) {
       var input;
       var label;
       var inputElemCount;
@@ -555,7 +660,7 @@ function createTemplateOnClick() {
       legendElem = document.createElement(editable ? 'div' : 'label');
       legendElem.style = 'z-index:123';
       legendElem.classList.add('col-form-legend', 'col-sm-2');
-      legendElem.appendChild(makeChangableSpan(legend, editable));
+      legendElem.appendChild(makeSpan(legend, editable));
       fieldElem.appendChild(legendElem);
 
       inputElemCount = 0;
@@ -565,7 +670,7 @@ function createTemplateOnClick() {
       inputContainer.classList.add('col-sm-10', 'template-input-container');
 
       function appendInput(input) {
-        inputElem = type2Input(input.type);
+        inputElem = input2Element(input, editable);
 
         if (input.label) {
           labelElem = document.createElement(editable ? 'div' : 'label');
@@ -582,7 +687,7 @@ function createTemplateOnClick() {
           }
           labelElem.appendChild(inputElem);
 
-          text = makeChangableSpan(input.label, editable);
+          text = makeSpan(input.label, editable);
           if (input.side == 'R') {
             labelElem.appendChild(text);
           }
@@ -610,7 +715,6 @@ function createTemplateOnClick() {
           createOptionBtn.classList.add('btn', 'btn-primary');
           createOptionBtn.style = 'height:40px;width:44px;flex:none;';
           createOptionBtn.onclick = function(e) {
-              inputContainer.removeChild(createOptionBtn);
               appendInput({
                 type: 'checkbox',
                 label: 'new',
@@ -630,7 +734,7 @@ function createTemplateOnClick() {
       }
 
       if (inputElemCount == 1) {
-        (/*labelElem || */inputElem).id = legendElem.htmlFor = uniqueID();
+        inputElem.id = legendElem.htmlFor = uniqueID();
       }
 
       // Following are for the removal button
@@ -656,74 +760,67 @@ function createTemplateOnClick() {
       return fieldElem;
     }
 
-    function createInputField(legend = 'An input?', label = 'Input') {
-      return createTemplateField(true, this.type,
-        [
-          {
-            type: this.type,
-            side: 'R'
-          }
-        ],
-        legend);
-    }
-
-    function createCheckboxField(legend = 'A question?', label = 'Agree') {
-      return createTemplateField(true, this.type,
-        [
-          {
-            type: 'checkbox',
-            label: label,
-            side: 'R'
-          }
-        ],
-        legend);
-    }
-
-    function createMultiselField(legend = 'There are...', labels = ['Birds']) {
-      return createTemplateField(true, this.type,
-        labels.map(
-          label =>
-          {
-            return {
-              type: 'checkbox',
-              label: label,
-              side: 'R'
-            };
-          }
-        ),
-        legend);
-    }
-
-    function createTextareaField(legend = 'Your feedback') {
-      return createTemplateField(true, this.type,
-        [
-          {
-            type: 'textarea',
-            label: false
-          }
-        ],
-        legend);
-    }
-
     templateFieldTypes = {};
 
-    function registerTemplateField(type, creator, friendlyName) {
+    function registerTemplateField(type, friendlyName, defLegend, defInputs) {
       templateFieldTypes[type] = {
         friendlyName: friendlyName,
-        creator: creator.bind({ type: type })
+        creator: function (
+            editable = true,
+            legend = defLegend,
+            inputs = Array.isArray(defInputs) ? defInputs : [defInputs]
+          ) {
+          return createTemplateField(editable, type, legend, inputs);
+        }
       };
     }
 
-    registerTemplateField('checkbox', createCheckboxField, 'Checkbox');
-    registerTemplateField('multisel', createMultiselField, 'Multiple Selection');
-    registerTemplateField('textarea', createTextareaField, 'Text Area');
-    ['text', 'number', 'date', 'email', 'url', 'tel'].forEach(function(inputType) {
-        registerTemplateField(inputType, createInputField, inputType[0].toUpperCase() + inputType.substring(1));
-    });
+    function label2checkbox(label) {
+      return {
+        type: 'checkbox',
+        label: label,
+        side: 'R'
+      };
+    }
+
+    function labellessInput(type) {
+      return {
+        type: type,
+        label: false
+      };
+    }
+
+    function options2select(options) {
+      return {
+        type: 'select',
+        label: false,
+        options: options
+      }
+    }
+
+    registerTemplateField('checkbox', 'Checkbox', 'Doing stuff...', label2checkbox('is allowed'));
+    registerTemplateField('multisel', 'Multiple Selection', 'There are...', ['birds'].map(label2checkbox));
+    registerTemplateField('textarea', 'Text Area', 'Your feedback', labellessInput('textarea'));
+    
+    registerTemplateField('text', 'Text Line', 'Name', labellessInput('text'));
+    registerTemplateField('number', 'Number', 'Amount', labellessInput('number'));
+    registerTemplateField('date', 'Date', 'Date', labellessInput('date'));
+    registerTemplateField('email', 'E-mail', 'E-mail', labellessInput('email'));
+    registerTemplateField('url', 'URL', 'Website', labellessInput('url'));
+    registerTemplateField('tel', 'Phone Number', 'Phone Number', labellessInput('tel'));
+
+    registerTemplateField('select', 'Dropdown', 'Currency', options2select(['USD', 'EUR', 'TRY']));
 
     dropdown = document.getElementById('newFieldDropdown');
 
-    for (const type in templateFieldTypes) {
+    function templateFieldTypesSorted(accordingTo) {
+      return Object.getOwnPropertyNames(templateFieldTypes).sort((a, b) =>
+        templateFieldTypes[a][accordingTo].localeCompare(templateFieldTypes[b][accordingTo])
+      );
+    }
+
+    // for (const type in templateFieldTypes) {
+    for (const type of templateFieldTypesSorted('friendlyName')) {
       dropdownItem = document.createElement('li');
       dropdownItemInner = document.createElement('a');
       dropdownItemInner.href = 'javascript:void(0);';
@@ -745,8 +842,17 @@ function createTemplateOnClick() {
         return {
           type: input2type(input.querySelector('input')),
           label: $(input).find('span').last().text(),
-          side: si == 0 ? 'L' : 'R',
+          side: si == 0 ? 'L' : 'R'
         };
+      }
+
+      if (input.tagName == 'SELECT') {
+        return {
+          type: input2type(input),
+          label: false,
+          options: Array.from(input.getElementsByTagName('option'))
+              .map(option => option.textContent)
+        }
       }
 
       return {
@@ -783,6 +889,8 @@ function createTemplateOnClick() {
         submitButton.disabled = true;
 
         replaceInputWithSpan();
+        replaceTextareaWithSelect();
+
         templateFields.classList.add('hidden');
         $("div.template-input-label").each((i, label) => {
           var realLabel = document.createElement('label');
@@ -822,14 +930,14 @@ function createTemplateOnClick() {
     function updateFormFields(fieldObjects) {
       formFields.innerHTML = '';
       for (var field of fieldObjects) {
-        formFields.appendChild(createTemplateField(false, field.type, field.inputs, field.legend));
+        formFields.appendChild(createTemplateField(false, field.type, field.legend, field.inputs));
       }
     }
 
     function updateCreateFormFields(fieldObjects) {
         fields.innerHTML = '';
         for (var field of fieldObjects) {
-          fields.appendChild(createTemplateField(true, field.type, field.inputs, field.legend));
+          fields.appendChild(createTemplateField(true, field.type, field.legend, field.inputs));
         }
     }
 
@@ -852,7 +960,7 @@ function createTemplateOnClick() {
       }
     }
 
-    defaultTemplateFields = [field2JSON(templateFieldTypes['text'].creator('Text'))];
+    defaultTemplateFields = [field2JSON(templateFieldTypes['text'].creator(false, 'Text'))];
     selectTemplate('-1', 'Default');
 
     function removeCurrentTemplate() {
@@ -889,21 +997,26 @@ function createTemplateOnClick() {
 
     function sendPost() {
         var questionResponses = $(formFields).find('> .form-group').map((i, el) => {
-            var question = $(el).find('> label').text(), response = '';
+          var question = $(el).find('> label').text(), response = '';
 
-            var checkboxes = $(el).find('input[type="checkbox"]');
+          var checkboxes = $(el).find('input[type="checkbox"]');
+          var dropdowns = $(el).find('select');
 
-            if (checkboxes.length) {
-                var checkedCheckboxes = checkboxes.filter((i, el) => el.checked).map((i, el) => el.value);
-                response = Array.from(checkedCheckboxes).join(', ');
-            } else {
-              var inputOrTextarea = $(el).find('textarea');
-              if (!inputOrTextarea.length) {
-                  inputOrTextarea = $(el).find('input');
-              }
-              response = inputOrTextarea.get(0).value;
+          if (checkboxes.length) {
+            var checkedCheckboxes = checkboxes.filter((i, el) => el.checked).map((i, el) => el.value);
+            response = Array.from(checkedCheckboxes).join(', ');
+          }
+          else if (dropdowns.length) {
+            response = dropdowns.get(0).value;
+          }
+          else {
+            var inputOrTextarea = $(el).find('textarea');
+            if (!inputOrTextarea.length) {
+                inputOrTextarea = $(el).find('input');
             }
-            return { question: question, response: response };
+            response = inputOrTextarea.get(0).value;
+          }
+          return { question: question, response: response };
         });
 
         $.ajax({

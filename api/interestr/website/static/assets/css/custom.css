@@ -273,3 +273,13 @@ div.col-form-legend, div.template-input-label {
 .voted {
   filter: brightness(130%);
 }
+
+.recommended-posts .group-detail-content {
+  padding: 20px;
+  background-color: #f5f5f5;
+  max-width: 800px;
+}
+
+.recommended-posts .group-detail-content:not(:first-of-type) {
+  margin-top: 30px;
+}

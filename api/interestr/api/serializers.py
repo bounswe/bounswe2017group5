@@ -132,7 +132,7 @@ class CommentSerializer(serializers.ModelSerializer):
 
 
 class VoteSerializer(serializers.ModelSerializer):
-    owner = UserIdNameSerializer()
+    owner = UserIdNameSerializer(read_only=True)
 
     class Meta:
         model = core_models.Vote
@@ -189,6 +189,11 @@ class PostCreateSerializer(serializers.ModelSerializer):
 
         return data
 
+class VoteCreateSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = core_models.Vote
+        fields = ('id', 'post', 'up')
 
 class PostSerializer(serializers.ModelSerializer):
     owner = UserIdNameSerializer(read_only=True)

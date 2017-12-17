@@ -1,17 +1,15 @@
 language: python
 
-python:
-  - 2.6
-  - 2.7
+python: 2.7
 
 services: postgresql
 
 env:
-  - DJANGO=1.4.1
+  - DJANGO=1.8.4
 
 before_install:
   - cd api
-  - DJANGO_SETTINGS_MODULE="interestr.settings"
+  - DJANGO_SETTINGS_MODULE="interestr.interestr.settings"
   - PYTHONPATH="$HOME/builds/bounswe/bounswe2017group5"
   - PIP_USE_MIRRORS=true
 
@@ -21,10 +19,12 @@ install:
   - pip install psycopg2 --quiet
 
 before_script:
+  - cd interestr
   - psql -c "CREATE DATABASE travisci;" -U postgres
+  - python manage.py syncdb --noinput
 
 script:
-  - sh build.sh
+  - python manage.py test
 
 notifications:
   email:

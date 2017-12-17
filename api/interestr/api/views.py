@@ -397,7 +397,7 @@ def recommend_groups(request, limit=5):
         """
         Sum of all distances a group has to groups from a list
         """
-        return sum(list(map(lambda group2: distance(group, group2), group_list)))
+        return sum([distance(group, group2) for group2 in group_list])
 
     user = request.user
     limit = int(request.GET.get("limit", limit))
@@ -444,7 +444,9 @@ def recommend_posts(request, limit=5):
 class SignUpView(APIView):
     def post(self, request):
         serialized = core_serializers.UserSerializer(data=request.data)
-        if serialized.is_valid():
+        user_with_same_email = auth_models.User.objects.filter(
+            email=request.data['email'])
+        if serialized.is_valid() and not user_with_same_email:
             auth_models.User.objects.create_user(
                 email=request.data['email'],
                 username=request.data['username'],

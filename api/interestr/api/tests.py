@@ -130,6 +130,43 @@ class PostTests(TestCase):
         except KeyError:
             self.fail('Data Template object should have field \'owner\'')
 
+    def test_create_post_with_no_relation_to_template(self):
+        self.client.force_authenticate(self.test_user)
+
+        post_data = {
+            'group': self.test_group.id,
+            'data_template': self.test_data_template.id,
+            'data': [
+                {
+                    'question': 'Question, lel',
+                    'response': 'Response, lel'
+                }
+            ]
+        }
+
+        response = self.client.post('/api/v1/posts/', post_data, format='json')
+
+        self.assertEqual(response.status_code, 400,
+                         responseError(response, 'Create Post with no relation to the template', False))
+
+    def test_create_post_with_invalid_data(self):
+        self.client.force_authenticate(self.test_user)
+
+        post_data = {
+            'group': self.test_group.id,
+            'data_template': self.test_data_template.id,
+            'data': [
+                {
+                    'invalid': 'invalid'
+                }
+            ]
+        }
+
+        response = self.client.post('/api/v1/posts/', post_data, format='json')
+
+        self.assertEqual(response.status_code, 400,
+                         responseError(response, 'Create Post with invalid data', False))
+
     def test_update_post(self):
         self.client.force_authenticate(self.test_user)
 
@@ -422,6 +459,37 @@ class DataTemplateTests(TestCase):
                                     template_fields, format='json')
         self.assertEqual(response.status_code, 400,
                          responseError(response, 'Create Wrong Type Data Template', False))
+
+    def test_create_multiple_field_same_legend_template(self):
+        self.client.force_authenticate(user=self.test_user)
+        template_fields = {
+            'name': 'Basic template',
+            'fields': [
+                {
+                    'type': 'text',
+                    'legend': 'SameLegend',
+                    'inputs': [
+                        {
+                            'type': 'text'
+                        }
+                    ]
+                },
+                {
+                    'type': 'text',
+                    'legend': 'SameLegend',
+                    'inputs': [
+                        {
+                            'type': 'text'
+                        }
+                    ]
+                }
+                ],
+            'group': self.test_group.id
+        }
+        response = self.client.post('/api/v1/data_templates/',
+                                    template_fields, format='json')
+        self.assertEqual(response.status_code, 400,
+                         responseError(response, 'Create Multiple Field Same Legend Data Template', False))
 
     def test_existing_template(self):
         response = self.client.get(

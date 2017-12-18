@@ -21,19 +21,19 @@ public class TestActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_test);
 
-        InterestrAPI api = ((InterestrApplication) getApplication()).getApi();
-
-        api.login("KaracaSoft", "Mahmut95", new InterestrAPI.Callback<Token>() {
-            @Override
-            public void onResult(InterestrAPIResult<Token> result) {
-                api.authenticate(result.get());
-            }
-
-            @Override
-            public void onError(String error_message) {
-                Log.d("Test", "NOPE");
-            }
-        });
+//        InterestrAPI api = ((InterestrApplication) getApplication()).getApi();
+//
+//        api.login("KaracaSoft", "Mahmut95", new InterestrAPI.Callback<Token>() {
+//            @Override
+//            public void onResult(InterestrAPIResult<Token> result) {
+//                api.authenticate(result.get());
+//            }
+//
+//            @Override
+//            public void onError(String error_message) {
+//                Log.d("Test", "NOPE");
+//            }
+//        });
 
 //        api.getGroups(new InterestrAPI.Callback<ArrayList<Group>>() {
 //            @Override
@@ -76,17 +76,17 @@ public class TestActivity extends AppCompatActivity {
 //            }
 //        });
 
-        api.joinGroup(1, new InterestrAPI.Callback<Boolean>() {
-            @Override
-            public void onResult(InterestrAPIResult<Boolean> result) {
-                Log.d("TestGroupJoin", "OK");
-            }
-
-            @Override
-            public void onError(String error_message) {
-                Log.d("TestGroupJoin", "NOPE");
-            }
-        });
+//        api.joinGroup(1, new InterestrAPI.Callback<Boolean>() {
+//            @Override
+//            public void onResult(InterestrAPIResult<Boolean> result) {
+//                Log.d("TestGroupJoin", "OK");
+//            }
+//
+//            @Override
+//            public void onError(String error_message) {
+//                Log.d("TestGroupJoin", "NOPE");
+//            }
+//        });
 
     }
 }

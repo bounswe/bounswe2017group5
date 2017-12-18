@@ -125,7 +125,7 @@ public class DataTemplateCreatorFragment extends Fragment {
         buttonAddShortText.setColorPressedResId(R.color.colorAccentDark);
         buttonAddShortText.setOnClickListener((view) -> {
             TemplateField field = new TemplateField();
-            field.setType(TemplateField.Type.SHORT_TEXT);
+            field.setType(TemplateField.Type.TEXT);
 
             int index = template.getFields().size();
             template.getFields().add(field);
@@ -142,7 +142,7 @@ public class DataTemplateCreatorFragment extends Fragment {
         buttonAddBooleanField.setColorPressedResId(R.color.colorAccentDark);
         buttonAddBooleanField.setOnClickListener((view) -> {
             TemplateField field = new TemplateField();
-            field.setType(TemplateField.Type.BOOLEAN);
+            field.setType(TemplateField.Type.CHECKBOX);
 
             int index = template.getFields().size();
             template.getFields().add(field);
@@ -160,7 +160,7 @@ public class DataTemplateCreatorFragment extends Fragment {
         buttonAddLongTextField.setColorPressedResId(R.color.colorAccentDark);
         buttonAddLongTextField.setOnClickListener((view) -> {
             TemplateField field = new TemplateField();
-            field.setType(TemplateField.Type.LONG_TEXT);
+            field.setType(TemplateField.Type.TEXTAREA);
 
             int index = template.getFields().size();
             template.getFields().add(field);
@@ -197,7 +197,7 @@ public class DataTemplateCreatorFragment extends Fragment {
         buttonAddNumericField.setColorPressedResId(R.color.colorAccentDark);
         buttonAddNumericField.setOnClickListener((view) -> {
             TemplateField field = new TemplateField();
-            field.setType(TemplateField.Type.NUMERIC);
+            field.setType(TemplateField.Type.NUMBER);
 
             int index = template.getFields().size();
             template.getFields().add(field);
@@ -215,7 +215,7 @@ public class DataTemplateCreatorFragment extends Fragment {
         buttonAddMultipleChoiceField.setColorPressedResId(R.color.colorAccentDark);
         buttonAddMultipleChoiceField.setOnClickListener((view) -> {
             MultipleChoiceTemplateField field = new MultipleChoiceTemplateField();
-            field.setType(TemplateField.Type.MULTIPLE_CHOICE);
+            field.setType(TemplateField.Type.MULTISEL);
 
             int index = template.getFields().size();
             template.getFields().add(field);
@@ -224,14 +224,70 @@ public class DataTemplateCreatorFragment extends Fragment {
             menu.close(true);
         });
 
+
+        FloatingActionButton buttonAddDateField =
+                new FloatingActionButton(getContext());
+        buttonAddDateField.setLabelText(getString(R.string.date));
+        // buttonAddDateField.setImageResource();
+        buttonAddDateField.setColorNormalResId(R.color.colorAccent);
+        buttonAddDateField.setColorPressedResId(R.color.colorAccentDark);
+        buttonAddDateField.setOnClickListener((view) -> {
+            TemplateField field = new TemplateField();
+            field.setType(TemplateField.Type.DATE);
+
+            int index = template.getFields().size();
+            template.getFields().add(field);
+
+            fieldListAdapter.notifyItemInserted(index);
+            menu.close(true);
+        });
+
+
+        FloatingActionButton buttonAddUrlField =
+                new FloatingActionButton(getContext());
+        buttonAddUrlField.setLabelText(getString(R.string.url));
+        // buttonAddUrlField.setImageResource();
+        buttonAddUrlField.setColorNormalResId(R.color.colorAccent);
+        buttonAddUrlField.setColorPressedResId(R.color.colorAccentDark);
+        buttonAddUrlField.setOnClickListener((view) -> {
+            TemplateField field = new TemplateField();
+            field.setType(TemplateField.Type.URL);
+
+            int index = template.getFields().size();
+            template.getFields().add(field);
+
+            fieldListAdapter.notifyItemInserted(index);
+            menu.close(true);
+        });
+
+
+        FloatingActionButton buttonAddTelField =
+                new FloatingActionButton(getContext());
+        buttonAddTelField.setLabelText(getString(R.string.telephone));
+        // buttonAddTelField.setImageResource();
+        buttonAddTelField.setColorNormalResId(R.color.colorAccent);
+        buttonAddTelField.setColorPressedResId(R.color.colorAccentDark);
+        buttonAddTelField.setOnClickListener((view) -> {
+            TemplateField field = new TemplateField();
+            field.setType(TemplateField.Type.TEL);
+
+            int index = template.getFields().size();
+            template.getFields().add(field);
+
+            fieldListAdapter.notifyItemInserted(index);
+            menu.close(true);
+        });
+
+
         menu.addMenuButton(buttonAddShortText);
         menu.addMenuButton(buttonAddBooleanField);
         menu.addMenuButton(buttonAddLongTextField);
         menu.addMenuButton(buttonAddEmailField);
         menu.addMenuButton(buttonAddNumericField);
         menu.addMenuButton(buttonAddMultipleChoiceField);
-
-
+        menu.addMenuButton(buttonAddDateField);
+        menu.addMenuButton(buttonAddUrlField);
+        menu.addMenuButton(buttonAddTelField);
     }
 
     @Override

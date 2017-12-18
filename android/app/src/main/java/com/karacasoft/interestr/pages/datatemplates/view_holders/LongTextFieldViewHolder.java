@@ -8,8 +8,6 @@ import android.view.View;
 
 public class LongTextFieldViewHolder extends ShortTextFieldViewHolder {
 
-    public static final int LONG_TEXT_VIEW_HOLDER_TYPE = 2;
-
     public LongTextFieldViewHolder(View itemView) {
         super(itemView);
     }

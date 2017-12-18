@@ -16,8 +16,6 @@ import com.karacasoft.interestr.pages.datatemplates.data.TemplateField;
 
 public class BooleanFieldViewHolder extends FieldViewHolder {
 
-    public static final int BOOLEAN_VIEW_HOLDER_TYPE = 1;
-
     public TemplateField field;
 
     public TextView fieldType;

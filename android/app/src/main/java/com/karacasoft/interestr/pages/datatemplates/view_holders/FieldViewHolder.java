@@ -9,6 +9,8 @@ import android.view.View;
 
 public abstract class FieldViewHolder extends RecyclerView.ViewHolder {
 
+    public int viewType = 0;
+
     public FieldViewHolder(View itemView) {
         super(itemView);
     }

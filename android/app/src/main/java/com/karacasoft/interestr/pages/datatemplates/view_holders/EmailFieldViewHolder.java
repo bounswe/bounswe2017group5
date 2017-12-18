@@ -8,8 +8,6 @@ import android.view.View;
 
 public class EmailFieldViewHolder extends ShortTextFieldViewHolder {
 
-    public static final int EMAIL_VIEW_HOLDER_TYPE = 3;
-
     public EmailFieldViewHolder(View itemView) {
         super(itemView);
     }

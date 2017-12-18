@@ -16,13 +16,10 @@ import com.karacasoft.interestr.pages.datatemplates.data.TemplateField;
 
 public class ShortTextFieldViewHolder extends FieldViewHolder {
 
-    public static final int SHORT_TEXT_VIEW_HOLDER_TYPE = 0;
-
     public TemplateField field;
 
     public TextView fieldType;
     public EditText fieldName;
-    public EditText fieldHint;
     public Button btnRemove;
 
 
@@ -30,7 +27,6 @@ public class ShortTextFieldViewHolder extends FieldViewHolder {
         super(itemView);
         fieldType = itemView.findViewById(R.id.field_type);
         fieldName = itemView.findViewById(R.id.field_name);
-        fieldHint = itemView.findViewById(R.id.field_placeholder);
         btnRemove = itemView.findViewById(R.id.btn_remove);
 
         fieldName.addTextChangedListener(new TextWatcher() {
@@ -45,25 +41,10 @@ public class ShortTextFieldViewHolder extends FieldViewHolder {
                 field.setName(editable.toString());
             }
         });
-
-        fieldHint.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-                field.setHint(editable.toString());
-            }
-        });
-
     }
 
     public void updateField() {
         field.setName(fieldName.getText().toString());
-        field.setHint(fieldHint.getText().toString());
     }
 
     @Override

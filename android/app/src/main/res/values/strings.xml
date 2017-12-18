@@ -38,5 +38,8 @@
     <string name="location">Location</string>
     <string name="feed">Feed</string>
     <string name="recommended">Recommended</string>
+    <string name="date">Date</string>
+    <string name="url">Url</string>
+    <string name="telephone">Telephone</string>
 
 </resources>

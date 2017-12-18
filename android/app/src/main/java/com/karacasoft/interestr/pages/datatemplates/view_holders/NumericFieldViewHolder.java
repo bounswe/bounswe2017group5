@@ -8,8 +8,6 @@ import android.view.View;
 
 public class NumericFieldViewHolder extends ShortTextFieldViewHolder {
 
-    public static final int NUMERIC_VIEW_HOLDER_TYPE = 4;
-
     public NumericFieldViewHolder(View itemView) {
         super(itemView);
     }

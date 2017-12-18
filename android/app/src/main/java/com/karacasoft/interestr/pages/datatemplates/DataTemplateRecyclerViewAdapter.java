@@ -12,12 +12,15 @@ import com.karacasoft.interestr.pages.datatemplates.data.MultipleChoiceTemplateF
 import com.karacasoft.interestr.pages.datatemplates.data.Template;
 import com.karacasoft.interestr.pages.datatemplates.data.TemplateField;
 import com.karacasoft.interestr.pages.datatemplates.view_holders.BooleanFieldViewHolder;
+import com.karacasoft.interestr.pages.datatemplates.view_holders.DateFieldViewHolder;
 import com.karacasoft.interestr.pages.datatemplates.view_holders.EmailFieldViewHolder;
 import com.karacasoft.interestr.pages.datatemplates.view_holders.FieldViewHolder;
 import com.karacasoft.interestr.pages.datatemplates.view_holders.LongTextFieldViewHolder;
 import com.karacasoft.interestr.pages.datatemplates.view_holders.MultipleChoiceFieldViewHolder;
 import com.karacasoft.interestr.pages.datatemplates.view_holders.NumericFieldViewHolder;
 import com.karacasoft.interestr.pages.datatemplates.view_holders.ShortTextFieldViewHolder;
+import com.karacasoft.interestr.pages.datatemplates.view_holders.TelephoneFieldViewHolder;
+import com.karacasoft.interestr.pages.datatemplates.view_holders.UrlFieldViewHolder;
 import com.karacasoft.interestr.pages.datatemplates.view_holders.multiple_choice.ChoiceItem;
 import com.karacasoft.interestr.pages.datatemplates.view_holders.multiple_choice.ChoiceItemDialog;
 
@@ -30,6 +33,16 @@ import java.util.ArrayList;
  */
 
 public class DataTemplateRecyclerViewAdapter extends RecyclerView.Adapter<FieldViewHolder> {
+
+    public static final int VIEW_TYPE_CHECKBOX = 0;
+    public static final int VIEW_TYPE_MULTISEL = 1;
+    public static final int VIEW_TYPE_TEXTAREA = 2;
+    public static final int VIEW_TYPE_TEXT = 3;
+    public static final int VIEW_TYPE_NUMBER = 4;
+    public static final int VIEW_TYPE_DATE = 5;
+    public static final int VIEW_TYPE_EMAIL = 6;
+    public static final int VIEW_TYPE_URL = 7;
+    public static final int VIEW_TYPE_TEL = 8;
 
     private ArrayList<TemplateField> fields;
     private DataTemplateCreatorFragment.OnDataTemplateFieldRemoveListener onDataTemplateFieldClickListener;
@@ -47,22 +60,26 @@ public class DataTemplateRecyclerViewAdapter extends RecyclerView.Adapter<FieldV
     public int getItemViewType(int position) {
         TemplateField field = fields.get(position);
         switch (field.getType()) {
-            case MULTIPLE_CHOICE:
-                return MultipleChoiceFieldViewHolder.MULTIPLE_CHOICE_VIEW_HOLDER_TYPE;
-            case LONG_TEXT:
-                return LongTextFieldViewHolder.LONG_TEXT_VIEW_HOLDER_TYPE;
-            case NUMERIC:
-                return NumericFieldViewHolder.NUMERIC_VIEW_HOLDER_TYPE;
+            case MULTISEL:
+                return VIEW_TYPE_MULTISEL;
+            case TEXTAREA:
+                return VIEW_TYPE_TEXTAREA;
+            case NUMBER:
+                return VIEW_TYPE_NUMBER;
+            case DATE:
+                return VIEW_TYPE_DATE;
             case EMAIL:
-                return EmailFieldViewHolder.EMAIL_VIEW_HOLDER_TYPE;
-            case SHORT_TEXT:
-                return ShortTextFieldViewHolder.SHORT_TEXT_VIEW_HOLDER_TYPE;
-            case BOOLEAN:
-                return BooleanFieldViewHolder.BOOLEAN_VIEW_HOLDER_TYPE;
-            //TODO add
-            default:
-                return -1; // undefined
+                return VIEW_TYPE_EMAIL;
+            case TEXT:
+                return VIEW_TYPE_TEXT;
+            case CHECKBOX:
+                return VIEW_TYPE_CHECKBOX;
+            case URL:
+                return VIEW_TYPE_URL;
+            case TEL:
+                return VIEW_TYPE_TEL;
         }
+        return super.getItemViewType(position);
     }
 
     @Override
@@ -70,41 +87,59 @@ public class DataTemplateRecyclerViewAdapter extends RecyclerView.Adapter<FieldV
         FieldViewHolder vh = null;
         View v;
         switch (viewType) {
-            case ShortTextFieldViewHolder.SHORT_TEXT_VIEW_HOLDER_TYPE:
+            case VIEW_TYPE_TEXT:
                 v = LayoutInflater.from(parent.getContext())
                         .inflate(R.layout.data_template_field_text, parent, false);
 
                 vh = new ShortTextFieldViewHolder(v);
                 break;
-            case BooleanFieldViewHolder.BOOLEAN_VIEW_HOLDER_TYPE:
+            case VIEW_TYPE_CHECKBOX:
                 v = LayoutInflater.from(parent.getContext())
                         .inflate(R.layout.data_template_field_checkbox, parent, false);
 
                 vh = new BooleanFieldViewHolder(v);
                 break;
-            case LongTextFieldViewHolder.LONG_TEXT_VIEW_HOLDER_TYPE:
+            case VIEW_TYPE_TEXTAREA:
                 v = LayoutInflater.from(parent.getContext())
                         .inflate(R.layout.data_template_field_text, parent, false);
 
                 vh = new LongTextFieldViewHolder(v);
                 break;
-            case EmailFieldViewHolder.EMAIL_VIEW_HOLDER_TYPE:
+            case VIEW_TYPE_EMAIL:
                 v = LayoutInflater.from(parent.getContext())
                         .inflate(R.layout.data_template_field_text, parent, false);
 
                 vh = new EmailFieldViewHolder(v);
                 break;
-            case NumericFieldViewHolder.NUMERIC_VIEW_HOLDER_TYPE:
+            case VIEW_TYPE_NUMBER:
                 v = LayoutInflater.from(parent.getContext())
                         .inflate(R.layout.data_template_field_text, parent, false);
 
                 vh = new NumericFieldViewHolder(v);
                 break;
-            case MultipleChoiceFieldViewHolder.MULTIPLE_CHOICE_VIEW_HOLDER_TYPE:
+            case VIEW_TYPE_MULTISEL:
                 v = LayoutInflater.from(parent.getContext())
                         .inflate(R.layout.data_template_field_multiple_choice, parent, false);
 
                 vh = new MultipleChoiceFieldViewHolder(v);
+                break;
+            case VIEW_TYPE_DATE:
+                v = LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.data_template_field_text, parent, false);
+
+                vh = new DateFieldViewHolder(v);
+                break;
+            case VIEW_TYPE_URL:
+                v = LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.data_template_field_text, parent, false);
+
+                vh = new UrlFieldViewHolder(v);
+                break;
+            case VIEW_TYPE_TEL:
+                v = LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.data_template_field_text, parent, false);
+
+                vh = new TelephoneFieldViewHolder(v);
                 break;
             default:
 
@@ -114,19 +149,25 @@ public class DataTemplateRecyclerViewAdapter extends RecyclerView.Adapter<FieldV
 
     @Override
     public void onBindViewHolder(FieldViewHolder holder, int position) {
-        if(getItemViewType(position) == ShortTextFieldViewHolder.SHORT_TEXT_VIEW_HOLDER_TYPE) {
+        if (getItemViewType(position) == VIEW_TYPE_TEXT) {
             configureShortTextViewHolder(fields.get(position), (ShortTextFieldViewHolder) holder);
-        } else if(getItemViewType(position) == BooleanFieldViewHolder.BOOLEAN_VIEW_HOLDER_TYPE) {
+        } else if (getItemViewType(position) == VIEW_TYPE_CHECKBOX) {
             configureBooleanViewHolder(fields.get(position), (BooleanFieldViewHolder) holder);
-        } else if(getItemViewType(position) == LongTextFieldViewHolder.LONG_TEXT_VIEW_HOLDER_TYPE) {
+        } else if (getItemViewType(position) == VIEW_TYPE_TEXTAREA) {
             configureLongTextViewHolder(fields.get(position), (LongTextFieldViewHolder) holder);
-        } else if(getItemViewType(position) == EmailFieldViewHolder.EMAIL_VIEW_HOLDER_TYPE) {
+        } else if (getItemViewType(position) == VIEW_TYPE_EMAIL) {
             configureEmailFieldViewHolder(fields.get(position), (EmailFieldViewHolder) holder);
-        } else if(getItemViewType(position) == NumericFieldViewHolder.NUMERIC_VIEW_HOLDER_TYPE) {
+        } else if (getItemViewType(position) == VIEW_TYPE_NUMBER) {
             configureNumericFieldViewHolder(fields.get(position), (NumericFieldViewHolder) holder);
-        } else if(getItemViewType(position) == MultipleChoiceFieldViewHolder.MULTIPLE_CHOICE_VIEW_HOLDER_TYPE) {
+        } else if (getItemViewType(position) == VIEW_TYPE_MULTISEL) {
             configureMultipleChoiceFieldViewHolder((MultipleChoiceTemplateField) fields.get(position),
                     (MultipleChoiceFieldViewHolder) holder);
+        } else if (getItemViewType(position) == VIEW_TYPE_DATE) {
+            configureDateFieldViewHolder(fields.get(position), (DateFieldViewHolder) holder);
+        } else if (getItemViewType(position) == VIEW_TYPE_URL) {
+            configureUrlFieldViewHolder(fields.get(position), (UrlFieldViewHolder) holder);
+        } else if (getItemViewType(position) == VIEW_TYPE_TEL) {
+            configureTelFieldViewHolder(fields.get(position), (TelephoneFieldViewHolder) holder);
         }
     }
 
@@ -139,15 +180,10 @@ public class DataTemplateRecyclerViewAdapter extends RecyclerView.Adapter<FieldV
     private void configureShortTextViewHolder(TemplateField field, ShortTextFieldViewHolder viewHolder) {
         viewHolder.field = field;
         viewHolder.fieldType.setText(R.string.short_text);
-        if(field.getName() != null) {
+        if (field.getName() != null) {
             viewHolder.fieldName.setText(field.getName());
         } else {
             viewHolder.fieldName.setText("");
-        }
-        if(field.getHint() != null) {
-            viewHolder.fieldHint.setText(field.getHint());
-        } else {
-            viewHolder.fieldHint.setText("");
         }
         viewHolder.btnRemove.setOnClickListener((view) -> {
             onDataTemplateFieldClickListener.onDataTemplateFieldRemove(field);
@@ -157,7 +193,7 @@ public class DataTemplateRecyclerViewAdapter extends RecyclerView.Adapter<FieldV
     private void configureBooleanViewHolder(TemplateField field, BooleanFieldViewHolder viewHolder) {
         viewHolder.field = field;
         viewHolder.fieldType.setText(R.string.check_box);
-        if(field.getName() != null) {
+        if (field.getName() != null) {
             viewHolder.fieldName.setText(field.getName());
         } else {
             viewHolder.fieldName.setText("");
@@ -170,7 +206,7 @@ public class DataTemplateRecyclerViewAdapter extends RecyclerView.Adapter<FieldV
     private void configureLongTextViewHolder(TemplateField field, LongTextFieldViewHolder viewHolder) {
         viewHolder.field = field;
         viewHolder.fieldType.setText(R.string.long_text);
-        if(field.getName() != null) {
+        if (field.getName() != null) {
             viewHolder.fieldName.setText(field.getName());
         } else {
             viewHolder.fieldName.setText("");
@@ -183,7 +219,7 @@ public class DataTemplateRecyclerViewAdapter extends RecyclerView.Adapter<FieldV
     private void configureEmailFieldViewHolder(TemplateField field, EmailFieldViewHolder viewHolder) {
         viewHolder.field = field;
         viewHolder.fieldType.setText(R.string.email);
-        if(field.getName() != null) {
+        if (field.getName() != null) {
             viewHolder.fieldName.setText(field.getName());
         } else {
             viewHolder.fieldName.setText("");
@@ -196,7 +232,46 @@ public class DataTemplateRecyclerViewAdapter extends RecyclerView.Adapter<FieldV
     private void configureNumericFieldViewHolder(TemplateField field, NumericFieldViewHolder viewHolder) {
         viewHolder.field = field;
         viewHolder.fieldType.setText(R.string.numeric);
-        if(field.getName() != null) {
+        if (field.getName() != null) {
+            viewHolder.fieldName.setText(field.getName());
+        } else {
+            viewHolder.fieldName.setText("");
+        }
+        viewHolder.btnRemove.setOnClickListener((view) -> {
+            onDataTemplateFieldClickListener.onDataTemplateFieldRemove(field);
+        });
+    }
+
+    private void configureDateFieldViewHolder(TemplateField field, DateFieldViewHolder viewHolder) {
+        viewHolder.field = field;
+        viewHolder.fieldType.setText(R.string.date);
+        if (field.getName() != null) {
+            viewHolder.fieldName.setText(field.getName());
+        } else {
+            viewHolder.fieldName.setText("");
+        }
+        viewHolder.btnRemove.setOnClickListener((view) -> {
+            onDataTemplateFieldClickListener.onDataTemplateFieldRemove(field);
+        });
+    }
+
+    private void configureUrlFieldViewHolder(TemplateField field, UrlFieldViewHolder viewHolder) {
+        viewHolder.field = field;
+        viewHolder.fieldType.setText(R.string.url);
+        if (field.getName() != null) {
+            viewHolder.fieldName.setText(field.getName());
+        } else {
+            viewHolder.fieldName.setText("");
+        }
+        viewHolder.btnRemove.setOnClickListener((view) -> {
+            onDataTemplateFieldClickListener.onDataTemplateFieldRemove(field);
+        });
+    }
+
+    private void configureTelFieldViewHolder(TemplateField field, TelephoneFieldViewHolder viewHolder) {
+        viewHolder.field = field;
+        viewHolder.fieldType.setText(R.string.telephone);
+        if (field.getName() != null) {
             viewHolder.fieldName.setText(field.getName());
         } else {
             viewHolder.fieldName.setText("");
@@ -209,7 +284,7 @@ public class DataTemplateRecyclerViewAdapter extends RecyclerView.Adapter<FieldV
     private void configureMultipleChoiceFieldViewHolder(MultipleChoiceTemplateField field, MultipleChoiceFieldViewHolder viewHolder) {
         viewHolder.field = field;
         viewHolder.fieldType.setText(R.string.multiple_choice);
-        if(field.getName() != null) {
+        if (field.getName() != null) {
             viewHolder.fieldName.setText(field.getName());
         } else {
             viewHolder.fieldName.setText("");

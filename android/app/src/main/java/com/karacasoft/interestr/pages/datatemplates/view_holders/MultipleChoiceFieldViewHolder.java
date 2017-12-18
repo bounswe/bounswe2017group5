@@ -26,8 +26,6 @@ import java.util.ArrayList;
 
 public class MultipleChoiceFieldViewHolder extends FieldViewHolder {
 
-    public static final int MULTIPLE_CHOICE_VIEW_HOLDER_TYPE = 5;
-
     public MultipleChoiceTemplateField field;
 
     public TextView fieldType;

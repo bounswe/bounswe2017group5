@@ -19,9 +19,6 @@ public class NewsFeedFragment extends Fragment {
 
 
     private ErrorHandler errorHandler;
-    private ViewPager viewPager;
-
-    private NewsFeedPagerAdapter newsFeedPagerAdapter;
 
     public static NewsFeedFragment newInstance() {
         NewsFeedFragment newsFeedFragment = new NewsFeedFragment();
@@ -42,8 +39,8 @@ public class NewsFeedFragment extends Fragment {
                              Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_news_feed, container, false);
 
-        viewPager = v.findViewById(R.id.feed_and_recommendations_pager);
-        newsFeedPagerAdapter = new NewsFeedPagerAdapter(getContext(), getFragmentManager());
+        ViewPager viewPager = v.findViewById(R.id.feed_and_recommendations_pager);
+        NewsFeedPagerAdapter newsFeedPagerAdapter = new NewsFeedPagerAdapter(getContext(), getFragmentManager());
 
         viewPager.setAdapter(newsFeedPagerAdapter);
 
@@ -56,6 +53,13 @@ public class NewsFeedFragment extends Fragment {
 
         errorHandler = (ErrorHandler) context;
 
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+
+        errorHandler = null;
     }
 
     public static class NewsFeedPagerAdapter extends FragmentStatePagerAdapter {

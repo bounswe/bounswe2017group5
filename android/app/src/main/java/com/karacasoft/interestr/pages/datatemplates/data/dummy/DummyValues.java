@@ -15,14 +15,14 @@ public class DummyValues {
         TemplateField field1 = new TemplateField();
         field1.setName("Template1");
         field1.setHint("TemplateHint1");
-        field1.setType(TemplateField.Type.SHORT_TEXT);
+        field1.setType(TemplateField.Type.TEXT);
         TemplateField field2 = new TemplateField();
         field2.setName("Template2");
         field2.setHint("TemplateHint2");
-        field2.setType(TemplateField.Type.SHORT_TEXT);
+        field2.setType(TemplateField.Type.TEXT);
         TemplateField field3 = new TemplateField();
         field3.setName("BooleanField");
-        field3.setType(TemplateField.Type.BOOLEAN);
+        field3.setType(TemplateField.Type.CHECKBOX);
 
         t.getFields().add(field1);
         t.getFields().add(field2);

@@ -9,17 +9,20 @@ import java.io.Serializable;
 public class TemplateField implements Serializable {
 
     public enum Type {
-        SHORT_TEXT,
-        LONG_TEXT,
+        CHECKBOX,
+        MULTISEL,
+        TEXTAREA,
+        TEXT,
+        NUMBER,
+        DATE,
         EMAIL,
-        NUMERIC,
-        BOOLEAN,
-        MULTIPLE_CHOICE
+        URL,
+        TEL,
     }
 
     private String name;
     private String hint;
-    private Type type = Type.SHORT_TEXT;
+    private Type type = Type.TEXT;
 
     public final String getName() {
         return name;

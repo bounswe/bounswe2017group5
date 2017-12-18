@@ -56,12 +56,11 @@ class DataTemplateSimpleSerializer(serializers.ModelSerializer):
         """
         Check that fields value is in correct format.
         """
+        errors = []
         
         if not value:
             errors.append("Template should have at least one field")
         else:
-            errors = []
-            
             legends = []
 
             i = 0

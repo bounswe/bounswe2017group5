@@ -43,7 +43,8 @@ class DataTemplateSimpleSerializer(serializers.ModelSerializer):
         'date',
         'email',
         'url',
-        'tel'
+        'tel',
+        'select'
     ]
 
     class Meta:
@@ -56,34 +57,37 @@ class DataTemplateSimpleSerializer(serializers.ModelSerializer):
         Check that fields value is in correct format.
         """
         
-        errors = []
+        if not value:
+            errors.append("Template should have at least one field")
+        else:
+            errors = []
+            
+            legends = []
 
-        legends = []
+            i = 0
+            for field in value:
+                try:   
+                    fieldType = field['type']
+                    fieldLegend = field['legend']
+                    fieldInputs = field['inputs']
 
-        i = 0
-        for field in value:
-            try:   
-                fieldType = field['type']
-                fieldLegend = field['legend']
-                fieldInputs = field['inputs']
+                    if fieldType not in self.VALID_TYPES:
+                        errors.append("In field[%d]: 'type' should be one of these: [ %s ]" % (i, ", ".join(self.VALID_TYPES)))
 
-                if fieldType not in self.VALID_TYPES:
-                    errors.append("In field[%d]: 'type' should be one of these: [ %s ]" % (i, ", ".join(self.VALID_TYPES)))
+                    if not isinstance(fieldLegend, basestring):
+                        errors.append("In field[%d]: 'legend' must be a string" % i)
 
-                if not isinstance(fieldLegend, basestring):
-                    errors.append("In field[%d]: 'legend' must be a string" % i)
+                    if not fieldLegend.strip():
+                        errors.append("In field[%d]: 'legend' must not be empty" % i)
 
-                if not fieldLegend.strip():
-                    errors.append("In field[%d]: 'legend' must not be empty" % i)
+                    if fieldLegend in legends:
+                        errors.append("In field[%d]: multiple definitions of same legend found for %s" % (i, fieldLegend))
+                    
+                    legends.append(fieldLegend)
 
-                if fieldLegend in legends:
-                    errors.append("In field[%d]: multiple definitions of same legend found for %s" % (i, fieldLegend))
-                
-                legends.append(fieldLegend)
-
-            except KeyError:
-                errors.append("In field[%d]: Elements should have 'type', 'legend' and 'inputs' fields." % i)
-            i = i + 1
+                except KeyError:
+                    errors.append("In field[%d]: Elements should have 'type', 'legend' and 'inputs' fields." % i)
+                i = i + 1
 
         if errors:
             raise serializers.ValidationError(errors)
@@ -157,8 +161,8 @@ class PostCreateSerializer(serializers.ModelSerializer):
                 if not field_question.strip():
                     errors.append("In field[%d]: 'question' must not be empty." % i)
 
-                if not field_response.strip():
-                    errors.append("In field[%d]: 'response' must not be empty." % i)
+                # if not field_response.strip():
+                #     errors.append("In field[%d]: 'response' must not be empty." % i)
 
             except KeyError:
                 errors.append("Post data should have 'question' and 'response' fields")
@@ -176,13 +180,15 @@ class PostCreateSerializer(serializers.ModelSerializer):
 
         template_errors = []
 
-        for field in template.fields:
-            data_field = filter(lambda x: x['question'] == field['legend'], post_data)
-
-            if not data_field:
-                template_errors.append("'%s' question must be present in post data.")
-            elif len(data_field) is not 1:
-                template_errors.append("'%s' question must only appear once in post data.")
+        if len(post_data) < len(template.fields):
+            template_errors.append('Post does not have enough many fields')
+        elif len(post_data) > len(template.fields):
+            template_errors.append('Post has more fields than its template')
+        else:
+            for i in range(len(post_data)):
+                field_legend = template.fields[i]['legend'].strip()
+                if post_data[i]['question'].strip() != field_legend:
+                    template_errors.append("In field[%d]: 'question' should have been '%s'" % (i, field_legend))
 
         if template_errors:
             raise serializers.ValidationError({'template_errors' : template_errors})

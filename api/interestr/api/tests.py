@@ -130,7 +130,7 @@ class PostTests(TestCase):
         except KeyError:
             self.fail('Data Template object should have field \'owner\'')
 
-    def test_create_post_with_no_relation_to_template(self):
+    def test_create_post_disagreeing_with_its_template(self):
         self.client.force_authenticate(self.test_user)
 
         post_data = {
@@ -475,11 +475,11 @@ class DataTemplateTests(TestCase):
                     ]
                 },
                 {
-                    'type': 'text',
+                    'type': 'textarea',
                     'legend': 'SameLegend',
                     'inputs': [
                         {
-                            'type': 'text'
+                            'type': 'textarea'
                         }
                     ]
                 }

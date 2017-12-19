@@ -40,13 +40,6 @@
     <style name="InterestrTheme.Text">
     </style>
 
-    <style name="InterestrTheme.Text.InputHint" parent="InterestrTheme.Text">
-        <item name="android:textColor">#EEEEEE</item>
-        <item name="android:textSize">18sp</item>
-        <item name="android:gravity">center_vertical</item>
-        <item name="android:singleLine">true</item>
-    </style>
-
     <style name="InterestrTheme.Text.Emphasis" parent="InterestrTheme.Text">
         <item name="android:textAllCaps">true</item>
         <item name="android:textStyle">bold</item>

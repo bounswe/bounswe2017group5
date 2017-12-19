@@ -34,13 +34,67 @@ class DataTemplateIdNameFieldsSerializer(serializers.ModelSerializer):
 
 class DataTemplateSimpleSerializer(serializers.ModelSerializer):
 
+    VALID_TYPES = [
+        'checkbox',
+        'multisel',
+        'textarea',
+        'text',
+        'number',
+        'date',
+        'email',
+        'url',
+        'tel',
+        'select'
+    ]
+
     class Meta:
         model = core_models.DataTemplate
         fields = ('id', 'name', 'group', 'user',
                   'created', 'updated', 'fields')
 
+    def validate_fields(self, value):
+        """
+        Check that fields value is in correct format.
+        """
+        errors = []
+        
+        if not value:
+            errors.append("Template should have at least one field")
+        else:
+            legends = []
 
-class DataTemplateSerializer(serializers.ModelSerializer):
+            i = 0
+            for field in value:
+                try:   
+                    fieldType = field['type']
+                    fieldLegend = field['legend']
+                    fieldInputs = field['inputs']
+
+                    if fieldType not in self.VALID_TYPES:
+                        errors.append("In field[%d]: 'type' should be one of these: [ %s ]" % (i, ", ".join(self.VALID_TYPES)))
+
+                    if not isinstance(fieldLegend, basestring):
+                        errors.append("In field[%d]: 'legend' must be a string" % i)
+
+                    if not fieldLegend.strip():
+                        errors.append("In field[%d]: 'legend' must not be empty" % i)
+
+                    if fieldLegend in legends:
+                        errors.append("In field[%d]: multiple definitions of same legend found for %s" % (i, fieldLegend))
+                    
+                    legends.append(fieldLegend)
+
+                except KeyError:
+                    errors.append("In field[%d]: Elements should have 'type', 'legend' and 'inputs' fields." % i)
+                i = i + 1
+
+        if errors:
+            raise serializers.ValidationError(errors)
+
+        return value
+
+
+class DataTemplateSerializer(DataTemplateSimpleSerializer):
     user = UserIdNameSerializer()
     group = GroupIdNameDescriptionSerializer()
 
@@ -87,6 +141,59 @@ class VoteSerializer(serializers.ModelSerializer):
         model = core_models.Vote
         fields = ('id', 'owner', 'post', 'up', 'created', 'updated',)
 
+class PostCreateSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = core_models.Post
+        fields = ('id', 'owner', 'group', 'data_template', 'data')
+
+    def validate_data(self, value):
+
+        errors = []
+
+        i = 0
+        for field in value:
+            try:
+                field_question = field['question']
+                field_response = field['response']
+
+                if not field_question.strip():
+                    errors.append("In field[%d]: 'question' must not be empty." % i)
+
+                # if not field_response.strip():
+                #     errors.append("In field[%d]: 'response' must not be empty." % i)
+
+            except KeyError:
+                errors.append("Post data should have 'question' and 'response' fields")
+            i = i + 1
+
+        if errors:
+            raise serializers.ValidationError(errors)
+
+        return value
+
+
+    def validate(self, data):
+        template = data['data_template']
+        post_data = data['data']
+
+        template_errors = []
+
+        if len(post_data) < len(template.fields):
+            template_errors.append('Post does not have enough many fields')
+        elif len(post_data) > len(template.fields):
+            template_errors.append('Post has more fields than its template')
+        else:
+            for i in range(len(post_data)):
+                field_legend = template.fields[i]['legend'].strip()
+                if post_data[i]['question'].strip() != field_legend:
+                    template_errors.append("In field[%d]: 'question' should have been '%s'" % (i, field_legend))
+
+        if template_errors:
+            raise serializers.ValidationError({'template_errors' : template_errors})
+
+        return data
+
 class VoteCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -104,14 +211,6 @@ class PostSerializer(serializers.ModelSerializer):
         model = core_models.Post
         fields = ('id', 'owner', 'group', 'data_template', 'data',
                   'created', 'updated', 'comments', 'votes')
-
-
-class PostCreateSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = core_models.Post
-        fields = ('id', 'owner', 'group', 'data_template', 'data')
-
 
 class ProfilePageSerializer(serializers.ModelSerializer):
 

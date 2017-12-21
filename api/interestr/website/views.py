@@ -151,7 +151,8 @@ class CreateGroupView(View):
     def post(self, request):
         form = self.form_class(request.POST, request.FILES)
         data = dict(form.data.iterlists())
-        form.fields['tags'].choices = [(id, id) for id in data["tags"]]
+        if "tags" in data.keys():
+            form.fields['tags'].choices = [(id, id) for id in data["tags"]]
 
         if form.is_valid():
             group = form.save(commit=True)

@@ -207,4 +207,6 @@ class ProfileView(View):
 
     def get(self, request, pk):
         profile = self.get_object(pk)
-        return render(request, self.template_name, {'profile' : profile})
+        following = request.user.profile in profile.followed_by.values()
+        return render(request, self.template_name, {'profile' : profile, 
+                                                    'following': following})

@@ -55,7 +55,47 @@
     <div class="profile-field">
       <b>Interests:</b> <span>{{ profile.interests }}</span>
     </div>
+    
+    <div id="followUnfollowButton" class="btn btn-round btn-fill" onclick="follow_unfollow()"></div>
+
   </div>
 </div>
 
+<script type="text/javascript">
+      var following = {{ following|yesno:"1,0" }};
+      var buttonText = ['Follow', 'Unfollow'];
+      var buttonTextPending = ['Following...', 'Unfollowing...'];
+      var btn = document.getElementById('followUnfollowButton');
+
+      function refresh_button() {
+	btn.textContent = buttonText[following];
+	if (!following) {
+	  btn.classList.add("btn-warning");
+	}
+	else {
+	  btn.classList.remove("btn-warning");
+	}
+	btn.disabled = false;
+      }
+
+      refresh_button();
+
+      function follow_unfollow() {
+	$.ajax({
+	      method: isJoined ? 'DELETE' : 'PUT',
+	      url: '{% url "api:followoperation" profile.id %}',
+	      beforeSend: function(xhr) {
+		xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
+	      }
+	    }).done(function (msg) {
+	      location.reload();
+	    });
+
+	following = 1 - following;
+	refresh_button();
+      }
+
+
+
+</script>
 {% endblock %}

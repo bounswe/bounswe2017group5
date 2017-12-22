@@ -66,7 +66,7 @@
       var buttonText = ['Follow', 'Unfollow'];
       var buttonTextPending = ['Following...', 'Unfollowing...'];
       var btn = document.getElementById('followUnfollowButton');
-
+      
       function refresh_button() {
 	btn.textContent = buttonText[following];
 	if (!following) {
@@ -81,8 +81,12 @@
       refresh_button();
 
       function follow_unfollow() {
+	if (!btn.disabled) {
+                  btn.disabled = true;
+                  btn.textContent = buttonTextPending[following];
+      
 	$.ajax({
-	      method: isJoined ? 'DELETE' : 'PUT',
+	      method: following? 'DELETE' : 'PUT',
 	      url: '{% url "api:followoperation" profile.id %}',
 	      beforeSend: function(xhr) {
 		xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
@@ -93,6 +97,7 @@
 
 	following = 1 - following;
 	refresh_button();
+	}
       }
 
 

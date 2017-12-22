@@ -364,6 +364,28 @@ class MemberGroupOperation(APIView):
         serializer = core_serializers.GroupSerializer(group)
         return JsonResponse(serializer.data)
 
+class FollowOperation(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def put(self, request, pk):
+        profile = core_models.ProfilePage.objects.get(pk=pk)
+        # handle, user is already a follower.
+        if profile.followed_by.filter(id=request.user.profile.id).count() == 1:
+            return HttpResponse(status=410)
+        request.user.profile.follows.add(profile)
+        request.user.profile.save()
+        serializer = core_serializers.ProfilePageSerializer(request.user.profile)
+        return JsonResponse(serializer.data)
+
+    def delete(self, request, pk):
+        profile = core_models.ProfilePage.objects.get(pk=pk)
+        # handle, user is not actually a follower.
+        if profile.followed_by.filter(id=request.user.profile.id).count() == 0:
+            return HttpResponse(status=410)
+        request.user.profile.follows.remove(profile)
+        request.user.profile.save()
+        serializer = core_serializers.ProfilePageSerializer(request.user.profile)
+        return JsonResponse(serializer.data)
 
 @api_view(['GET'])
 def search_wikidata(request, limit=15):

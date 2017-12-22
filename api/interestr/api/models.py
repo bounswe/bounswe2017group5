@@ -44,6 +44,7 @@ class ProfilePage(BaseModel):
     interests = models.TextField(blank=True, default='')
     user = models.OneToOneField(auth_models.User, on_delete=models.CASCADE,
                                 verbose_name="user", related_name='profile')
+    follows = models.ManyToManyField('ProfilePage', related_name='followed_by')
 
 
 class Tag(BaseModel):

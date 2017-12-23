@@ -151,7 +151,8 @@ class CreateGroupView(View):
     def post(self, request):
         form = self.form_class(request.POST, request.FILES)
         data = dict(form.data.iterlists())
-        form.fields['tags'].choices = [(id, id) for id in data["tags"]]
+        if "tags" in data.keys():
+            form.fields['tags'].choices = [(id, id) for id in data["tags"]]
 
         if form.is_valid():
             group = form.save(commit=True)
@@ -206,4 +207,6 @@ class ProfileView(View):
 
     def get(self, request, pk):
         profile = self.get_object(pk)
-        return render(request, self.template_name, {'profile' : profile})
+        following = request.user.profile in profile.followed_by.all()
+        return render(request, self.template_name, {'profile' : profile, 
+                                                    'following': following})

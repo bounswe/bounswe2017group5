@@ -7,6 +7,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
 import android.text.Layout;
+import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
@@ -34,6 +35,7 @@ public class ChoiceItemDialog extends DialogFragment {
         return dialog;
     }
 
+    @SuppressWarnings("ConstantConditions")
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -52,7 +54,7 @@ public class ChoiceItemDialog extends DialogFragment {
 
         final String finalItemName = itemName;
 
-        return new AlertDialog.Builder(getContext())
+        return new AlertDialog.Builder(new ContextThemeWrapper(getContext(), R.style.InterestrTheme_AlertDialog))
                 .setTitle("Choice")
                 .setView(dialogView)
                 .setPositiveButton(R.string.done, (dialogInterface, i) -> {

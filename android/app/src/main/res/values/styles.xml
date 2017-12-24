@@ -19,6 +19,7 @@
 
     <style name="InterestrTheme" parent="AppTheme.NoActionBar">
         <item name="android:buttonStyle">@style/InterestrTheme.ButtonStyle</item>
+        <item name="android:buttonBarButtonStyle">@style/InterestrTheme.ButtonStyle.ButtonBar.Borderless</item>
         <item name="android:textViewStyle">@style/InterestrTheme.Text</item>
     </style>
 
@@ -35,6 +36,10 @@
     <style name="InterestrTheme.ButtonStyleDark" parent="Widget.AppCompat.Button">
         <item name="android:background">@drawable/button_bg_dark</item>
         <item name="android:textColor">@color/button_text_color</item>
+    </style>
+
+    <style name="InterestrTheme.ButtonStyle.ButtonBar.Borderless"  parent="Widget.AppCompat.Button.Borderless">
+        <item name="android:textColor">#000000</item>
     </style>
 
     <style name="InterestrTheme.Text">

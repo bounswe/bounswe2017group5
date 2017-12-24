@@ -12,7 +12,6 @@ import android.widget.EditText;
 
 import com.karacasoft.interestr.ErrorHandler;
 import com.karacasoft.interestr.FloatingActionButtonHandler;
-import com.karacasoft.interestr.FloatingActionsMenuHandler;
 import com.karacasoft.interestr.InterestrApplication;
 import com.karacasoft.interestr.R;
 import com.karacasoft.interestr.network.InterestrAPI;
@@ -36,7 +35,6 @@ public class SignUpFragment extends Fragment {
     private OnSignupSuccessfulListener onSignupSuccessfulListener;
     private InterestrAPI api;
 
-    private FloatingActionsMenuHandler famHandler;
     private FloatingActionButtonHandler fabHandler;
     private ErrorHandler errorHandler;
 
@@ -92,10 +90,8 @@ public class SignUpFragment extends Fragment {
         errorHandler = (ErrorHandler) context;
 
         fabHandler = (FloatingActionButtonHandler) context;
-        famHandler = (FloatingActionsMenuHandler) context;
 
         fabHandler.hideFloatingActionButton();
-        famHandler.hideFloatingActionsMenu();
     }
 
     private InterestrAPI.Callback<User> signupCallBack = new InterestrAPI.Callback<User>() {

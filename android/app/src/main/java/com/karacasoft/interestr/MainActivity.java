@@ -33,14 +33,12 @@ public class MainActivity extends AppCompatActivity
         CreateGroupFragment.OnGroupSavedListener,
         LoginFragment.OnLoginFragmentInteractionListener,
         SignUpFragment.OnSignupSuccessfulListener,
-        FloatingActionsMenuHandler,
         FloatingActionButtonHandler,
         ErrorHandler,
         ToolbarHandler,
         MenuHandler {
 
     private FloatingActionButton fab;
-    private FloatingActionMenu fam;
     private Toolbar toolbar;
 
     private Menu menu;
@@ -59,8 +57,6 @@ public class MainActivity extends AppCompatActivity
 
         fab = findViewById(R.id.fab);
         fab.hide(false);
-        fam = findViewById(R.id.fam);
-        fam.hideMenu(false);
 
         drawer = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -190,26 +186,6 @@ public class MainActivity extends AppCompatActivity
 
         FragmentManager fm = getSupportFragmentManager();
         fm.popBackStack();
-    }
-
-    @Override
-    public FloatingActionMenu getFloatingActionsMenu() {
-        return fam;
-    }
-
-    @Override
-    public void clearFloatingActionsMenu() {
-        fam.removeAllMenuButtons();
-    }
-
-    @Override
-    public void hideFloatingActionsMenu() {
-        fam.hideMenu(true);
-    }
-
-    @Override
-    public void showFloatingActionsMenu() {
-        fam.showMenu(true);
     }
 
     @Override

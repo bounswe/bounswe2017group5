@@ -14,7 +14,6 @@ import android.view.ViewGroup;
 import com.github.clans.fab.FloatingActionButton;
 import com.karacasoft.interestr.ErrorHandler;
 import com.karacasoft.interestr.FloatingActionButtonHandler;
-import com.karacasoft.interestr.FloatingActionsMenuHandler;
 import com.karacasoft.interestr.InterestrApplication;
 import com.karacasoft.interestr.R;
 import com.karacasoft.interestr.network.InterestrAPI;
@@ -46,7 +45,6 @@ public class GroupsFragment extends Fragment {
     private boolean detached = false;
 
     private FloatingActionButtonHandler fabHandler;
-    private FloatingActionsMenuHandler famHandler;
 
     private InterestrAPI.Callback<ArrayList<Group>> groupsCallback = new InterestrAPI.Callback<ArrayList<Group>>() {
         @Override
@@ -136,13 +134,11 @@ public class GroupsFragment extends Fragment {
         errorHandler = (ErrorHandler) context;
 
         fabHandler = (FloatingActionButtonHandler) context;
-        famHandler = (FloatingActionsMenuHandler) context;
 
         fabHandler.getFloatingActionButton().setOnClickListener(
                 (view) -> onCreateGroupClicked.onCreateGroupClicked());
 
         fabHandler.hideFloatingActionButton();
-        famHandler.hideFloatingActionsMenu();
 
         setupFloatingActionButton(fabHandler.getFloatingActionButton());
         fabHandler.showFloatingActionButton();

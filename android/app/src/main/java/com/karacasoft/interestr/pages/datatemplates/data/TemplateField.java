@@ -18,6 +18,7 @@ public class TemplateField implements Serializable {
         EMAIL,
         URL,
         TEL,
+        SELECT,
     }
 
     private String name;

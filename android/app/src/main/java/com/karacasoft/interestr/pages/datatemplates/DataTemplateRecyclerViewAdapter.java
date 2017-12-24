@@ -18,6 +18,7 @@ import com.karacasoft.interestr.pages.datatemplates.view_holders.FieldViewHolder
 import com.karacasoft.interestr.pages.datatemplates.view_holders.LongTextFieldViewHolder;
 import com.karacasoft.interestr.pages.datatemplates.view_holders.MultipleChoiceFieldViewHolder;
 import com.karacasoft.interestr.pages.datatemplates.view_holders.NumericFieldViewHolder;
+import com.karacasoft.interestr.pages.datatemplates.view_holders.SelectFieldViewHolder;
 import com.karacasoft.interestr.pages.datatemplates.view_holders.ShortTextFieldViewHolder;
 import com.karacasoft.interestr.pages.datatemplates.view_holders.TelephoneFieldViewHolder;
 import com.karacasoft.interestr.pages.datatemplates.view_holders.UrlFieldViewHolder;
@@ -43,6 +44,7 @@ public class DataTemplateRecyclerViewAdapter extends RecyclerView.Adapter<FieldV
     public static final int VIEW_TYPE_EMAIL = 6;
     public static final int VIEW_TYPE_URL = 7;
     public static final int VIEW_TYPE_TEL = 8;
+    public static final int VIEW_TYPE_SELECT = 9;
 
     private ArrayList<TemplateField> fields;
     private DataTemplateCreatorFragment.OnDataTemplateFieldRemoveListener onDataTemplateFieldClickListener;
@@ -78,6 +80,8 @@ public class DataTemplateRecyclerViewAdapter extends RecyclerView.Adapter<FieldV
                 return VIEW_TYPE_URL;
             case TEL:
                 return VIEW_TYPE_TEL;
+            case SELECT:
+                return VIEW_TYPE_SELECT;
         }
         return super.getItemViewType(position);
     }
@@ -141,6 +145,11 @@ public class DataTemplateRecyclerViewAdapter extends RecyclerView.Adapter<FieldV
 
                 vh = new TelephoneFieldViewHolder(v);
                 break;
+            case VIEW_TYPE_SELECT:
+                v = LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.data_template_field_multiple_choice, parent, false);
+
+                vh = new SelectFieldViewHolder(v);
             default:
 
         }
@@ -168,6 +177,10 @@ public class DataTemplateRecyclerViewAdapter extends RecyclerView.Adapter<FieldV
             configureUrlFieldViewHolder(fields.get(position), (UrlFieldViewHolder) holder);
         } else if (getItemViewType(position) == VIEW_TYPE_TEL) {
             configureTelFieldViewHolder(fields.get(position), (TelephoneFieldViewHolder) holder);
+        } else if (getItemViewType(position) == VIEW_TYPE_SELECT) {
+            configureMultipleChoiceFieldViewHolder((MultipleChoiceTemplateField) fields.get(position),
+                    (MultipleChoiceFieldViewHolder) holder);
+            ((MultipleChoiceFieldViewHolder) holder).fieldType.setText(R.string.select);
         }
     }
 

@@ -19,7 +19,6 @@ public class CoordinatorLayoutActivity extends AppCompatActivity
     implements ErrorHandler,
         ToolbarHandler,
         FloatingActionButtonHandler,
-        FloatingActionsMenuHandler,
         GroupDetailFragment.OnAddPostButtonClicked,
         DataTemplateCreatorFragment.OnDataTemplateSavedListener {
 
@@ -33,7 +32,6 @@ public class CoordinatorLayoutActivity extends AppCompatActivity
     private CollapsingToolbarLayout collapsingToolbarLayout;
 
     private FloatingActionButton fab;
-    private FloatingActionMenu fam;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,7 +44,6 @@ public class CoordinatorLayoutActivity extends AppCompatActivity
         collapsingToolbarLayout = findViewById(R.id.collapsing_toolbar_layout);
 
         fab = findViewById(R.id.fab);
-        fam = findViewById(R.id.fam);
 
         FragmentManager fm = getSupportFragmentManager();
         if(getIntent()!=null && getIntent().getAction()!=null){
@@ -103,26 +100,6 @@ public class CoordinatorLayoutActivity extends AppCompatActivity
     @Override
     public FloatingActionButton getFloatingActionButton() {
         return fab;
-    }
-
-    @Override
-    public FloatingActionMenu getFloatingActionsMenu() {
-        return fam;
-    }
-
-    @Override
-    public void clearFloatingActionsMenu() {
-        fam.removeAllMenuButtons();
-    }
-
-    @Override
-    public void hideFloatingActionsMenu() {
-        fam.hideMenu(true);
-    }
-
-    @Override
-    public void showFloatingActionsMenu() {
-        fam.showMenu(true);
     }
 
     @Override

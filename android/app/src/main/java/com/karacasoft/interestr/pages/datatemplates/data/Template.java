@@ -24,6 +24,7 @@ public class Template implements Serializable {
     private static final String JSON_FIELD_EMAIL_KEY = "email";
     private static final String JSON_FIELD_URL_KEY = "url";
     private static final String JSON_FIELD_TEL_KEY = "tel";
+    private static final String JSON_FIELD_SELECT_KEY = "select";
 
 
     private String name;
@@ -141,8 +142,8 @@ public class Template implements Serializable {
                         fieldObj.put("type", JSON_FIELD_MULTISEL_KEY);
                         fieldObj.put("legend", field.getName());
 
-                        // in this case (ONLY) the inputs array is actually useful
-                        JSONArray choices = new JSONArray();
+
+                        JSONArray actuallyUseful = new JSONArray();
 
                         for (String choice :
                                 ((MultipleChoiceTemplateField) field).getChoices()) {
@@ -151,10 +152,35 @@ public class Template implements Serializable {
                             choiceObj.put("label", choice);
                             choiceObj.put("side", "R");
 
-                            choices.put(choiceObj);
+                            actuallyUseful.put(choiceObj);
                         }
 
-                        fieldObj.put("inputs", choices);
+                        fieldObj.put("inputs", actuallyUseful);
+
+                        break;
+                    case SELECT:
+
+                        fieldObj.put("type", JSON_FIELD_SELECT_KEY);
+                        fieldObj.put("legend", field.getName());
+
+
+                        JSONArray ohLookAnotherWasteIncoming = new JSONArray();
+
+                        JSONObject waitForIt = new JSONObject();
+                        waitForIt.put("type", "select");
+
+                        JSONArray hereItIs = new JSONArray();
+
+                        for (String choice :
+                                ((MultipleChoiceTemplateField) field).getChoices()) {
+                            hereItIs.put(choice);
+                        }
+
+                        waitForIt.put("options", hereItIs);
+
+                        ohLookAnotherWasteIncoming.put(waitForIt);
+
+                        fieldObj.put("inputs", ohLookAnotherWasteIncoming);
 
                         break;
                 }
@@ -221,8 +247,27 @@ public class Template implements Serializable {
                     templateField = new TemplateField();
                     templateField.setType(TemplateField.Type.TEL);
                     templateField.setName(field.getString("legend"));
+                } else if(field.getString("type").equals(JSON_FIELD_SELECT_KEY)) {
+                    templateField = new MultipleChoiceTemplateField();
+                    templateField.setType(TemplateField.Type.SELECT);
+                    templateField.setName(field.getString("legend"));
+                    ArrayList<String> choices = ((MultipleChoiceTemplateField) templateField).getChoices();
+
+                    JSONArray lookAtThisShitIHaveToGoOneLevelDeeperThanIShouldNow = field.getJSONArray("inputs");
+
+                    JSONObject someoneThinksThisCodeWillBeReviewedBySomeoneWhileGrading =
+                            lookAtThisShitIHaveToGoOneLevelDeeperThanIShouldNow.getJSONObject(0);
+
+                    JSONArray finallyImAtTheChoicesLevel_IsThisATestOfHowManyAbstractionLayersICanHandle =
+                            someoneThinksThisCodeWillBeReviewedBySomeoneWhileGrading.getJSONArray("options");
+
+                    for (int j = 0; j < finallyImAtTheChoicesLevel_IsThisATestOfHowManyAbstractionLayersICanHandle.length(); j++) {
+                        String choice = finallyImAtTheChoicesLevel_IsThisATestOfHowManyAbstractionLayersICanHandle.getString(j);
+
+                        choices.add(choice);
+                    }
                 } else {
-                    Log.e("Template", "Field type not supported in Android yet.");
+                    Log.e("Template", "Field type not supported in Application yet.");
                     continue;
                 }
 

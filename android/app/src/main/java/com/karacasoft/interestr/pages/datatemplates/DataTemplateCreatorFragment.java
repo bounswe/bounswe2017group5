@@ -8,6 +8,7 @@ import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -18,10 +19,8 @@ import android.view.ViewGroup;
 import android.widget.Button;
 
 import com.github.clans.fab.FloatingActionButton;
-import com.github.clans.fab.FloatingActionMenu;
 import com.karacasoft.interestr.ErrorHandler;
 import com.karacasoft.interestr.FloatingActionButtonHandler;
-import com.karacasoft.interestr.FloatingActionsMenuHandler;
 import com.karacasoft.interestr.MenuHandler;
 import com.karacasoft.interestr.R;
 import com.karacasoft.interestr.pages.datatemplates.data.MultipleChoiceTemplateField;
@@ -46,7 +45,6 @@ public class DataTemplateCreatorFragment extends Fragment {
     private OnDataTemplateFieldRemoveListener onDataTemplateFieldClickListener;
     private OnDataTemplateSavedListener onDataTemplateSavedListener;
 
-    private FloatingActionsMenuHandler famHandler;
     private FloatingActionButtonHandler fabHandler;
 
     private ErrorHandler errorHandler;
@@ -116,194 +114,125 @@ public class DataTemplateCreatorFragment extends Fragment {
         return v;
     }
 
-    private void setupFloatingActionsMenu(FloatingActionMenu menu) {
-        FloatingActionButton buttonAddShortText =
-                new FloatingActionButton(getContext());
-        buttonAddShortText.setLabelText(getString(R.string.short_text));
-        buttonAddShortText.setImageResource(R.drawable.ic_short_text_white_24dp);
-        buttonAddShortText.setColorNormalResId(R.color.colorAccent);
-        buttonAddShortText.setColorPressedResId(R.color.colorAccentDark);
-        buttonAddShortText.setOnClickListener((view) -> {
-            TemplateField field = new TemplateField();
-            field.setType(TemplateField.Type.TEXT);
+    @SuppressWarnings("ConstantConditions")
+    private void setupFloatingActionsButton(FloatingActionButton menu) {
 
-            int index = template.getFields().size();
-            template.getFields().add(field);
+        PopupMenu popupMenu = new PopupMenu(this.getContext(), menu);
+        MenuInflater inflater = popupMenu.getMenuInflater();
+        inflater.inflate(R.menu.data_template_creator_add_field_menu, popupMenu.getMenu());
+        menu.setOnClickListener(view -> popupMenu.show());
 
-            fieldListAdapter.notifyItemInserted(index);
-            menu.close(true);
+        popupMenu.setOnMenuItemClickListener(item -> {
+            int id = item.getItemId();
+            TemplateField field;
+            int index;
+            switch (id) {
+                case R.id.action_add_checkbox:
+                    field = new TemplateField();
+                    field.setType(TemplateField.Type.CHECKBOX);
+
+                    index = template.getFields().size();
+                    template.getFields().add(field);
+
+                    fieldListAdapter.notifyItemInserted(index);
+                    return true;
+                case R.id.action_add_date:
+                    field = new TemplateField();
+                    field.setType(TemplateField.Type.DATE);
+
+                    index = template.getFields().size();
+                    template.getFields().add(field);
+
+                    fieldListAdapter.notifyItemInserted(index);
+                    return true;
+                case R.id.action_add_email:
+                    field = new TemplateField();
+                    field.setType(TemplateField.Type.EMAIL);
+
+                    index = template.getFields().size();
+                    template.getFields().add(field);
+
+                    fieldListAdapter.notifyItemInserted(index);
+                    return true;
+                case R.id.action_add_multisel:
+                    field = new MultipleChoiceTemplateField();
+                    field.setType(TemplateField.Type.MULTISEL);
+
+                    index = template.getFields().size();
+                    template.getFields().add(field);
+
+                    fieldListAdapter.notifyItemInserted(index);
+                    return true;
+                case R.id.action_add_number:
+                    field = new TemplateField();
+                    field.setType(TemplateField.Type.NUMBER);
+
+                    index = template.getFields().size();
+                    template.getFields().add(field);
+
+                    fieldListAdapter.notifyItemInserted(index);
+                    return true;
+                case R.id.action_add_select:
+                    field = new MultipleChoiceTemplateField();
+                    field.setType(TemplateField.Type.SELECT);
+
+                    index = template.getFields().size();
+                    template.getFields().add(field);
+
+                    fieldListAdapter.notifyItemInserted(index);
+                    return true;
+                case R.id.action_add_telephone:
+                    field = new TemplateField();
+                    field.setType(TemplateField.Type.TEL);
+
+                    index = template.getFields().size();
+                    template.getFields().add(field);
+
+                    fieldListAdapter.notifyItemInserted(index);
+                    return true;
+                case R.id.action_add_text:
+                    field = new TemplateField();
+                    field.setType(TemplateField.Type.TEXT);
+
+                    index = template.getFields().size();
+                    template.getFields().add(field);
+
+                    fieldListAdapter.notifyItemInserted(index);
+                    return true;
+                case R.id.action_add_textarea:
+                    field = new TemplateField();
+                    field.setType(TemplateField.Type.TEXTAREA);
+
+                    index = template.getFields().size();
+                    template.getFields().add(field);
+
+                    fieldListAdapter.notifyItemInserted(index);
+                    return true;
+                case R.id.action_add_url:
+                    field = new TemplateField();
+                    field.setType(TemplateField.Type.URL);
+
+                    index = template.getFields().size();
+                    template.getFields().add(field);
+
+                    fieldListAdapter.notifyItemInserted(index);
+                    return true;
+            }
+            return super.onOptionsItemSelected(item);
         });
 
-        FloatingActionButton buttonAddBooleanField =
-                new FloatingActionButton(getContext());
-        buttonAddBooleanField.setLabelText(getString(R.string.check_box));
-        buttonAddBooleanField.setImageResource(R.drawable.ic_check_box_white_24dp);
-        buttonAddBooleanField.setColorNormalResId(R.color.colorAccent);
-        buttonAddBooleanField.setColorPressedResId(R.color.colorAccentDark);
-        buttonAddBooleanField.setOnClickListener((view) -> {
-            TemplateField field = new TemplateField();
-            field.setType(TemplateField.Type.CHECKBOX);
-
-            int index = template.getFields().size();
-            template.getFields().add(field);
-
-            fieldListAdapter.notifyItemInserted(index);
-            menu.close(true);
-        });
-
-
-        FloatingActionButton buttonAddLongTextField =
-                new FloatingActionButton(getContext());
-        buttonAddLongTextField.setLabelText(getString(R.string.long_text));
-        buttonAddLongTextField.setImageResource(R.drawable.ic_long_text_white_24dp);
-        buttonAddLongTextField.setColorNormalResId(R.color.colorAccent);
-        buttonAddLongTextField.setColorPressedResId(R.color.colorAccentDark);
-        buttonAddLongTextField.setOnClickListener((view) -> {
-            TemplateField field = new TemplateField();
-            field.setType(TemplateField.Type.TEXTAREA);
-
-            int index = template.getFields().size();
-            template.getFields().add(field);
-
-            fieldListAdapter.notifyItemInserted(index);
-            menu.close(true);
-        });
-
-
-
-        FloatingActionButton buttonAddEmailField =
-                new FloatingActionButton(getContext());
-        buttonAddEmailField.setLabelText(getString(R.string.email));
-        buttonAddEmailField.setImageResource(R.drawable.ic_email_white_24dp);
-        buttonAddEmailField.setColorNormalResId(R.color.colorAccent);
-        buttonAddEmailField.setColorPressedResId(R.color.colorAccentDark);
-        buttonAddEmailField.setOnClickListener((view) -> {
-            TemplateField field = new TemplateField();
-            field.setType(TemplateField.Type.EMAIL);
-
-            int index = template.getFields().size();
-            template.getFields().add(field);
-
-            fieldListAdapter.notifyItemInserted(index);
-            menu.close(true);
-        });
-
-
-        FloatingActionButton buttonAddNumericField =
-                new FloatingActionButton(getContext());
-        buttonAddNumericField.setLabelText(getString(R.string.numeric));
-        buttonAddNumericField.setImageResource(R.drawable.ic_numeric_white_24dp);
-        buttonAddNumericField.setColorNormalResId(R.color.colorAccent);
-        buttonAddNumericField.setColorPressedResId(R.color.colorAccentDark);
-        buttonAddNumericField.setOnClickListener((view) -> {
-            TemplateField field = new TemplateField();
-            field.setType(TemplateField.Type.NUMBER);
-
-            int index = template.getFields().size();
-            template.getFields().add(field);
-
-            fieldListAdapter.notifyItemInserted(index);
-            menu.close(true);
-        });
-
-
-        FloatingActionButton buttonAddMultipleChoiceField =
-                new FloatingActionButton(getContext());
-        buttonAddMultipleChoiceField.setLabelText(getString(R.string.multiple_choice));
-        buttonAddMultipleChoiceField.setImageResource(R.drawable.ic_list_black_24dp);
-        buttonAddMultipleChoiceField.setColorNormalResId(R.color.colorAccent);
-        buttonAddMultipleChoiceField.setColorPressedResId(R.color.colorAccentDark);
-        buttonAddMultipleChoiceField.setOnClickListener((view) -> {
-            MultipleChoiceTemplateField field = new MultipleChoiceTemplateField();
-            field.setType(TemplateField.Type.MULTISEL);
-
-            int index = template.getFields().size();
-            template.getFields().add(field);
-
-            fieldListAdapter.notifyItemInserted(index);
-            menu.close(true);
-        });
-
-
-        FloatingActionButton buttonAddDateField =
-                new FloatingActionButton(getContext());
-        buttonAddDateField.setLabelText(getString(R.string.date));
-        // buttonAddDateField.setImageResource();
-        buttonAddDateField.setColorNormalResId(R.color.colorAccent);
-        buttonAddDateField.setColorPressedResId(R.color.colorAccentDark);
-        buttonAddDateField.setOnClickListener((view) -> {
-            TemplateField field = new TemplateField();
-            field.setType(TemplateField.Type.DATE);
-
-            int index = template.getFields().size();
-            template.getFields().add(field);
-
-            fieldListAdapter.notifyItemInserted(index);
-            menu.close(true);
-        });
-
-
-        FloatingActionButton buttonAddUrlField =
-                new FloatingActionButton(getContext());
-        buttonAddUrlField.setLabelText(getString(R.string.url));
-        // buttonAddUrlField.setImageResource();
-        buttonAddUrlField.setColorNormalResId(R.color.colorAccent);
-        buttonAddUrlField.setColorPressedResId(R.color.colorAccentDark);
-        buttonAddUrlField.setOnClickListener((view) -> {
-            TemplateField field = new TemplateField();
-            field.setType(TemplateField.Type.URL);
-
-            int index = template.getFields().size();
-            template.getFields().add(field);
-
-            fieldListAdapter.notifyItemInserted(index);
-            menu.close(true);
-        });
-
-
-        FloatingActionButton buttonAddTelField =
-                new FloatingActionButton(getContext());
-        buttonAddTelField.setLabelText(getString(R.string.telephone));
-        // buttonAddTelField.setImageResource();
-        buttonAddTelField.setColorNormalResId(R.color.colorAccent);
-        buttonAddTelField.setColorPressedResId(R.color.colorAccentDark);
-        buttonAddTelField.setOnClickListener((view) -> {
-            TemplateField field = new TemplateField();
-            field.setType(TemplateField.Type.TEL);
-
-            int index = template.getFields().size();
-            template.getFields().add(field);
-
-            fieldListAdapter.notifyItemInserted(index);
-            menu.close(true);
-        });
-
-
-        menu.addMenuButton(buttonAddShortText);
-        menu.addMenuButton(buttonAddBooleanField);
-        menu.addMenuButton(buttonAddLongTextField);
-        menu.addMenuButton(buttonAddEmailField);
-        menu.addMenuButton(buttonAddNumericField);
-        menu.addMenuButton(buttonAddMultipleChoiceField);
-        menu.addMenuButton(buttonAddDateField);
-        menu.addMenuButton(buttonAddUrlField);
-        menu.addMenuButton(buttonAddTelField);
     }
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
         fabHandler = (FloatingActionButtonHandler) context;
-        famHandler = (FloatingActionsMenuHandler) context;
 
         errorHandler = (ErrorHandler) context;
 
-        fabHandler.hideFloatingActionButton();
-        famHandler.hideFloatingActionsMenu();
+        fabHandler.showFloatingActionButton();
 
-        famHandler.clearFloatingActionsMenu();
-        setupFloatingActionsMenu(famHandler.getFloatingActionsMenu());
-        famHandler.showFloatingActionsMenu();
+        setupFloatingActionsButton(fabHandler.getFloatingActionButton());
 
         this.onDataTemplateSavedListener = (OnDataTemplateSavedListener) context;
     }

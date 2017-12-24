@@ -53,7 +53,6 @@ public class GroupDetailFragment extends Fragment {
     private Button gBtnMore;
     private TextView gDescription;
     private TextView gTags;
-    private RecyclerView rvPosts;
 
     private ErrorHandler errorHandler;
     private ToolbarHandler toolbarHandler;

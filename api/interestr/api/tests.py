@@ -21,14 +21,32 @@ from .test_utils import responseErrorMessage as responseError
 
 # Create your tests here.
 class AuthTests(TestCase):
+    TEST_USERNAME = 'name'
+    TEST_PASSWORD = 'wowpass123'
+
     def setUp(self):
         self.client = APIClient()
         self.test_user = User.objects.create_user(
-            'name', 'wow@wow.com', 'wowpass123')
+            self.TEST_USERNAME, 'wow@wow.com', self.TEST_PASSWORD)
+
+    def test_me_endpoint(self):
+        # Sending a login request for the token to be created
+        response = self.client.post(
+            '/api/v1/login/', {'username': self.TEST_USERNAME, 'password': self.TEST_PASSWORD})
+
+        response = self.client.get('/api/v1/me/',
+            HTTP_AUTHORIZATION='Token %s' % Token.objects.get(user=self.test_user).key)
+
+        json_response = json.loads(response.content)
+
+        try:
+            self.assertEqual(json_response['username'], self.TEST_USERNAME)
+        except KeyError:
+            self.fail('Response does not have required fields.')
 
     def test_token_auth(self):
         response = self.client.post(
-            '/api/v1/login/', {'username': 'name', 'password': 'wowpass123'})
+            '/api/v1/login/', {'username': self.TEST_USERNAME, 'password': self.TEST_PASSWORD })
 
         self.assertEqual(response.status_code, 200,
                          responseError(response, 'Login'))

@@ -622,6 +622,39 @@ class SearchTests(TestCase):
             name="best", description="fine")
         self.test_group3 = Group.objects.create(
             name="awesome best", description="great")
+        self.test_template = DataTemplate.objects.create(
+			name="DummyTemplate %d" % 1,
+			user=self.test_user1,
+			group=self.test_group3,
+			fields=[
+				{
+					'type' : 'text',
+					'legend' : 'Wow'
+				},
+                                {
+					'type' : 'text',
+					'legend' : 'Lol'
+				}
+
+
+			]
+		)
+        self.test_post = Post.objects.create(
+			owner=self.test_user1,
+			group=self.test_group3,	
+                        data_template=self.test_template,
+			data=[
+				{
+					'question' : 'Dummy Question %d.1' % 1,
+					'response' : 'Dummy Response %d.1' % 1
+				},
+				{
+					'question' : 'Dummy Question %d.2' % 1,
+					'response' : 'Dummy Response %d.2' % 1
+				},
+			]
+		)
+
 
     def count_users(self, query):
         c = 0
@@ -704,7 +737,7 @@ class SearchTests(TestCase):
             self.fail('Search response should have a field named \'count\'')
 
         response = self.client.get(
-            '/api/v1/groups/' + '?q=' + self.test_group2.name)
+                '/api/v1/groups/', {'q':  self.test_group2.name})
         self.assertEqual(response.status_code, 200,
                          responseError(response, 'Search Group'))
 
@@ -739,3 +772,29 @@ class SearchTests(TestCase):
                 json_response['count'], self.count_groups('dummy'))
         except KeyError:
             self.fail('Search response should have a field named \'count\'')
+
+    def test_group_search_dummy_query(self):
+        search_json = {'template_id': self.test_template.id, 
+                       'constraints': 
+                       [{ "field": "Lol",
+                          "operation" : "contains",
+                          "data" : "Dumm"
+                                },
+                         { "field": "Wow",
+                           "operation" : "equals",
+                           "data" : "Dummy Response 1.1"
+                                }
+                                ]}
+        response = self.client.post('/api/v1/template_search/', search_json,
+                                                               format='json')
+        self.assertEqual(response.status_code, 200,
+                         responseError(response, 'Search by Template'))
+
+        json_response = json.loads(response.content)
+        try:
+            self.assertEqual(
+                json_response, "SQL")
+        except KeyError:
+            self.fail('Search response should have a field named \'count\'') 
+
+    

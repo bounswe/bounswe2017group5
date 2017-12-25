@@ -30,6 +30,7 @@ from django.views.decorators.csrf import csrf_exempt
 
 import urllib
 import json
+import ast
 import random
 
 from . import serializers as core_serializers
@@ -458,6 +459,44 @@ def recommend_posts(request, limit=5):
         map(lambda post: core_serializers.PostSerializer(post).data, sample(candidates, limit)))
     return JsonResponse({"results": candidates})
 
+@api_view(['POST'])
+def search_posts_by_template(request):
+    """
+    Returns search results based on template field constraints
+    """
+    type_dict = { "integer": "integer",
+                  "date":"date",
+                  "text":"text",
+                  "textarea":"text" 
+            }
+    operation_dict = { "greater": ">",
+                  "less":"<",
+                  "equals":"=",
+                  "contains":"~" 
+            }
+    
+    template_id = request.data["template_id"]
+    constraints = request.data["constraints"]
+
+    template = core_models.DataTemplate.objects.get(id=template_id)
+    fields = template.fields
+
+    
+    sql_query = "SELECT * FROM api_post WHERE data_template_id=" + str(template_id)
+    for constraint in constraints:
+        field_legend = constraint["field"]
+        field_idx = filter(lambda x: x[1]["legend"]==field_legend, enumerate(fields))[0][0]
+        field_type = type_dict[fields[0]["type"]] 
+
+        operation = operation_dict[constraint["operation"]]
+        data = constraint["data"]
+
+        sql_query += " AND (data->" + str(field_idx)  + "->>'response')::" + field_type + operation + "('" + data + "')::" + field_type     
+
+    sql_query += ";"
+    qs =core_models.Post.objects.raw(sql_query)
+    results = core_serializers.PostSerializer(qs, many=True).data
+    return JsonResponse({"results": results})
 
 class SignUpView(APIView):
     def post(self, request):

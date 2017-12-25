@@ -214,7 +214,7 @@
           <div class="header">
             <div class="text">
               <p class="title"><strong>{{ post.owner.username }}</strong></p>
-              <p class="subtitle"><small>Shared in <i>{{ post.group.name }}</i></small></p>
+              <p class="subtitle"><small>Shared in <i><a href="{% url "website:group_details" post.group.id %}">{{ post.group.name }}</a></i></small></p>
             </div>
             <div class="img">
               <img src="{% static 'assets/img/user.jpg' %}" alt="User placeholder" class="img-circle avatar">

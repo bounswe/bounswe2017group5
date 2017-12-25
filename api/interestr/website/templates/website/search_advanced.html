@@ -43,7 +43,7 @@
     margin-left: 20px;
   }
 
-  input {
+  .data-input {
     width: 250px !important;
   }
 </style>
@@ -164,7 +164,7 @@
         </ul>
       </div>
       
-      <input id="data-${numConstraints}" type="text" class="form-control" placeholder="..." size=5 onchange="adjustConstraint(${numConstraints}, 'data', this.value)" />
+      <input class="data-input" type="text" class="form-control" placeholder="..." size=5 onchange="adjustConstraint(${numConstraints}, 'data', this.value)" />
 
       <button class="btn btn-danger" type="button" onclick="removeConstraint(${numConstraints})">-</button>`;  
     const div = document.createElement('div');

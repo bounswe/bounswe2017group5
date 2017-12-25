@@ -1,0 +1,8 @@
+env
+db.sqlite3
+db.postgresql
+*.pyc
+.DS_Store
+interestr/static/
+interestr/media/
+*.egg-info

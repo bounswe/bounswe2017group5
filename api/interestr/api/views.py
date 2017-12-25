@@ -486,28 +486,41 @@ def search_posts_by_template(request):
     """
     Returns search results based on template field constraints
     """
-    type_dict = { "integer": "integer",
+    type_dict = { "number": "integer",
                   "date":"date",
                   "text":"text",
-                  "textarea":"text" 
+                  "textarea":"text",
+                  "checkbox":"text",
+                  "multisel":"text",
+                  "email": "text",
+                  "url": "text",
+                  "tel": "text"
             }
     operation_dict = { "greater": ">",
                   "less":"<",
                   "equals":"=",
                   "contains":"~" 
             }
-    
-    template_id = request.data["template_id"]
-    constraints = request.data["constraints"]
 
-    template = core_models.DataTemplate.objects.get(id=template_id)
-    fields = template.fields
+    template_id = request.data.get('template_id', None)
+    constraints = request.data.get('constraints', [])
 
+    try:
+        template = core_models.DataTemplate.objects.get(id=template_id)
+        fields = template.fields
+    except:
+        # Handle the default template case.
+        fields = [{ "inputs": [{ "type": "text", "label": False }], "type": "text", "legend": "Text" }]
     
-    sql_query = "SELECT * FROM api_post WHERE data_template_id=" + str(template_id)
+    sql_query = "SELECT * FROM api_post WHERE data_template_id" + (("=" + str(template_id)) if template_id != None else " IS NULL")
     for constraint in constraints:
         field_legend = constraint["field"]
-        field_idx = filter(lambda x: x[1]["legend"]==field_legend, enumerate(fields))[0][0]
+        field_idx = filter(lambda x: x[1]["legend"]==field_legend, enumerate(fields))
+        if len(field_idx) == 0:
+            # Incorrect POST data, non-existent field legend
+            return JsonResponse({"results": []})
+            break
+        field_idx = field_idx[0][0]
         field_type = type_dict[fields[0]["type"]] 
 
         operation = operation_dict[constraint["operation"]]

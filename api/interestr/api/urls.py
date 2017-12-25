@@ -40,4 +40,6 @@ urlpatterns = [
     url(r'^search_wiki/$', views.search_wikidata, name="searchwiki"),
     url(r'^recommend_groups/$', views.recommend_groups, name='recommendgroups'),
     url(r'^recommend_posts/$', views.recommend_posts, name='recommendposts'),
+    url(r'^template_search/$', views.search_posts_by_template, name='templatesearch'),
+
 ]

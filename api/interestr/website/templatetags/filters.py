@@ -1,6 +1,5 @@
 from django import template
 from django.db.models.query import QuerySet
-from django.utils.safestring import mark_safe
 from django.core.serializers import serialize
 from api.models import Post, Vote
 import json

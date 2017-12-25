@@ -811,7 +811,7 @@ class SearchTests(TestCase):
         json_response = json.loads(response.content)
         try:
             self.assertEqual(
-                json_response, "SQL")
+                json_response["results"][0]["id"], self.test_post.id)
         except KeyError:
             self.fail('Search response should have a field named \'count\'') 
 

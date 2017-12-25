@@ -1,0 +1,87 @@
+{% extends 'website/base.html' %}
+
+{% block title %}Create a new Group{% endblock title %}
+
+{% block navbaritems %}
+<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+  <ul class="nav navbar-nav navbar-right">
+    <li class="nav-search">
+      <input type="text" value="{{ search_term }}" class="form-control" placeholder="Search..." id="search-input">
+    </li>
+    <li>
+      <a href="javascript:void(0);" onclick="window.search()">
+        <i class="fa fa-search"></i>
+      </a>
+    </li>
+    <li class="dropdown">
+      <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{ user.username }}<b class="caret"></b></a>
+      <ul class="dropdown-menu">
+        <li><a href="{% url 'website:profile' user.id %}">Profile</a></li>
+        <li><a href="{% url 'website:my_profile' %}">Edit Profile</a></li>
+        <li><a href="{% url 'website:news' %}">News Feed</a></li>
+        <li><a href="{% url 'website:groups' %}">Groups</a></li>
+        <li class="divider"></li>
+        <li><a href="{% url 'website:logout' %}">Logout</a></li>
+      </ul>
+    </li>
+
+  </ul>
+</div>
+{% endblock navbaritems %}
+
+{% block content %}
+<div class="main">
+  <div class="container">
+    <div class="col-md-8">
+      <h1>Create A Group</h1>
+      <hr>
+      <form method='POST'>
+
+      {% csrf_token %}
+
+      {% if form.errors %}
+        {{ form.errors }}
+      {% endif %}
+
+      {% for field in form %}
+        <div class="form-group">
+          <label for="{{ field.auto_id }}">{{ field.label }}:</label>
+          {{ field }}
+        </div>
+      {% endfor %}
+
+      <button type="submit" class="btn btn-warning btn-fill btn-wide">Create</button>
+      <a href="{% url 'website:groups' %}" class="btn btn-fill btn-wide">Go Back</a>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+  window.onload = function () {
+    $("#create-group-tag-select").select2({
+      ajax: {
+          url: "{% url 'api:searchwiki' %}",
+          dataType: 'json',
+          delay: 200,
+          processResults: (data) => {
+              var results = data.results.map(el => Object.assign({}, el, {
+                  text: el.label + (el.description ? " (" + el.description + ")" : ""),
+              }));
+
+              return {
+                  results: results,
+                  pagination: {
+                      more: false,
+                  },
+              };
+          },
+          cache: true,
+      },
+      placeholder: 'Add some tags',
+      minimumInputLength: 1, // don't query the API for empty search terms
+      multiple: true, // make it a multi-select
+    });
+  };
+</script>
+{% endblock content %}

@@ -1,0 +1,271 @@
+{% extends 'website/base.html' %}
+
+{% load staticfiles %}
+{% load voting_extras %}
+
+{% block title %}News Feed{% endblock %}
+
+{% block navbaritems %}
+<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+  <ul class="nav navbar-nav navbar-right">
+    <li class="nav-search">
+      <input type="text" value="{{ search_term }}" class="form-control" placeholder="Search..." id="search-input">
+    </li>
+    <li>
+      <a href="javascript:void(0);" onclick="window.search()">
+        <i class="fa fa-search"></i>
+      </a>
+    </li>
+    <li class="dropdown">
+      <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{ user.username }}<b class="caret"></b></a>
+      <ul class="dropdown-menu">
+        <li><a href="{% url 'website:profile' user.id %}">Profile</a></li>
+        <li><a href="{% url 'website:my_profile' %}">Edit Profile</a></li>
+        <li><a href="{% url 'website:news' %}">News Feed</a></li>
+        <li><a href="{% url 'website:groups' %}">Groups</a></li>
+        <li class="divider"></li>
+        <li><a href="{% url 'website:logout' %}">Logout</a></li>
+      </ul>
+    </li>
+  </ul>
+</div>
+{% endblock %}
+
+{% block content %}
+
+<div class="main">
+  <div class="container">
+    <h1>News Feed</h1>
+    <hr>
+
+    <div class="news">
+      {% if news_items %}
+        {% for news_item in news_items %}
+
+        {% endfor %}
+      {% else %}
+        No news to show!
+      {% endif %}
+    </div>
+
+    <h1>Recommended Groups</h1>
+    <hr>
+
+    <div class="recommended-groups">
+      {% if recommended_groups %}
+        {% for group in recommended_groups %}
+        <div class="group">
+          <a href="{% url 'website:group_details' group.id %}">
+            <div class="group-image">
+              <img src="{% static 'assets/img/group_default_icon.png' %}" alt="Group alt..." width='160' class="img-thumbnail img-responsive">
+            </div>
+          </a>
+          <div class="group-info">
+            <a href="{% url 'website:group_details' group.id %}">
+              <div class="group-name">
+                <h4>{{ group.name }}</h4>
+              </div>
+            </a>
+            <div class="group-member-count">
+              {{ group.size }} member{{ group.size|pluralize }}
+            </div>
+            <div class="group-description">
+              {{ group.description }}
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      {% else %}
+        No recommended groups!
+      {% endif %}
+    </div>
+
+    <h1>Recommended Posts</h1>
+    <hr>
+
+    <script type="text/javascript">
+      window.votecaster_onload = function (votecaster) {
+      var casteractive = false;
+
+      var postid = votecaster.getAttribute('data-post-id');
+      var voteid = votecaster.getAttribute('data-vote-id');
+      var absent_voteid = -1;
+
+      var counter = votecaster.getElementsByClassName('vote-count').item(0);
+      var upcaster = votecaster.getElementsByClassName('vote-up').item(0);
+      var downcaster = votecaster.getElementsByClassName('vote-down').item(0);
+
+      var caststatus;
+      var basevote = 0;
+
+      function refresh_current_vote() {
+        casteractive = false;
+        basevote = parseInt(counter.textContent, 10) || 0;
+
+        if (voteid == absent_voteid) {
+          caststatus = null;
+          casteractive = true;
+        }
+        else {
+          $.ajax({
+            method: 'GET',
+            url: '{% url "api:votedetail" 12345 %}'.replace(/12345/, voteid),
+            beforeSend: function(xhr) {
+              xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
+            }
+          }).done(function (msg) {
+            if (msg.owner.id == {{ user.id }} && msg.post == postid) {
+              caststatus = msg.up;
+              update_buttons();
+
+              if (caststatus === true) {
+                basevote -= 1;
+              }
+              else if (caststatus === false) {
+                basevote += 1;
+              }
+
+              casteractive = true;
+            }
+          });
+        }
+      }
+
+      refresh_current_vote();
+
+      function update_buttons() {
+        if (caststatus === true) {
+          upcaster.classList.add('voted');
+          downcaster.classList.remove('voted');
+        }
+        else if (caststatus === false) {
+          upcaster.classList.remove('voted');
+          downcaster.classList.add('voted');
+        } else {
+          upcaster.classList.remove('voted');
+          downcaster.classList.remove('voted');
+        }
+      }
+
+      upcaster.onclick = function (event) {
+        vote(true);
+      }
+
+      downcaster.onclick = function (event) {
+        vote(false);
+      }
+
+      function vote(up) {
+        if (casteractive) {
+          casteractive = false;
+
+          if (caststatus === up) {
+            caststatus = null;
+            counter.textContent = basevote.toString();
+          }
+          else {
+            caststatus = up;
+            counter.textContent = (basevote + (up ? 1 : -1)).toString();
+          }
+
+          update_buttons();
+
+          if (voteid == absent_voteid) {
+            // CREATE VOTE, MAKE IT `UP`
+            $.ajax({
+              method: 'POST',
+              url: '{% url "api:votes" %}',
+              data: {
+                post: postid,
+                up: caststatus
+              },
+              beforeSend: function(xhr) {
+                xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
+              }
+            }).done(function (msg) {
+              voteid = msg.id;
+              casteractive = true;
+            });
+          }
+          else {
+            $.ajax({
+              method: 'PATCH',
+              url: '{% url "api:votedetail" 12345 %}'.replace(/12345/, voteid),
+              data: {
+                post: postid,
+                up: caststatus
+              },
+              beforeSend: function(xhr) {
+                xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
+              }
+            }).done(function (msg) {
+              casteractive = true;
+            });
+          }
+        }
+      }
+    }
+    </script>
+    <div class="recommended-posts">
+      {% if recommended_posts %}
+        {% for post in recommended_posts %}
+        <div class="group-detail-content">
+          <!-- Post Start -->
+          <div class="header">
+            <div class="text">
+              <p class="title"><strong>{{ post.owner.username }}</strong></p>
+              <p class="subtitle"><small>Shared in <i>{{ post.group.name }}</i></small></p>
+            </div>
+            <div class="img">
+              <img src="{% static 'assets/img/user.jpg' %}" alt="User placeholder" class="img-circle avatar">
+            </div>
+          </div>
+          <div class="content">
+            {% for question_response in post.data %}
+            <p><strong>{{ question_response.question }}</strong>: <span>{{ question_response.response }}</span></p>
+            {% endfor %}
+          </div>
+          <!-- Post Start -->
+          <div style="display: flex">
+            <!-- Votes Start -->
+            <div data-post-id="{{ post.id }}" data-vote-id="{{ post|vote_of_user:user.id }}" id="post-{{post.id}}" class="votecaster">
+              <span class="vote-count">{{ post|vote_sum }}</span>
+              <span title="+1 Vote Up" class="fa fa-chevron-up vote vote-up"></span>
+              <span title="-1 Vote Down" class="fa fa-chevron-down vote vote-down"></span>
+            </div><script type="text/javascript">votecaster_onload(document.getElementById("post-{{post.id}}"));</script>
+            <!-- Votes Start -->
+  
+            <!-- Comments Header Start -->
+            <div class="comments-header">
+              <a class="text-muted" onclick="$(this).parent().parent().next().slideToggle()" href="javascript:void(0);">
+                {{ post.comments|length }} Comment{{ post.comments|length|pluralize }}
+              </a>
+            </div>
+            <!-- Comments Header End -->
+          </div>
+  
+          <!-- Comments Contents Start -->
+          <div class="comments-contents" style="display: none">
+            <!-- <div class="form-group" id="commentForm{{post.id}}">
+              <input name="text" class="form-control" id="comment-text-post-{{post.id}}" type="text" onkeypress="submitComment(event,this)" placeholder="Press Enter to send your comment!">
+            </div> -->
+  
+            <div class="comments-old-contents" style="text-align: left">
+                {% for comment in post.comments.all%}
+                   <hr> </hr>
+                   <p style="font-size: 14px">{{ comment.text }} - <span style="color: #3af">{{comment.owner.username }}</span> <span style="color: #9199a1">{{comment.created}}</span></p>
+                {% endfor %}
+            </div>
+          </div>
+          <!-- Comments Contents End -->
+  
+        </div>
+        {% endfor %}
+      {% else %}
+        No recommended posts!
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+{% endblock %}

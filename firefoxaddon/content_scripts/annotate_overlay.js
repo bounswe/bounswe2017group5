@@ -32,6 +32,8 @@
     dismissButton.id = 'anno-dismiss-button';
     dismissButton.innerText = 'Dismiss';
 
+    var sidebarPort = browser.runtime.connect({name: "cs-to-sidebar"});
+
     /**
      * Check and set a global guard variable.
      * If this content script is injected into the same page again,
@@ -67,7 +69,7 @@
     }
 
     // https://stackoverflow.com/a/4588211, edited
-    function CSSPath(el){
+    function CssSelector(el){
         var names = [];
         var i;
         var e;
@@ -94,13 +96,17 @@
             el = el.parentElement;
         }
 
-        return names.reverse().join(" > ");
+        return {
+            type: 'CssSelector',
+            value: names.reverse().join(" > ")
+        };
     }
 
     function CSSPathTest() {
         for (var element of document.querySelectorAll('*')) {
-            if (element !== document.querySelector(CSSPath(element))) {
-                alert('Failed with element: ' + CSSPath(element));
+            var value = CssSelector(element).value;
+            if (element !== document.querySelector(value)) {
+                alert('Failed with element: ' + value);
                 break;
             }
         }
@@ -121,8 +127,16 @@
 
     function handleClick(event) {
         annoUnselectAll();
+
         window.annoSelected.push(event.target);
         event.target.classList.add('anno-highlight-selected');
+        sidebarPort.postMessage({
+            target: {
+                source: window.location.href,
+                selector: CssSelector(event.target)
+            }
+        });
+
         event.stopPropagation();
         event.preventDefault();
         event.target.blur();

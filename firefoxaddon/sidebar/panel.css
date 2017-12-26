@@ -1,3 +1,8 @@
+p, ol {
+  margin-block-start: .3em;
+  margin-block-end: .3em;
+}
+
 html, body {
   height: 100%;
   width: 100%;
@@ -7,17 +12,13 @@ html, body {
 
 body {
   height: 90%;
+  padding: 1em;
   font: caption;
   background-color: #F4F7F8;
 }
 
-p {
-  margin: 1em 2em;
-}
-
 #content {
   height: 90%;
-  margin: 2em 2em 0 2em;
   padding: 4px;
   border: .5em solid slategray;
   transition: background-color .2s ease-out;
@@ -30,4 +31,14 @@ p {
 
 [contenteditable]:focus {
   outline: 0px solid transparent;
+}
+
+#submit {
+  margin: 10px;
+  display: flex;
+  flex-direction: row-reverse;
+}
+
+#submit > button {
+  padding: 2px 4px;
 }

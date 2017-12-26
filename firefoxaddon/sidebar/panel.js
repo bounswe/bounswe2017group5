@@ -80,3 +80,15 @@ browser.windows.getCurrent({populate: true}).then((windowInfo) => {
 	myWindowId = windowInfo.id;
 	updateContent();
 });
+
+function updateBinding(target) {
+    contentBox.textContent = 'Now targeting: ' + JSON.stringify(target);
+}
+
+browser.runtime.onConnect.addListener(function (port) {
+    if (port.name === "cs-to-sidebar") {
+        port.onMessage.addListener(function (message) {
+            updateBinding(message.target);
+        });
+    }
+});

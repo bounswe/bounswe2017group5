@@ -3,6 +3,7 @@ package com.karacasoft.interestr.pages.createpost.viewholders;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
+import com.karacasoft.interestr.pages.createpost.data.PostData;
 import com.karacasoft.interestr.pages.datatemplates.data.TemplateField;
 
 /**
@@ -13,8 +14,8 @@ import com.karacasoft.interestr.pages.datatemplates.data.TemplateField;
 
 public abstract class FormFieldViewHolder extends RecyclerView.ViewHolder {
 
+    public PostData data;
     protected TemplateField field;
-    protected String answer;
 
     public FormFieldViewHolder(View itemView) {
         super(itemView);
@@ -22,5 +23,7 @@ public abstract class FormFieldViewHolder extends RecyclerView.ViewHolder {
 
     public abstract String getAnswer();
 
-    public abstract void updateField();
+    public void updateField() {
+        data.setResponse(getAnswer());
+    }
 }

@@ -8,8 +8,9 @@
 {% block navbaritems %}
 <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
   <ul class="nav navbar-nav navbar-right">
+    <li><a href="{% url 'website:search_advanced' %}">Advanced Search</a></li>
     <li class="nav-search">
-      <input type="text" value="{{ search_term }}" class="form-control" placeholder="Search... (Press Enter for advanced search)" id="search-input">
+      <input type="text" value="{{ search_term }}" class="form-control" placeholder="Search..." id="search-input">
     </li>
     <li>
       <a href="javascript:void(0);" onclick="window.search()">

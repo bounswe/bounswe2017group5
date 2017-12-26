@@ -1,0 +1,277 @@
+{% extends 'website/base.html' %}
+
+{% load filters %}
+{% load static %}
+
+{% block title %}Search{% endblock %}
+
+{% block navbaritems %}
+<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+  <ul class="nav navbar-nav navbar-right">
+    <li><a href="{% url 'website:search_advanced' %}">Advanced Search</a></li>
+    <li class="nav-search">
+      <input type="text" value="{{ search_term }}" class="form-control" placeholder="Search..." id="search-input">
+    </li>
+    <li>
+      <a href="javascript:void(0);" onclick="window.search()">
+        <i class="fa fa-search"></i>
+      </a>
+    </li>
+    <li class="dropdown">
+      <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{ user.username }}<b class="caret"></b></a>
+      <ul class="dropdown-menu">
+        <li><a href="{% url 'website:profile' user.id %}">Profile</a></li>
+        <li><a href="{% url 'website:my_profile' %}">Edit Profile</a></li>
+        <li><a href="{% url 'website:news' %}">News Feed</a></li>
+        <li><a href="{% url 'website:groups' %}">Groups</a></li>
+        <li class="divider"></li>
+        <li><a href="{% url 'website:logout' %}">Logout</a></li>
+      </ul>
+    </li>
+  </ul>
+</div>
+{% endblock %}
+
+{% block content %}
+
+<style>
+  .form-group {
+    display: flex;
+    align-items: center;
+  }
+
+  .form-group > :not(:first-child) {
+    margin-left: 20px;
+  }
+
+  .data-input {
+    width: 250px !important;
+  }
+</style>
+
+<div class="main">
+  <div class="container">
+    <h1>Advanced Search</h1>
+    <hr>
+    <div class="advanced-search-form">
+      <div class="form-group">
+        <label for="data-template-dropdown">Data template:</label>
+        <div class="dropdown">
+          <button class="btn btn-round dropdown-toggle" type="button" id="data-template-dropdown" data-toggle="dropdown" aria-haspopup="true"
+            aria-expanded="false">
+            <span id="currentTemplateText">Select a template</span>
+            <b class="caret"></b>
+          </button>
+          <ul class="dropdown-menu" role="menu" aria-labelledby="data-template-dropdown">
+            <li>
+              <a href="javascript:void(0);" onclick="selectTemplate('{&quot;fields&quot;: { &quot;name&quot;: &quot;Default&quot;, &quot;fields&quot;: [{ &quot;legend&quot;: &quot;Text&quot; }]  }}')">Default</a>
+            </li>
+            {% for template in data_templates %}
+            <li>
+              <a href="javascript:void(0);" onclick="selectTemplate('{{ template|jsonify }}')">{{ template.name }} ({{ template.group.name }})</a>
+            </li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+
+      <div id="fields">
+      </div>
+
+      <div class="form-group">
+        <button class="btn btn-primary" type="button" onclick="addConstraint()" id="new-constraint-button" style="display:none">
+          + New Constraint
+        </button>
+      </div>
+
+      <div class="form-group">
+        <button class="btn btn-warning" type="button" onclick="makeAdvancedSearch()" id="search-button" style="display:none">
+          Search
+        </button>
+      </div>
+
+      <div class="form-group" style="display:none" id="spinner">
+        <i class="fa fa-cog fa-spin" style="font-size:36px;"></i>
+      </div>
+    </div>
+
+    <div id="results" style="margin-top:20px; display:none">
+      <h1>Search Results</h1>
+      <hr>
+
+      <div id="search-results" class="recommended-posts"></div>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+  const currentTemplateText = $('#currentTemplateText');
+  const fields = $('#fields');
+  const newConstraintButton = $('#new-constraint-button');
+  const searchButton = $('#search-button');
+  const resultsBlock = $('#results');
+  const searchResults = $('#search-results');
+  const spinner = $('#spinner');
+
+  let spinnerShowTimeout;
+  $(document)
+    .ajaxStart(function () {
+      // Only show the spinner if the request won't complete in a second.
+      spinnerShowTimeout = setTimeout(() => {
+        spinner.show();
+      }, 1000);
+    })
+    .ajaxStop(function () {
+      clearTimeout(spinnerShowTimeout);
+      spinner.hide();
+    });
+
+   // Key: backend value, Value: pretty print
+  const possibleOps = {
+    "greater": "is greater than",
+    "less": "is less than",
+    "equals": "is equal to",
+    "contains": "contains"
+  };
+  let selectedTemplate = null;
+  let numConstraints;
+  let constraints;
+
+  function adjustConstraint(i, key, val, optionText) {
+    constraints[i] = constraints[i] || {};
+    constraints[i][key] = val;
+    if (optionText) {
+      $(`#${key}-${i}-label`).text(optionText);
+    }
+  }
+
+  function addConstraint() {
+    const legendOptions = selectedTemplate.fields.map(f => `<li><a href="javascript:void(0);" onclick="adjustConstraint(${numConstraints}, 'field', '${f.legend}', '${f.legend}')">${f.legend}</a></li>`).join('');
+    const operationOptions = Object.keys(possibleOps).map(op => `<li><a href="javascript:void(0);" onclick="adjustConstraint(${numConstraints}, 'operation', '${op}', '${possibleOps[op]}')">${possibleOps[op]}</a></li>`).join('');
+    const fieldHtml = `
+      <label for="field-${numConstraints}">Field </label>
+      <div class="dropdown">
+        <button class="btn btn-round dropdown-toggle" type="button" id="field-${numConstraints}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          <span id="field-${numConstraints}-label">Select a field</span>
+          <b class="caret"></b>
+        </button>
+        <ul class="dropdown-menu" role="menu" aria-labelledby="field-${numConstraints}">
+          ${legendOptions}
+        </ul>
+      </div>
+
+      <div class="dropdown">
+        <button class="btn btn-round dropdown-toggle" type="button" id="operation-${numConstraints}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          <span id="operation-${numConstraints}-label">is ...</span>
+          <b class="caret"></b>
+        </button>
+        <ul class="dropdown-menu" role="menu" aria-labelledby="operation-${numConstraints}">
+          ${operationOptions}
+        </ul>
+      </div>
+      
+      <input class="data-input form-control" type="text" placeholder="..." size=5 onchange="adjustConstraint(${numConstraints}, 'data', this.value)" />
+
+      <button class="btn btn-danger" type="button" onclick="removeConstraint(${numConstraints})">-</button>`;  
+    const div = document.createElement('div');
+    div.classList.add('form-group');
+    div.id = `constraint-${numConstraints}`;
+    div.innerHTML = fieldHtml;
+    numConstraints++;
+    fields.append(div);
+  }
+
+  function removeConstraint(i) {
+    $(`#constraint-${i}`).remove();
+    constraints[i] = undefined;
+  }
+
+  function selectTemplate(templateStr) {
+    const template = JSON.parse(templateStr);
+    selectedTemplate = {
+      id: template.pk,
+      ...template.fields,
+    };
+    currentTemplateText.text(selectedTemplate.name);
+    fields.html('');
+    constraints = [];
+    numConstraints = 0;
+    addConstraint();
+    newConstraintButton.show();
+    searchButton.show();
+  }
+
+  function loadResults(posts) {
+    searchResults.html('');
+    if (!posts.length) {
+      searchResults.html('No posts found.');
+      return;
+    }
+    for (const post of posts) {
+      const groupDetailUrl = '{% url "website:group_details" 12345 %}';
+      const postHtml = `
+        <!-- Post Start -->
+        <div class="header">
+          <div class="text">
+            <p class="title"><strong>${post.owner.username}</strong></p>
+            <p class="subtitle"><small>Shared in <i><a href="${groupDetailUrl.replace(/12345/, post.group.id)}">${ post.group.name }</a></i></small></p>
+          </div>
+          <div class="img">
+            <img src="{% static 'assets/img/user.jpg' %}" alt="User placeholder" class="img-circle avatar">
+          </div>
+        </div>
+        <div class="content">
+        ${post.data.map(question_response => `<p><strong>${ question_response.question }</strong>: <span>${ question_response.response }</span></p>`).join('')}
+        </div>
+        <!-- Post Start -->
+        <div style="display: flex">
+          <!-- Comments Header Start -->
+          <div class="comments-header">
+            <a class="text-muted" onclick="$(this).parent().parent().next().slideToggle()" href="javascript:void(0);">
+              ${ post.comments.length } Comments
+            </a>
+          </div>
+          <!-- Comments Header End -->
+        </div>
+
+        <!-- Comments Contents Start -->
+        <div class="comments-contents" style="display: none">
+          <!-- <div class="form-group" id="commentForm${post.id}">
+            <input name="text" class="form-control" id="comment-text-post-${post.id}" type="text" onkeypress="submitComment(event,this)" placeholder="Press Enter to send your comment!">
+          </div> -->
+
+          <div class="comments-old-contents" style="text-align: left">
+          ${post.comments.map(comment => `<hr> </hr>
+                <p style="font-size: 14px">${ comment.text } - <span style="color: #3af">${comment.owner.username }</span> <span style="color: #9199a1">${comment.created}</span></p>`).join('')}
+          </div>
+        </div>
+        <!-- Comments Contents End -->
+
+      </div>`;
+      const div = document.createElement('div');
+      div.classList.add('group-detail-content');
+      div.innerHTML = postHtml;
+      searchResults.append(div);
+    }
+  }
+
+  function makeAdvancedSearch() {
+    $.ajax({
+      method: 'POST',
+      url: '{% url "api:templatesearch" %}',
+      data: JSON.stringify({
+        template_id: selectedTemplate.id,
+        constraints: constraints.filter(c => !!c), // eliminate the null/undefined values
+      }),
+      beforeSend: (xhr) => {
+        xhr.setRequestHeader("Content-Type", "application/json");
+        xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
+      }
+    }).done((resp) => {
+      resultsBlock.show();
+      loadResults(resp.results);
+    }).fail((xhr, status, err) => swal('Oops...', 'Unexpected error, couldn\'t send the post.', 'error'));
+  }
+</script>
+
+{% endblock %}

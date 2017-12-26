@@ -1,4 +1,37 @@
 (function() {
+    var css = document.createElement("style");
+    css.type = "text/css";
+    css.innerHTML = `
+    .anno-highlight-hover {
+        box-shadow: 0 0 2px 1px yellowgreen;
+    }
+    
+    .anno-highlight-selected {
+        box-shadow: 0 0 2px 4px tomato;
+        transition: box-shadow 0.2s ease-out;
+    }
+
+    .currently-unused::-moz-selection {
+        background: tomato;
+    }
+
+    #anno-dismiss-button {
+        background-color: firebrick;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 4px;
+        border-color: darkred;
+
+        position: fixed;
+        bottom: -4px;
+        right: 20px;
+    }
+    `;
+
+    var dismissButton = document.createElement('button');
+    dismissButton.id = 'anno-dismiss-button';
+    dismissButton.innerText = 'Dismiss';
+
     /**
      * Check and set a global guard variable.
      * If this content script is injected into the same page again,
@@ -33,6 +66,45 @@
         }
     }
 
+    // https://stackoverflow.com/a/4588211, edited
+    function CSSPath(el){
+        var names = [];
+        var i;
+        var e;
+
+        while (el.parentElement) {
+            if (el.id) {
+                names.push('#' + el.id);
+                break;
+            }
+            else if (el === document.body) {
+                names.push('body');
+                break;
+            }
+            else {
+                i = 1;
+                e = el;
+                while (e.previousElementSibling) {
+                    i++;
+                    e = e.previousElementSibling;
+                }
+                names.push(el.tagName + ":nth-child(" + i + ")");
+            }
+
+            el = el.parentElement;
+        }
+
+        return names.reverse().join(" > ");
+    }
+
+    function CSSPathTest() {
+        for (var element of document.querySelectorAll('*')) {
+            if (element !== document.querySelector(CSSPath(element))) {
+                alert('Failed with element: ' + CSSPath(element));
+                break;
+            }
+        }
+    }
 
     window.annoSelected = [];
 
@@ -52,6 +124,8 @@
         window.annoSelected.push(event.target);
         event.target.classList.add('anno-highlight-selected');
         event.stopPropagation();
+        event.preventDefault();
+        event.target.blur();
     }
 
     /**
@@ -66,15 +140,43 @@
         event.target.classList.remove('anno-highlight-hover');
         event.stopPropagation();
     }
+
+    function dismissOverlay() {
+        document.body.removeChild(css);
+
+        for (var element of document.querySelectorAll('*')) {
+            element.onmouseover = element.originalOnmouseover;
+            element.onmouseout = element.originalOnmouseout;
+            element.onclick = element.originalOnclick;
+            
+            element.originalOnmouseover = undefined;
+            element.originalOnmouseout = undefined;
+            element.originalOnclick = undefined;
+        }
+        
+        document.body.removeChild(dismissButton);
+    }
+
+    dismissButton.addEventListener('click', dismissOverlay);
     
     function applyOverlay() {
-        for (var element of document.querySelectorAll('*')) {
-            element.addEventListener('mouseover', handleMouseOver);
-            element.addEventListener('mouseout', handleMouseOut);
+        document.body.appendChild(css);
 
-            element.addEventListener('click', handleClick);            
-        }        
+        for (var element of document.body.querySelectorAll('*')) {
+            element.originalOnmouseover = element.onmouseover;
+            element.originalOnmouseout = element.onmouseout;
+            element.originalOnclick = element.onclick;
+
+            element.onmouseover = handleMouseOver;
+            element.onmouseout = handleMouseOut;
+            element.onclick = handleClick;
+        }
+
+        document.body.appendChild(dismissButton);
     }
+
+    applyOverlay();
+    
     
     /**
      * Listen for messages from the background script.
@@ -87,22 +189,9 @@
         }
     });
     */
-
-    var css = document.createElement("style");
-    css.type = "text/css";
-    css.innerHTML = `
-    .anno-highlight-hover {
-        box-shadow: 0 0 2px 1px yellowgreen;
-    }
-
-    .anno-highlight-selected {
-        box-shadow: 0 0 2px 4px tomato;
-    }
-    `;
-    document.body.appendChild(css);
     
-    // alert('woah')
+    
+    // CSSPathTest();
 
-    applyOverlay();
     
 })();

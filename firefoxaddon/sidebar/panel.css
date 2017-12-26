@@ -18,7 +18,8 @@ p {
 #content {
   height: 90%;
   margin: 2em 2em 0 2em;
-  border: .5em solid #DDE4E9;
+  padding: 4px;
+  border: .5em solid slategray;
   transition: background-color .2s ease-out;
 }
 

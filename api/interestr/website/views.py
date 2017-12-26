@@ -184,7 +184,7 @@ class SearchAdvancedView(LoginRequiredMixin, generic.ListView):
     template_name = 'website/search_advanced.html'
 
     def get(self, request):
-        data_templates = [data_template for group in request.user.joined_groups.all() for data_template in group.data_templates.all()]
+        data_templates = [data_template for group in Group.objects.all() for data_template in group.data_templates.all()]
         return render(request, self.template_name, {'data_templates': data_templates})
 
 class MyProfileView(LoginRequiredMixin, View):

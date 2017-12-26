@@ -110,20 +110,26 @@ public class DataTemplate {
         t.setId(obj.getInt("id"));
         t.setName(obj.getString("name"));
 
-        JSONObject group = obj.getJSONObject("group");
+        if(obj.has("group")) {
+            JSONObject group = obj.getJSONObject("group");
 
-        t.setGroupId(group.getInt("id"));
-        t.setGroupName(group.getString("name"));
+            t.setGroupId(group.getInt("id"));
+            t.setGroupName(group.getString("name"));
+        }
 
-        JSONObject user = obj.getJSONObject("user");
+        if(obj.has("user")) {
+            JSONObject user = obj.getJSONObject("user");
 
-        t.setUserId(user.getInt("id"));
-        t.setUserName(user.getString("username"));
+            t.setUserId(user.getInt("id"));
+            t.setUserName(user.getString("username"));
+        }
 
         try {
             t.setCreated(ModelUtils.jsonGetDate(obj, "created"));
             t.setUpdated(ModelUtils.jsonGetDate(obj, "updated"));
         } catch (ParseException e) {
+            e.printStackTrace();
+        } catch (JSONException e) {
             e.printStackTrace();
         }
 

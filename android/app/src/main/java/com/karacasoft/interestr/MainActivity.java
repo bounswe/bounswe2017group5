@@ -145,6 +145,11 @@ public class MainActivity extends AppCompatActivity
             intent.setAction(CoordinatorLayoutActivity.ACTION_DISPLAY_USER);
             intent.putExtra(CoordinatorLayoutActivity.EXTRA_USER_ID,0);//todo add id
             startActivity(intent);
+        }else if(id == R.id.nav_search){
+            FragmentManager fm = getSupportFragmentManager();
+            fm.beginTransaction()
+                    .replace(R.id.content,SearchFragment.newInstance())
+                    .commit();
         }
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);

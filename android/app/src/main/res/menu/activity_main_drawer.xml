@@ -15,6 +15,11 @@
             android:id="@+id/nav_groups"
             android:icon="@drawable/ic_group_black_24dp"
             android:title="@string/groups" />
+
+        <item
+            android:id="@+id/nav_search"
+            android:icon="@drawable/ic_menu_search"
+            android:title="Search" />
     </group>
 
 

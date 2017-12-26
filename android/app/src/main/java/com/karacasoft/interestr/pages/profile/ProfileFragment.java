@@ -140,6 +140,7 @@ public class ProfileFragment extends Fragment {
         api.getProfile(new InterestrAPI.Callback<User>() {
             @Override
             public void onResult(InterestrAPIResult<User> result) {
+                Log.d("profile","on result");
                 User user = result.get();
                 myGroups.clear();
                 myGroups.addAll(result.get().getJoinedGroups());
@@ -149,8 +150,8 @@ public class ProfileFragment extends Fragment {
             @Override
             public void onError(String error_message)
             {
-                Log.d("error", "onError: Error");
-                errorHandler.onError(error_message);
+                Log.d("error", "onError: profile");
+                //errorHandler.onError(error_message);
             }
         });
     }

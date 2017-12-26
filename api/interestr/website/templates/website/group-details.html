@@ -1057,6 +1057,27 @@ if(e.which == 13 && !e.shiftKey) {
     }
 }
 
+
   </script>
 
+	
+<script src="{% static "jquery/annotator.min.js" %}"></script>
+<script type="text/javascript">
+
+function myfunc() {
+
+    return {
+        annotationCreated: function (annotation) {
+		alert(annotation.ranges[0].endOffset)
+        }
+    };
+}
+var app = new annotator.App();
+app.include(annotator.ui.main);
+app.include(myfunc);
+
+app.start();
+
+
+</script>
 {% endblock %}

@@ -1,0 +1,45 @@
+{
+	"manifest_version": 2,
+	"name": "Interestr Annotator",
+    "version": "1.0",
+    
+    "description": "Enables annotation of elements on Interestr.",
+    "homepage_url": "https://github.com/bounswe/bounswe2017group5",
+    "icons" : {
+        "48": "icons/sticky_notes_48.png",
+        "96": "icons/sticky_notes_96.png"
+    },
+
+    "applications": {
+		"gecko": {
+			"strict_min_version": "54.0a1"
+		}
+	},
+
+	"sidebar_action": {
+        "default_icon": {
+            "16": "icons/sticky_notes_16.png",
+            "32": "icons/sticky_notes_32.png",
+            "64": "icons/sticky_notes_64.png",
+            "96": "icons/sticky_notes_96.png",
+            "128": "icons/sticky_notes_128.png"
+        },
+		"default_title" : "Interestr Annotator",
+		"default_panel": "sidebar/panel.html"
+	},
+
+	"permissions": [
+		"activeTab",
+		"tabs",
+		"storage",
+		"<all_urls>"
+	],
+
+	"commands": {
+		"_execute_sidebar_action": {
+			"suggested_key": {
+				"default": "Ctrl+Shift+Y"
+			}
+		}
+	}
+}

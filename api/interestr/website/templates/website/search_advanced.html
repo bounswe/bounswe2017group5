@@ -67,7 +67,7 @@
             </li>
             {% for template in data_templates %}
             <li>
-              <a href="javascript:void(0);" onclick="selectTemplate('{{ template|jsonify }}')">{{ template.name }}</a>
+              <a href="javascript:void(0);" onclick="selectTemplate('{{ template|jsonify }}')">{{ template.name }} ({{ template.group.name }})</a>
             </li>
             {% endfor %}
           </ul>
@@ -112,11 +112,16 @@
   const searchResults = $('#search-results');
   const spinner = $('#spinner');
 
+  let spinnerShowTimeout;
   $(document)
     .ajaxStart(function () {
-      spinner.show();
+      // Only show the spinner if the request won't complete in a second.
+      spinnerShowTimeout = setTimeout(() => {
+        spinner.show();
+      }, 1000);
     })
     .ajaxStop(function () {
+      clearTimeout(spinnerShowTimeout);
       spinner.hide();
     });
 
@@ -177,8 +182,7 @@
 
   function removeConstraint(i) {
     $(`#constraint-${i}`).remove();
-    numConstraints--;
-    
+    constraints[i] = undefined;
   }
 
   function selectTemplate(templateStr) {
@@ -251,14 +255,12 @@
   }
 
   function makeAdvancedSearch() {
-    console.log(`Searching: ${JSON.stringify(constraints)} for template ${selectedTemplate.id}`);
-    
     $.ajax({
       method: 'POST',
       url: '{% url "api:templatesearch" %}',
       data: JSON.stringify({
         template_id: selectedTemplate.id,
-        constraints: constraints,
+        constraints: constraints.filter(c => !!c), // eliminate the null/undefined values
       }),
       beforeSend: (xhr) => {
         xhr.setRequestHeader("Content-Type", "application/json");

@@ -133,5 +133,24 @@ class DataTemplate(BaseModel):
     def __str__(self):
         return self.name
 
+class Annotation(BaseModel):
+    user = models.ForeignKey(auth_models.User, related_name='%(app_label)s_%(class)s_related', on_delete=models.SET_NULL, default=None,
+                             null=True)
+    text = models.TextField(default='', blank=True)
+    post = models.ForeignKey(Post, related_name='%(app_label)s_%(class)s_related', default=None)
+    xpath = models.CharField(max_length=40)
+
+    class Meta:
+        abstract = True
+
+class ImageAnnotation(Annotation):
+    x= models.IntegerField(blank=False)
+    y= models.IntegerField(blank=False)
+    w= models.IntegerField(blank=False)
+    h= models.IntegerField(blank=False)
+
+class TextAnnotation(Annotation):
+    start= models.IntegerField(blank=False)
+    end= models.IntegerField(blank=False)
 
 # Models END

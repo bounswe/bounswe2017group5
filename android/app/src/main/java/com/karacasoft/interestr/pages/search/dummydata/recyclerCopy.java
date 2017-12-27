@@ -1,4 +1,4 @@
-package com.karacasoft.interestr.pages.search;
+//package com.karacasoft.interestr.pages.search;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -18,11 +18,9 @@ import java.util.List;
 /**
  * Created by Esra Aydemir on 23.11.2017.
  */
-
+/*
 public class SearchRecyclerViewAdapter extends RecyclerView.Adapter<SearchRecyclerViewAdapter.ViewHolder>{
     private List<SearchResultItem> searchResults;//type - group/user
-    private List<User> users;
-    private List<Group> groups;
     private ImageLoader imageLoader;
     private SearchFragment.OnSearchFragmentInteractionListener slistener;
 
@@ -41,7 +39,7 @@ public class SearchRecyclerViewAdapter extends RecyclerView.Adapter<SearchRecycl
         return new ViewHolder(view);
 
     }
-    
+
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         holder.item = searchResults.get(position);
@@ -51,7 +49,6 @@ public class SearchRecyclerViewAdapter extends RecyclerView.Adapter<SearchRecycl
         holder.searchTextView.setText(searchResults.get(position).getName());
         if(searchResults.get(position).getType() ==1){
             holder.searchTypeView.setText("user");
-            //edit if necessary todo
         }else if(searchResults.get(position).getType() ==0){
             holder.searchTypeView.setText("group");
         }else{
@@ -92,3 +89,4 @@ public class SearchRecyclerViewAdapter extends RecyclerView.Adapter<SearchRecycl
 }
 
 
+*/

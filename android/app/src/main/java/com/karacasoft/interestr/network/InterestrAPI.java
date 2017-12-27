@@ -24,6 +24,8 @@ public interface InterestrAPI {
     public void login(String username, String password, Callback<Token> callback);
     public void signup(User user, Callback<User> callback);
 
+    public void getUsers(Callback<ArrayList<User>> callback);
+
     public void createGroup(Group group, Callback<Group> callback);
     public void getGroups(Callback<ArrayList<Group>> callback);
     public void getGroupDetail(int group_id, Callback<Group> callback);
@@ -46,6 +48,7 @@ public interface InterestrAPI {
     public void authenticate(Token token);
 
     public boolean isLoggedIn();
+
 
     public void getProfile(Callback<User> callback);
 

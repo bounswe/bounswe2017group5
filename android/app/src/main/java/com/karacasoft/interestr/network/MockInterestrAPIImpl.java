@@ -43,6 +43,11 @@ public class MockInterestrAPIImpl implements InterestrAPI {
     }
 
     @Override
+    public void getUsers(Callback<ArrayList<User>> callback) {
+
+    }
+
+    @Override
     public void createGroup(Group group, Callback<Group> callback) {
 
     }

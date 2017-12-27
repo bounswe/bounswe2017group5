@@ -24,6 +24,9 @@ public class SearchResultItem  {
         this.name = name;
         this.imageUrl = null;//no image provided
     }
+    public SearchResultItem (int type){
+        this.type = type;
+    }
 
     public int getType() {
         return type;
@@ -35,5 +38,17 @@ public class SearchResultItem  {
 
     public String getImageUrl() {
         return imageUrl;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setType(int type) {
+        this.type = type;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 }

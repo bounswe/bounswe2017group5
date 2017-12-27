@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,7 +20,10 @@ import com.karacasoft.interestr.R;
 import com.karacasoft.interestr.ToolbarHandler;
 import com.karacasoft.interestr.network.InterestrAPI;
 import com.karacasoft.interestr.network.InterestrAPIImpl;
+import com.karacasoft.interestr.network.InterestrAPIResult;
+import com.karacasoft.interestr.network.models.Group;
 import com.karacasoft.interestr.network.models.Token;
+import com.karacasoft.interestr.network.models.User;
 import com.karacasoft.interestr.pages.search.SearchResultItem;
 import com.karacasoft.interestr.pages.search.dummydata.SearchDummyData;
 
@@ -44,17 +48,58 @@ public class SearchFragment extends Fragment {
     private EditText etSearch;
     private SearchRecyclerViewAdapter recyclerViewAdapter;
     private ArrayList<SearchResultItem> results = new ArrayList<>();
-    
+
     private ErrorHandler errorHandler;
     private ToolbarHandler toolbarHandler;
 
     private FloatingActionButtonHandler fabHandler;
+    private OnSearchFragmentInteractionListener slistener;
 
-    public SearchFragment() {
-        // Required empty public constructor
+    /*search by gorup name or description*/
+    private InterestrAPI.Callback<ArrayList<Group>> groupsCallback = new InterestrAPI.Callback<ArrayList<Group>>() {
+        @Override
+        public void onResult(InterestrAPIResult<ArrayList<Group>> result) {
+            for (Group grp: result.get() ) {
+                if(etSearch.getText().toString().equalsIgnoreCase(grp.getName().toString())
+                        ||
+                        grp.getDescription().toString().contains(etSearch.getText().toString())
+                        ){
+                    SearchResultItem s = new SearchResultItem(SearchResultItem.TYPE_GROUP);
+                    s.setName(grp.getName());
+                    s.setImageUrl(grp.getPictureUrl());
+                }
+            }
+        }
+
+        @Override
+        public void onError(String error_message) {
+            Log.d("search fragment", "onError: error!");
+        }
+    };
+
+    /*search by username*/
+    private InterestrAPI.Callback<ArrayList<User>> usersCallback = new InterestrAPI.Callback<ArrayList<User>>() {
+        @Override
+        public void onResult(InterestrAPIResult<ArrayList<User>> result) {
+            for (User usr: result.get()){
+                if(etSearch.getText().toString().equalsIgnoreCase(usr.getUsername().toString())){
+                    SearchResultItem s = new SearchResultItem(SearchResultItem.TYPE_USER);
+                    s.setName(usr.getUsername());
+                    s.setImageUrl(null);
+                }
+            }
+        }
+
+        @Override
+        public void onError(String error_message) {
+
+        }
+    };
+
+    public SearchFragment(){
+        //empty constructor
     }
-
-    public static SearchFragment newInstance() {
+    public static SearchFragment newInstance(){
         SearchFragment fragment = new SearchFragment();
         Bundle args = new Bundle();
         fragment.setArguments(args);
@@ -79,36 +124,51 @@ public class SearchFragment extends Fragment {
 
         searchResultList.setLayoutManager(new LinearLayoutManager(getContext()));
         searchResultList.setAdapter(recyclerViewAdapter);
-
-        fillList();
+        btnSearch.setOnClickListener(
+            (view) ->slistener.onSearchButtonClicked()
+        );
         return root;
     }
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
+        if (context instanceof OnSearchFragmentInteractionListener){
+            slistener = (OnSearchFragmentInteractionListener) context;
+        }else{
+            Log.d("searchfragment", "implement OnSearchFragmentInteractionListener");
+        }
 
         fabHandler = (FloatingActionButtonHandler) context;
-
         errorHandler = (ErrorHandler) context;
         toolbarHandler = (ToolbarHandler) context;
-
+       // slistener = (OnSearchFragmentInteractionListener) getActivity();
+        api = ((InterestrApplication) getActivity().getApplication()).getApi();
         fabHandler.hideFloatingActionButton();
     }
 
-    private void fillList(){
+    @Override
+    public void onResume() {
+        super.onResume();
+        api.getGroups(groupsCallback);
+        api.getUsers(usersCallback);
+    }
+
+    /*private void fillList(){
         results.addAll( SearchDummyData.createDummySearchResultList());
 
         recyclerViewAdapter.notifyItemRangeInserted(0, results.size());
-    }
+    }*/
 
     @Override
     public void onDetach() {
         super.onDetach();
+        slistener = null;
         // TODO
     }
 
     public interface OnSearchFragmentInteractionListener{
         void onSearchFragmentInteraction(SearchResultItem item);
+        void onSearchButtonClicked();
     }
 }

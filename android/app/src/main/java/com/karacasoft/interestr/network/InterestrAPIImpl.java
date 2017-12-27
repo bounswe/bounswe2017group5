@@ -49,6 +49,7 @@ public class InterestrAPIImpl implements InterestrAPI {
     private static final String TAG = "InterestrAPI";
     private static final String API_HOME = "http://35.177.96.220/api/v1";
 
+    private static final String ENDPOINT_USERS = API_HOME + "/users/";
     private static final String ENDPOINT_GROUPS = API_HOME + "/groups/";
     private static final String ENDPOINT_LOGIN = API_HOME + "/login/";
     private static final String ENDPOINT_REGISTER = API_HOME + "/register/";
@@ -352,6 +353,35 @@ public class InterestrAPIImpl implements InterestrAPI {
             }
         };
 
+        jobQueue.add(job);
+        networkHandler.post(job);
+    }
+
+    @Override
+    public void getUsers(final Callback<ArrayList<User>> callback) {
+        APIJob<ArrayList<User>> job = new APIJob<ArrayList<User>>(REQUEST_METHOD_GET,ENDPOINT_USERS +
+                "?limit=" + limit + "0&offset=" + offset, null, callback){
+            @Override
+            protected ArrayList<User> extractData(String data) {
+                ArrayList<User> users = new ArrayList<>();
+
+                try {
+                    JSONObject object = new JSONObject(data);
+
+                    JSONArray array = object.getJSONArray("results");
+
+                    for (int i = 0; i <array.length() ; i++) {
+                        JSONObject obj = array.getJSONObject(i);
+                        User usr = User.fromJSON(obj);
+                        users.add(usr);
+                    }
+                }catch (JSONException e){
+                    e.printStackTrace();
+                    return null;
+                }
+                return users;
+            }
+        };
         jobQueue.add(job);
         networkHandler.post(job);
     }

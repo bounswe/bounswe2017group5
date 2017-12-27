@@ -48,6 +48,7 @@ public class GroupsFragment extends Fragment {
     private InterestrAPI.Callback<ArrayList<Group>> groupsCallback = new InterestrAPI.Callback<ArrayList<Group>>() {
         @Override
         public void onResult(InterestrAPIResult result) {
+            Log.d("group","on result");
             if(detached) return;
 
             dataset.clear();

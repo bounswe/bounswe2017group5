@@ -269,7 +269,6 @@ class AnnotationSerializer(serializers.ModelSerializer):
         newdata = {
             "text": data["bodyValue"], 
             "target": data["target"]["source"],
-            "created": data["created"],
             "selector": str(data["target"]["selector"])
         }
         

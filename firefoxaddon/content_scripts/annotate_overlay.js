@@ -170,7 +170,11 @@
 
     function submitAnnotation(annotation) {
         annotation.target = {
-            type: 'Text'
+            source: window.location.href,
+            selector: {
+                type: 'CssSelector',
+                value: CssSelector(annoSelected[annoSelected.length - 1])
+            }
         }
     }
 

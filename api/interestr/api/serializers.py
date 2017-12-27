@@ -246,14 +246,6 @@ class AnnotationSerializer(serializers.ModelSerializer):
             "id": "http://interestr.com/annotations/" + str(instance.anno_id), 
             "type": "Annotation",
             "created": instance.created,
-            "creator": {
-            "id": "http://interestr.com/profile/" + str(instance.user.profile.id),
-            "type": "Person",
-            "name":  instance.user.profile.name + " " +  str(instance.user.profile.surname),
-            "nickname": instance.user.username ,
-            "email": instance.user.email
-                },
-
             "bodyValue": instance.text,
             "target": {
             "source":  str(instance.target),
@@ -261,19 +253,31 @@ class AnnotationSerializer(serializers.ModelSerializer):
              "selector":  str(instance.selector)           }
 
             }
+        if(instance.user):
+            json_str["creator"] = {
+                                    "id": "http://interestr.com/profile/" + str(instance.user.profile.id),
+                                    "type": "Person",
+                                    "name":  instance.user.profile.name + " " +  str(instance.user.profile.surname),
+                                    "nickname": instance.user.username ,
+                                    "email": instance.user.email
+                }
+
+
         return json_str
 
     def to_internal_value(self, data):
         
-        profile_id = data["creator"]["id"].strip("http://interestr.com/profile/")
-        user_id = core_models.ProfilePage.objects.get(id=profile_id).id
-        newdata = { "user": user_id, 
-                    "text": data["bodyValue"], 
+        newdata = { "text": data["bodyValue"], 
                     "annotype": data["target"]["type"],
                     "target": data["target"]["source"],
                     "created":data["created"],
                     "selector": str(data["target"]["selector"])
-
-
                 }
+        if("creator" in data.keys()): 
+            profile_id = data["creator"]["id"].strip("http://interestr.com/profile/")
+            user_id = core_models.ProfilePage.objects.get(id=profile_id).id
+            newdata["user"] =  user_id 
+
+        
+
         return  super(AnnotationSerializer, self).to_internal_value(newdata)

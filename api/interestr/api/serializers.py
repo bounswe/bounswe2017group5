@@ -242,42 +242,42 @@ class AnnotationSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         data = super(AnnotationSerializer, self).to_representation(instance)
-        json_str = {"@context": "http://www.w3.org/ns/anno.jsonld", 
+        json_str = {
+            "@context": "http://www.w3.org/ns/anno.jsonld", 
             "id": "http://interestr.com/annotations/" + str(instance.anno_id), 
             "type": "Annotation",
             "created": instance.created,
             "bodyValue": instance.text,
             "target": {
-            "source":  str(instance.target),
+                "source": str(instance.target),
                 "type": str(instance.annotype),
-             "selector":  str(instance.selector)           }
-
+                "selector": str(instance.selector)
             }
-        if(instance.user):
-            json_str["creator"] = {
-                                    "id": "http://interestr.com/profile/" + str(instance.user.profile.id),
-                                    "type": "Person",
-                                    "name":  instance.user.profile.name + " " +  str(instance.user.profile.surname),
-                                    "nickname": instance.user.username ,
-                                    "email": instance.user.email
-                }
+        }
 
+        if (instance.user):
+            json_str["creator"] = {
+                "id": "http://interestr.com/profile/" + str(instance.user.profile.id),
+                "type": "Person",
+                "name":  instance.user.profile.name + " " + str(instance.user.profile.surname),
+                "nickname": instance.user.username,
+                "email": instance.user.email
+            }
 
         return json_str
 
     def to_internal_value(self, data):
+        newdata = {
+            "text": data["bodyValue"], 
+            "annotype": data["target"]["type"],
+            "target": data["target"]["source"],
+            "created": data["created"],
+            "selector": str(data["target"]["selector"])
+        }
         
-        newdata = { "text": data["bodyValue"], 
-                    "annotype": data["target"]["type"],
-                    "target": data["target"]["source"],
-                    "created":data["created"],
-                    "selector": str(data["target"]["selector"])
-                }
-        if("creator" in data.keys()): 
+        if ("creator" in data.keys()): 
             profile_id = data["creator"]["id"].strip("http://interestr.com/profile/")
             user_id = core_models.ProfilePage.objects.get(id=profile_id).id
-            newdata["user"] =  user_id 
-
-        
+            newdata["user"] = user_id 
 
         return  super(AnnotationSerializer, self).to_internal_value(newdata)

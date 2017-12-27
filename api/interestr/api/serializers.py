@@ -233,3 +233,51 @@ class UserSerializer(serializers.ModelSerializer):
         model = auth_models.User
         fields = ('id', 'username', 'email', 'joined_groups', 'data_templates',
                   'posts', 'profilepage', 'votes', 'moderated_groups', )
+
+class AnnotationSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = core_models.Annotation
+        exclude = ( )
+
+    def to_representation(self, instance):
+        data = super(AnnotationSerializer, self).to_representation(instance)
+        json_str = {"@context": "http://www.w3.org/ns/anno.jsonld", 
+            "id": "http://interestr.com/annotations/" + str(instance.anno_id), 
+            "type": "Annotation",
+            "created": instance.created,
+            "bodyValue": instance.text,
+            "target": {
+            "source":  str(instance.target),
+                "type": str(instance.annotype),
+             "selector":  str(instance.selector)           }
+
+            }
+        if(instance.user):
+            json_str["creator"] = {
+                                    "id": "http://interestr.com/profile/" + str(instance.user.profile.id),
+                                    "type": "Person",
+                                    "name":  instance.user.profile.name + " " +  str(instance.user.profile.surname),
+                                    "nickname": instance.user.username ,
+                                    "email": instance.user.email
+                }
+
+
+        return json_str
+
+    def to_internal_value(self, data):
+        
+        newdata = { "text": data["bodyValue"], 
+                    "annotype": data["target"]["type"],
+                    "target": data["target"]["source"],
+                    "created":data["created"],
+                    "selector": str(data["target"]["selector"])
+                }
+        if("creator" in data.keys()): 
+            profile_id = data["creator"]["id"].strip("http://interestr.com/profile/")
+            user_id = core_models.ProfilePage.objects.get(id=profile_id).id
+            newdata["user"] =  user_id 
+
+        
+
+        return  super(AnnotationSerializer, self).to_internal_value(newdata)

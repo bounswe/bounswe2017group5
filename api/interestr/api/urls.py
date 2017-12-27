@@ -28,6 +28,10 @@ urlpatterns = [
     url(r'^profile_pages/(?P<pk>\d+)/$',
         views.ProfilePageDetail.as_view(), name='profilepages'),
 
+    url(r'^annotations/$', views.AnnotationList.as_view(), name='annotations'),
+    url(r'^annotations/(?P<pk>\d+)/$',
+        views.AnnotationDetail.as_view(), name='annotations'),
+
     url(r'^data_templates/$', views.DataTemplateList.as_view(), name='datatemplates'),
     url(r'^data_templates/(?P<pk>\d+)/$',
         views.DataTemplateDetail.as_view(), name='datatemplatedetail'),
@@ -42,4 +46,6 @@ urlpatterns = [
     url(r'^search_wiki/$', views.search_wikidata, name="searchwiki"),
     url(r'^recommend_groups/$', views.recommend_groups, name='recommendgroups'),
     url(r'^recommend_posts/$', views.recommend_posts, name='recommendposts'),
+    url(r'^template_search/$', views.search_posts_by_template, name='templatesearch'),
+
 ]

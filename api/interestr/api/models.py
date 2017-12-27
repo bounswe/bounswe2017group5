@@ -133,92 +133,18 @@ class DataTemplate(BaseModel):
     def __str__(self):
         return self.name
 
+class AnnoTypes(ChoiceEnum):
+    text = "Text"
+    image = "Image"
+
 class Annotation(BaseModel):
+    anno_id = models.AutoField(primary_key=True)
     user = models.ForeignKey(auth_models.User, related_name='%(app_label)s_%(class)s_related', on_delete=models.SET_NULL, default=None,
                              null=True)
     text = models.TextField(default='', blank=True)
-    post = models.ForeignKey(Post, related_name='%(app_label)s_%(class)s_related', default=None)
-    xpath = models.CharField(max_length=40)
-
-    class Meta:
-        abstract = True
-
-class ImageAnnotation(Annotation):
-    x= models.IntegerField(blank=False)
-    y= models.IntegerField(blank=False)
-    w= models.IntegerField(blank=False)
-    h= models.IntegerField(blank=False)
-
-    def as_W3C(self):
-        attr_tpl = (self.id, self.created, self.user.profile.id, self.user.profile.name, self.user.profile.surname, self.user.username, self.user.email, self.text, self.xpath, self.x, self.y, self.w, self.h)
-        json_str = {"@context": "http://www.w3.org/ns/anno.jsonld", 
-            "id": "http://interestr.com/annotations/" + str(self.id), 
-            "type": "Annotation",
-            "created": self.created,
-            "creator": {
-            "id": "http://interestr.com/profile/" + str(self.user.profile.id),
-            "type": "Person",
-            "name":  self.user.profile.name + " " +  str(self.user.profile.surname),
-            "nickname": self.user.username ,
-            "email": self.user.email
-                },
-
-            "bodyValue": self.text,
-            "target": {
-            "source": "http://interestr.com/posts/" + str(self.post.id),
-                "type": "Image",
-             "selector": {
-              "type": "XPathSelector",
-              "value": self.xpath,
-                  "refinedBy": {
-                          "type": "FragmentSelector",
-                          "conformsTo": "http://www.w3.org/TR/media-frags/",
-                          "value": "xywh=" + str(self.x) + "," + str(self.y)+ "," + str(self.w)+ "," + str(self.h) 
-
-            }  
-            }
-            }
-
-            }
-        return json_str
-
-        
-
-
-class TextAnnotation(Annotation):
-    start= models.IntegerField(blank=False)
-    end= models.IntegerField(blank=False)
-
-    def as_W3C(self):
-        json_str = {"@context": "http://www.w3.org/ns/anno.jsonld", 
-            "id": "http://interestr.com/annotations/" + str(self.id), 
-            "type": "Annotation",
-            "created": self.created,
-            "creator": {
-            "id": "http://interestr.com/profile/" + str(self.user.profile.id),
-            "type": "Person",
-            "name":  self.user.profile.name + " " +  str(self.user.profile.surname),
-            "nickname": self.user.username ,
-            "email": self.user.email
-                },
-
-            "bodyValue": self.text,
-            "target": {
-            "source": "http://interestr.com/posts/" + str(self.post.id),
-                "type": "Text",
-             "selector": {
-              "type": "XPathSelector",
-              "value": self.xpath,
-	  "refinedBy": {
-		  "type": "TextPositionSelector",
-		  "start": self.start,
-		  "end": self.end
-    }   
-            }
-            }
-
-            }
-        return json_str
+    selector = JSONField()
+    annotype = models.CharField(max_length=40, choices=AnnoTypes.choices())
+    target = models.URLField() 
 
 
 

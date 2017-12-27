@@ -78,9 +78,9 @@ public class NewsFeedFragment extends Fragment {
         @Override
         public CharSequence getPageTitle(int position) {
             if(position == 0) {
-                return context.getString(R.string.feed);
+                return context.getString(R.string.posts);
             } else if(position == 1) {
-                return context.getString(R.string.recommended);
+                return context.getString(R.string.groups);
             }
             return super.getPageTitle(position);
         }

@@ -26,9 +26,8 @@ import com.karacasoft.interestr.network.InterestrAPI;
 import com.karacasoft.interestr.network.InterestrAPIResult;
 import com.karacasoft.interestr.network.models.Group;
 import com.karacasoft.interestr.network.models.User;
-import com.karacasoft.interestr.pages.groupdetail.GroupDetailFragment;
 import com.karacasoft.interestr.pages.groups.GroupsFragment;
-import com.karacasoft.interestr.pages.groups.MyGroupRecyclerViewAdapter;
+import com.karacasoft.interestr.pages.groups.GroupRecyclerViewAdapter;
 
 import java.util.ArrayList;
 
@@ -52,7 +51,7 @@ public class ProfileFragment extends Fragment {
 
     private GroupsFragment.OnGroupsListItemClickedListener mListener;
     private RecyclerView myGroupsList;
-    private MyGroupRecyclerViewAdapter recyclerViewAdapter;
+    private GroupRecyclerViewAdapter recyclerViewAdapter;
     private ArrayList<Group> myGroups = new ArrayList<>();
     //todo group recycler reuse
     //todo context menu add
@@ -100,7 +99,7 @@ public class ProfileFragment extends Fragment {
         registerForContextMenu(btnMore);
 
         myGroupsList = root.findViewById(R.id.rvMyGroups);
-        recyclerViewAdapter = new MyGroupRecyclerViewAdapter(myGroups,mListener);
+        recyclerViewAdapter = new GroupRecyclerViewAdapter(myGroups,mListener);
         myGroupsList.setLayoutManager(new LinearLayoutManager(getContext()));
         myGroupsList.setAdapter(recyclerViewAdapter);
 

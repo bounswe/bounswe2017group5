@@ -17,7 +17,6 @@ import com.karacasoft.interestr.FloatingActionButtonHandler;
 import com.karacasoft.interestr.InterestrApplication;
 import com.karacasoft.interestr.R;
 import com.karacasoft.interestr.network.InterestrAPI;
-import com.karacasoft.interestr.network.InterestrAPIImpl;
 import com.karacasoft.interestr.network.InterestrAPIResult;
 import com.karacasoft.interestr.network.models.Group;
 
@@ -38,7 +37,7 @@ public class GroupsFragment extends Fragment {
 
     private ArrayList<Group> dataset = new ArrayList<>();
     private RecyclerView recyclerView;
-    private MyGroupRecyclerViewAdapter groupRecyclerViewAdapter;
+    private GroupRecyclerViewAdapter groupRecyclerViewAdapter;
 
     private InterestrAPI api;
 
@@ -111,7 +110,7 @@ public class GroupsFragment extends Fragment {
             } else {
                 recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
-            recyclerView.setAdapter(groupRecyclerViewAdapter = new MyGroupRecyclerViewAdapter(dataset, mListener));
+            recyclerView.setAdapter(groupRecyclerViewAdapter = new GroupRecyclerViewAdapter(dataset, mListener));
         }
         return view;
     }

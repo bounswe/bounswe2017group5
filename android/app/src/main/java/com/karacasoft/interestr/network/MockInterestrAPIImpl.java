@@ -93,6 +93,16 @@ public class MockInterestrAPIImpl implements InterestrAPI {
     }
 
     @Override
+    public void getRecommendedPosts(Callback<ArrayList<Post>> callback) {
+
+    }
+
+    @Override
+    public void getRecommendedGroups(Callback<ArrayList<Group>> callback) {
+
+    }
+
+    @Override
     public void logout() {
 
     }

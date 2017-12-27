@@ -133,7 +133,7 @@ public class CoordinatorLayoutActivity extends AppCompatActivity
 
     @Override
     public void onDataTemplateSaved(Template template) {
-        Snackbar.make(findViewById(R.id.coordinator_layout_activity_content), "Data Template Saved", Snackbar.LENGTH_SHORT)
+        Snackbar.make(nestedScrollView, "Data Template Saved", Snackbar.LENGTH_SHORT)
                 // TODO maybe add an action to go edit that template more??
                 .show();
 
@@ -143,8 +143,9 @@ public class CoordinatorLayoutActivity extends AppCompatActivity
 
     @Override
     public void onPostSaved(Post post) {
-        onBackPressed();
+        getSupportFragmentManager().popBackStack();
 
-        Snackbar.make(nestedScrollView, "Post saved successfully", Snackbar.LENGTH_SHORT);
+        Snackbar.make(nestedScrollView, "Post saved successfully", Snackbar.LENGTH_SHORT)
+                .show();
     }
 }

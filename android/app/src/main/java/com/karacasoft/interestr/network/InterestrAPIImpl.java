@@ -57,6 +57,8 @@ public class InterestrAPIImpl implements InterestrAPI {
     private static final String ENDPOINT_DATA_TEMPLATES = API_HOME + "/data_templates/";
     private static final String ENDPOINT_TAGS = API_HOME + "/tags/";
     private static final String ENDPOINT_ME = API_HOME + "/me/";
+    private static final String ENDPOINT_RECOMMEND_POSTS = API_HOME + "/recommend_posts/";
+    private static final String ENDPOINT_RECOMMEND_GROUPS = API_HOME + "/recommend_groups/";
 
     private static final String REQUEST_METHOD_GET = "GET";
     private static final String REQUEST_METHOD_POST = "POST";
@@ -626,6 +628,85 @@ public class InterestrAPIImpl implements InterestrAPI {
                 return t;
             }
         };
+
+        jobQueue.add(job);
+        networkHandler.post(job);
+    }
+
+    @Override
+    public void getRecommendedPosts(Callback<ArrayList<Post>> callback) {
+        APIJob<ArrayList<Post>> job = new APIJob<ArrayList<Post>>(
+                REQUEST_METHOD_GET,
+                ENDPOINT_RECOMMEND_POSTS,
+                null,
+                callback
+        ) {
+            @Override
+            protected ArrayList<Post> extractData(String data) {
+                ArrayList<Post> posts = null;
+
+                try {
+                    posts = new ArrayList<>();
+
+                    JSONObject obj = new JSONObject(data);
+
+                    JSONArray results = obj.getJSONArray("results");
+
+                    for (int i = 0; i < results.length(); i++) {
+                        JSONObject postObj = results.getJSONObject(i);
+
+                        Post post = Post.fromJSON(postObj);
+
+                        posts.add(post);
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+
+                return posts;
+            }
+        };
+
+        jobQueue.add(job);
+        networkHandler.post(job);
+    }
+
+    @Override
+    public void getRecommendedGroups(Callback<ArrayList<Group>> callback) {
+        APIJob<ArrayList<Group>> job = new APIJob<ArrayList<Group>>(
+                REQUEST_METHOD_GET,
+                ENDPOINT_RECOMMEND_GROUPS,
+                null,
+                callback
+
+        ) {
+            @Override
+            protected ArrayList<Group> extractData(String data) {
+                ArrayList<Group> groups = null;
+
+                try {
+                    groups = new ArrayList<>();
+
+                    JSONObject obj = new JSONObject(data);
+
+                    JSONArray results = obj.getJSONArray("results");
+
+                    for (int i = 0; i < results.length(); i++) {
+                        JSONObject groupObj = results.getJSONObject(i);
+
+                        Group group = Group.fromJSON(groupObj);
+
+                        groups.add(group);
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                return groups;
+            }
+        };
+
 
         jobQueue.add(job);
         networkHandler.post(job);

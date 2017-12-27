@@ -1,5 +1,6 @@
 package com.karacasoft.interestr.pages.groups;
 
+import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,16 +19,17 @@ import java.util.List;
 /**
  * {@link RecyclerView.Adapter} that can display a {@link com.karacasoft.interestr.network.models.Group}
  * and makes a call to the specified {@link OnGroupsListItemClickedListener}.
- * TODO: Replace the implementation with code for your data type.
  */
-public class MyGroupRecyclerViewAdapter extends RecyclerView.Adapter<MyGroupRecyclerViewAdapter.ViewHolder> {
+public class GroupRecyclerViewAdapter extends RecyclerView.Adapter<GroupRecyclerViewAdapter.ViewHolder> {
 
     private final List<Group> mValues;
+
+    @Nullable
     private final OnGroupsListItemClickedListener mListener;
 
     private ImageLoader imageLoader;
 
-    public MyGroupRecyclerViewAdapter(List<Group> items, OnGroupsListItemClickedListener listener) {
+    public GroupRecyclerViewAdapter(List<Group> items, @Nullable OnGroupsListItemClickedListener listener) {
         mValues = items;
         mListener = listener;
         imageLoader = ImageLoader.getInstance();
@@ -64,15 +66,15 @@ public class MyGroupRecyclerViewAdapter extends RecyclerView.Adapter<MyGroupRecy
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        public final View mView;
-        public final ImageView mGroupPictureView;
-        public final TextView mGroupNameView;
-        public final TextView mGroupDescView;
-        public final TextView mGroupMemberCountView;
+        final View mView;
+        final ImageView mGroupPictureView;
+        final TextView mGroupNameView;
+        final TextView mGroupDescView;
+        final TextView mGroupMemberCountView;
 
-        public Group mItem;
+        Group mItem;
 
-        public ViewHolder(View view) {
+        ViewHolder(View view) {
             super(view);
             mView = view;
             mGroupPictureView = view.findViewById(R.id.group_image);

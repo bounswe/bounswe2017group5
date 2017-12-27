@@ -39,6 +39,9 @@ public interface InterestrAPI {
 
     public void createTag(Tag tag, Callback<Tag> callback);
 
+    public void getRecommendedPosts(Callback<ArrayList<Post>> callback);
+    public void getRecommendedGroups(Callback<ArrayList<Group>> callback);
+
     public void logout();
     public void authenticate(Token token);
 

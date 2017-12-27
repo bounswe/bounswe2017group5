@@ -113,7 +113,7 @@ public class GroupDetailFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        api = ((InterestrApplication)getActivity().getApplication()).getApi();
+        api = ((InterestrApplication) getActivity().getApplication()).getApi();
 
         if (getArguments() != null) {
             mGroupId = getArguments().getInt(ARG_GROUP_ID);
@@ -126,9 +126,14 @@ public class GroupDetailFragment extends Fragment {
 
         onAddPostButtonClicked = (OnAddPostButtonClicked) context;
 
-        setupFloatingActionButton(fabHandler.getFloatingActionButton());
-
         fillGroupDetail();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        fabHandler.showFloatingActionButton();
+        setupFloatingActionButton(fabHandler.getFloatingActionButton());
     }
 
     private void fillGroupDetail() {

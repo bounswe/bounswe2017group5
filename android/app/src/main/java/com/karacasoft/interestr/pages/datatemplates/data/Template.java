@@ -42,8 +42,8 @@ public class Template implements Serializable {
         return fields;
     }
 
-    public JSONObject toJSON() {
-        JSONObject object = new JSONObject();
+    public JSONArray toJSON() {
+        JSONArray object = new JSONArray();
 
         JSONArray completeWasteOfFuckingMemoryAndNetworkBandwidth = new JSONArray();
         JSONObject wasteOfTime = new JSONObject();
@@ -184,6 +184,7 @@ public class Template implements Serializable {
 
                         break;
                 }
+                object.put(fieldObj);
             }
         } catch (JSONException e) {
             e.printStackTrace();

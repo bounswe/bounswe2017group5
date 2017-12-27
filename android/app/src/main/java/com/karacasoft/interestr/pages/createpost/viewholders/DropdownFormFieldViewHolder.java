@@ -4,6 +4,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 import com.karacasoft.interestr.R;
 
@@ -15,12 +16,14 @@ import java.util.ArrayList;
 
 public class DropdownFormFieldViewHolder extends FormFieldViewHolder {
 
+    public final TextView textView;
     private final Spinner dropdown;
 
     public DropdownFormFieldViewHolder(View itemView) {
         super(itemView);
 
         dropdown = itemView.findViewById(R.id.dropdown);
+        textView = itemView.findViewById(R.id.dropdown_name);
     }
 
     public void populateSpinner(ArrayList<String> choices, String selected) {

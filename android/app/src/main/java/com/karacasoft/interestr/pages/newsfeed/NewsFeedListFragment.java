@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -20,6 +21,7 @@ import com.karacasoft.interestr.network.InterestrAPI;
 import com.karacasoft.interestr.network.InterestrAPIResult;
 import com.karacasoft.interestr.network.models.Group;
 import com.karacasoft.interestr.network.models.Post;
+import com.karacasoft.interestr.network.models.User;
 import com.karacasoft.interestr.pages.groupdetail.PostRecyclerViewAdapter;
 import com.karacasoft.interestr.pages.groups.GroupRecyclerViewAdapter;
 import com.karacasoft.interestr.pages.newsfeed.dummy.Dummy;
@@ -35,6 +37,9 @@ public class NewsFeedListFragment extends Fragment {
 
     public static final int DATA_LOCATION_POSTS = 0;
     public static final int DATA_LOCATION_GROUPS = 1;
+    public static final int DATA_LOCATION_USER_POSTS = 2;
+    public static final int DATA_LOCATION_USER_GROUPS = 3;
+    public static final int DATA_LOCATION_USER_MODERATED_GROUPS = 4;
 
     public static final String ARG_DATA_LOCATION = "com.karacasoft.interestr.data_location";
 
@@ -90,10 +95,9 @@ public class NewsFeedListFragment extends Fragment {
 
         listView.setLayoutManager(new LinearLayoutManager(getContext()));
 
-
-        if(dataLocation == 0) {
+        if(dataLocation == 0 || dataLocation == 2) {
             listView.setAdapter(postAdapter);
-        } else if(dataLocation == 1) {
+        } else if(dataLocation == 1 || dataLocation == 3 || dataLocation == 4) {
             listView.setAdapter(groupAdapter);
         }
 
@@ -155,6 +159,74 @@ public class NewsFeedListFragment extends Fragment {
                     errorHandler.onError(error_message);
                 }
             });
+        } else if(dataLocation == DATA_LOCATION_USER_POSTS) {
+            int size = groups.size();
+            posts.clear();
+
+            postAdapter.notifyItemRangeRemoved(0, size);
+
+            api.getProfile(new InterestrAPI.Callback<User>() {
+                @Override
+                public void onResult(InterestrAPIResult<User> result) {
+                    User u = result.get();
+
+                    posts.addAll(u.getPosts());
+
+                    postAdapter.notifyItemRangeInserted(0, posts.size());
+                }
+
+                @Override
+                public void onError(String error_message) {
+                    errorHandler.onError(error_message);
+                }
+            });
+
+        } else if(dataLocation == DATA_LOCATION_USER_GROUPS) {
+
+            int size = groups.size();
+            groups.clear();
+
+            groupAdapter.notifyItemRangeRemoved(0, size);
+
+            api.getProfile(new InterestrAPI.Callback<User>() {
+                @Override
+                public void onResult(InterestrAPIResult<User> result) {
+                    User u = result.get();
+
+                    groups.addAll(u.getJoinedGroups());
+
+                    groupAdapter.notifyItemRangeInserted(0, groups.size());
+                }
+
+                @Override
+                public void onError(String error_message) {
+                    errorHandler.onError(error_message);
+                }
+            });
+
+        } else if(dataLocation == DATA_LOCATION_USER_MODERATED_GROUPS) {
+
+            int size = groups.size();
+            groups.clear();
+
+            groupAdapter.notifyItemRangeRemoved(0, size);
+
+            api.getProfile(new InterestrAPI.Callback<User>() {
+                @Override
+                public void onResult(InterestrAPIResult<User> result) {
+                    User u = result.get();
+
+                    groups.addAll(u.getModeratedGroups());
+
+                    groupAdapter.notifyItemRangeInserted(0, groups.size());
+                }
+
+                @Override
+                public void onError(String error_message) {
+                    errorHandler.onError(error_message);
+                }
+            });
+
         }
     }
 }

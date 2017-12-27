@@ -17,12 +17,19 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
 
 import com.github.clans.fab.FloatingActionButton;
 import com.karacasoft.interestr.ErrorHandler;
 import com.karacasoft.interestr.FloatingActionButtonHandler;
+import com.karacasoft.interestr.InterestrApplication;
 import com.karacasoft.interestr.MenuHandler;
 import com.karacasoft.interestr.R;
+import com.karacasoft.interestr.network.InterestrAPI;
+import com.karacasoft.interestr.network.InterestrAPIResult;
+import com.karacasoft.interestr.network.models.DataTemplate;
+import com.karacasoft.interestr.network.models.User;
 import com.karacasoft.interestr.pages.datatemplates.data.MultipleChoiceTemplateField;
 import com.karacasoft.interestr.pages.datatemplates.data.Template;
 import com.karacasoft.interestr.pages.datatemplates.data.TemplateField;
@@ -34,9 +41,10 @@ public class DataTemplateCreatorFragment extends Fragment {
 
     public static final String ARG_TEMPLATE = "arg_template";
     public static final String ARG_CREATE_NEW_TEMPLATE = "arg_create_new_template";
+    public static final String ARG_GROUP_ID = "com.karacasoft.interestr.group_id";
 
+    private EditText templateName;
     private RecyclerView fieldList;
-    private Button btnAddField;
 
     private Template template;
     private boolean createNewTemplate;
@@ -50,26 +58,32 @@ public class DataTemplateCreatorFragment extends Fragment {
     private ErrorHandler errorHandler;
     private MenuHandler menuHandler;
 
+    private InterestrAPI api;
+
+    private int groupId;
+
     public DataTemplateCreatorFragment() {
         // Required empty public constructor
     }
 
-    public static DataTemplateCreatorFragment newInstance() {
+    public static DataTemplateCreatorFragment newInstance(int groupId) {
         DataTemplateCreatorFragment fragment = new DataTemplateCreatorFragment();
 
         Bundle args = new Bundle();
         args.putBoolean(ARG_CREATE_NEW_TEMPLATE, true);
+        args.putInt(ARG_GROUP_ID, groupId);
         fragment.setArguments(args);
 
         return fragment;
     }
 
-    public static DataTemplateCreatorFragment newInstance(Template t) {
+    public static DataTemplateCreatorFragment newInstance(int groupId, Template t) {
         DataTemplateCreatorFragment fragment = new DataTemplateCreatorFragment();
 
         Bundle args = new Bundle();
         args.putSerializable(ARG_TEMPLATE, t);
         args.putBoolean(ARG_CREATE_NEW_TEMPLATE, false);
+        args.putInt(ARG_GROUP_ID, groupId);
         fragment.setArguments(args);
 
         return fragment;
@@ -87,6 +101,7 @@ public class DataTemplateCreatorFragment extends Fragment {
             } else {
                 this.template = (Template) args.getSerializable(ARG_TEMPLATE);
             }
+            this.groupId = args.getInt(ARG_GROUP_ID);
         }
 
         setHasOptionsMenu(true);
@@ -110,6 +125,8 @@ public class DataTemplateCreatorFragment extends Fragment {
         fieldList.setItemAnimator(new DefaultItemAnimator());
 
         fieldList.setAdapter(fieldListAdapter);
+
+        templateName = v.findViewById(R.id.template_name);
 
         return v;
     }
@@ -224,15 +241,21 @@ public class DataTemplateCreatorFragment extends Fragment {
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        fabHandler.showFloatingActionButton();
+        setupFloatingActionsButton(fabHandler.getFloatingActionButton());
+    }
+
+    @Override
     public void onAttach(Context context) {
         super.onAttach(context);
+
+        api = ((InterestrApplication) getContext().getApplicationContext()).getApi();
+
         fabHandler = (FloatingActionButtonHandler) context;
 
         errorHandler = (ErrorHandler) context;
-
-        fabHandler.showFloatingActionButton();
-
-        setupFloatingActionsButton(fabHandler.getFloatingActionButton());
 
         this.onDataTemplateSavedListener = (OnDataTemplateSavedListener) context;
     }
@@ -250,9 +273,39 @@ public class DataTemplateCreatorFragment extends Fragment {
 
         switch (id) {
             case R.id.action_save:
-                Template template = fieldListAdapter.getTemplate();
-                // TODO do stuff with template
-                onDataTemplateSavedListener.onDataTemplateSaved(template);
+                DataTemplate dataTemplate = new DataTemplate();
+
+                dataTemplate.setName(templateName.getText().toString());
+                dataTemplate.setTemplate(fieldListAdapter.getTemplate());
+                dataTemplate.setGroupId(groupId);
+
+                api.getProfile(new InterestrAPI.Callback<User>() {
+                    @Override
+                    public void onResult(InterestrAPIResult<User> result) {
+                        User u = result.get();
+
+                        dataTemplate.setUserId(u.getId());
+
+                        api.createDataTemplate(dataTemplate, new InterestrAPI.Callback<DataTemplate>() {
+                            @Override
+                            public void onResult(InterestrAPIResult<DataTemplate> result) {
+                                onDataTemplateSavedListener.onDataTemplateSaved(result.get());
+                            }
+
+                            @Override
+                            public void onError(String error_message) {
+                                errorHandler.onError(error_message);
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onError(String error_message) {
+
+                    }
+                });
+
+
                 return true;
         }
 
@@ -268,6 +321,6 @@ public class DataTemplateCreatorFragment extends Fragment {
     }
 
     public interface OnDataTemplateSavedListener {
-        void onDataTemplateSaved(Template template);
+        void onDataTemplateSaved(DataTemplate template);
     }
 }

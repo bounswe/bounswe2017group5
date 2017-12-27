@@ -41,5 +41,9 @@
     <string name="telephone">Telephone</string>
     <string name="select">Dropdown</string>
     <string name="posts">Posts</string>
+    <string name="data_template_saved">Data Template Saved</string>
+    <string name="post_saved">Post Saved</string>
+    <string name="add_new_template">Add New Template</string>
+    <string name="actions">Actions...</string>
 
 </resources>

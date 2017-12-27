@@ -21,6 +21,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 
 import com.karacasoft.interestr.ErrorHandler;
+import com.karacasoft.interestr.FloatingActionButtonHandler;
 import com.karacasoft.interestr.InterestrApplication;
 import com.karacasoft.interestr.R;
 import com.karacasoft.interestr.network.InterestrAPI;
@@ -50,11 +51,13 @@ public class CreatePostFragment extends Fragment {
     private InterestrAPI api;
 
     private ErrorHandler errorHandler;
+    private FloatingActionButtonHandler fabHandler;
 
     private int groupId;
     private int currentDataTemplateId;
 
     private OnPostSavedListener onPostSavedListener;
+    private OnAddDataTemplateClickedListener onAddDataTemplateClickedListener;
 
     public static CreatePostFragment newInstance(int groupId) {
         CreatePostFragment postFragment = new CreatePostFragment();
@@ -120,8 +123,11 @@ public class CreatePostFragment extends Fragment {
     public void onAttach(Context context) {
         super.onAttach(context);
 
+        fabHandler = (FloatingActionButtonHandler) context;
+
         errorHandler = (ErrorHandler) context;
         onPostSavedListener = (OnPostSavedListener) context;
+        onAddDataTemplateClickedListener = (OnAddDataTemplateClickedListener) context;
     }
 
     @Override
@@ -129,6 +135,8 @@ public class CreatePostFragment extends Fragment {
         super.onResume();
 
         updateTemplateSelector();
+
+        fabHandler.hideFloatingActionButton();
     }
 
     private void updateTemplateSelector() {
@@ -170,7 +178,7 @@ public class CreatePostFragment extends Fragment {
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.main_with_save, menu);
+        inflater.inflate(R.menu.post_create_menu, menu);
         super.onCreateOptionsMenu(menu, inflater);
     }
 
@@ -214,6 +222,9 @@ public class CreatePostFragment extends Fragment {
 
                     return true;
                 }
+            case R.id.action_add_template:
+                onAddDataTemplateClickedListener.onAddDataTemplateClicked();
+                return true;
         }
 
         return super.onOptionsItemSelected(item);
@@ -236,6 +247,10 @@ public class CreatePostFragment extends Fragment {
 
     public interface OnPostSavedListener {
         void onPostSaved(Post post);
+    }
+
+    public interface OnAddDataTemplateClickedListener {
+        void onAddDataTemplateClicked();
     }
 
 }

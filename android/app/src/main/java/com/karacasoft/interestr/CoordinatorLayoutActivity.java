@@ -4,18 +4,19 @@ import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.widget.FrameLayout;
 
 import com.github.clans.fab.FloatingActionButton;
-import com.github.clans.fab.FloatingActionMenu;
 import com.karacasoft.interestr.errorhandling.ErrorDialogFragment;
+import com.karacasoft.interestr.network.models.DataTemplate;
 import com.karacasoft.interestr.network.models.Post;
 import com.karacasoft.interestr.pages.createpost.CreatePostFragment;
 import com.karacasoft.interestr.pages.datatemplates.DataTemplateCreatorFragment;
-import com.karacasoft.interestr.pages.datatemplates.data.Template;
 import com.karacasoft.interestr.pages.groupdetail.GroupDetailFragment;
 import com.karacasoft.interestr.pages.profile.ProfileFragment;
 
@@ -25,7 +26,8 @@ public class CoordinatorLayoutActivity extends AppCompatActivity
         FloatingActionButtonHandler,
         GroupDetailFragment.OnAddPostButtonClicked,
         CreatePostFragment.OnPostSavedListener,
-        DataTemplateCreatorFragment.OnDataTemplateSavedListener {
+        DataTemplateCreatorFragment.OnDataTemplateSavedListener,
+        CreatePostFragment.OnAddDataTemplateClickedListener {
 
     public static final String ACTION_DISPLAY_USER ="com.karacasoft.interestr.display_user";
     public static final String EXTRA_USER_ID = "com.karacasoft.interestr.extra_user_id";
@@ -37,7 +39,7 @@ public class CoordinatorLayoutActivity extends AppCompatActivity
     private AppBarLayout appBarLayout;
     private CollapsingToolbarLayout collapsingToolbarLayout;
 
-    private NestedScrollView nestedScrollView;
+    private FrameLayout nestedScrollView;
 
     private FloatingActionButton fab;
 
@@ -56,7 +58,7 @@ public class CoordinatorLayoutActivity extends AppCompatActivity
 
         collapsingToolbarLayout = findViewById(R.id.collapsing_toolbar_layout);
 
-        nestedScrollView = findViewById(R.id.nested_scroll_view);
+        nestedScrollView = findViewById(R.id.coordinator_layout_outer_frame);
 
         fab = findViewById(R.id.fab);
 
@@ -72,11 +74,7 @@ public class CoordinatorLayoutActivity extends AppCompatActivity
                         .commit();
             }
         }else{
-            //todo remove this else after putting a link to group page it is just for debug
-            fm.beginTransaction()
-                    .replace(R.id.coordinator_layout_activity_content,GroupDetailFragment.newInstance(0))
-                    .commit();
-
+            throw new UnsupportedOperationException("Give an action to the activity.");
         }
     }
 
@@ -125,27 +123,40 @@ public class CoordinatorLayoutActivity extends AppCompatActivity
                 .addToBackStack(null)
                 .commit();
 
-        appBarLayout.setExpanded(false, false);
+        fm.addOnBackStackChangedListener(() -> {
+
+        });
+
+        appBarLayout.setExpanded(false, true);
         appBarLayout.setActivated(false);
 
-        nestedScrollView.setNestedScrollingEnabled(false);
-    }
-
-    @Override
-    public void onDataTemplateSaved(Template template) {
-        Snackbar.make(nestedScrollView, "Data Template Saved", Snackbar.LENGTH_SHORT)
-                // TODO maybe add an action to go edit that template more??
-                .show();
-
-        FragmentManager fm = getSupportFragmentManager();
-        fm.popBackStack();
+        ViewCompat.setNestedScrollingEnabled(nestedScrollView, false);
     }
 
     @Override
     public void onPostSaved(Post post) {
         getSupportFragmentManager().popBackStack();
 
-        Snackbar.make(nestedScrollView, "Post saved successfully", Snackbar.LENGTH_SHORT)
+        Snackbar.make(nestedScrollView, R.string.post_saved, Snackbar.LENGTH_SHORT)
                 .show();
+    }
+
+    @Override
+    public void onAddDataTemplateClicked() {
+        FragmentManager fm = getSupportFragmentManager();
+        fm.beginTransaction()
+                .replace(R.id.coordinator_layout_activity_content, DataTemplateCreatorFragment.newInstance(groupId))
+                .addToBackStack(null)
+                .commit();
+    }
+
+    @Override
+    public void onDataTemplateSaved(DataTemplate template) {
+        Snackbar.make(nestedScrollView, R.string.data_template_saved, Snackbar.LENGTH_SHORT)
+                // TODO maybe add an action to go edit that template more??
+                .show();
+
+        FragmentManager fm = getSupportFragmentManager();
+        fm.popBackStack();
     }
 }

@@ -789,11 +789,12 @@ public class InterestrAPIImpl implements InterestrAPI {
                                 errorMessage = bodyString;
                             }
                         } else {
+                            Log.e(TAG, r.body().string());
                             retObj = null;
                         }
                     } else {
                         isError = true;
-                        errorMessage = r.message();
+                        errorMessage = r.body().string();
                     }
                 }
 

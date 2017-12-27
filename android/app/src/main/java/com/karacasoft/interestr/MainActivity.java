@@ -253,11 +253,9 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onGroupSaved(Group group) {
         Snackbar.make(findViewById(R.id.content), "Created Group", Snackbar.LENGTH_SHORT)
-                // TODO maybe add an action to go edit that template more??
                 .show();
 
         FragmentManager fm = getSupportFragmentManager();
         fm.popBackStack();
-        // TODO redirect to group page
     }
 }

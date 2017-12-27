@@ -43,8 +43,8 @@
         </android.support.design.widget.CollapsingToolbarLayout>
 
     </android.support.design.widget.AppBarLayout>
-    <android.support.v4.widget.NestedScrollView
-        android:id="@+id/nested_scroll_view"
+    <FrameLayout
+        android:id="@+id/coordinator_layout_outer_frame"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
@@ -52,9 +52,9 @@
         <FrameLayout
             android:id="@+id/coordinator_layout_activity_content"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="match_parent">
         </FrameLayout>
-    </android.support.v4.widget.NestedScrollView>
+    </FrameLayout>
 
     <com.github.clans.fab.FloatingActionButton
         android:id="@+id/fab"

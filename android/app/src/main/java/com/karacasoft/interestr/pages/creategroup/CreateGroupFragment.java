@@ -125,12 +125,12 @@ public class CreateGroupFragment extends Fragment {
             api.createGroup(g, new InterestrAPI.Callback<Group>() {
                 @Override
                 public void onResult(InterestrAPIResult<Group> result) {
-                    getActivity().runOnUiThread(() -> onGroupSavedListener.onGroupSaved(result.get()));
+                    onGroupSavedListener.onGroupSaved(result.get());
                 }
 
                 @Override
                 public void onError(String error_message) {
-                    getActivity().runOnUiThread(() -> errorHandler.onError(error_message));
+                    errorHandler.onError(error_message);
                 }
             });
 

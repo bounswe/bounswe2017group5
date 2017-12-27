@@ -6,6 +6,9 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -28,6 +31,8 @@ import com.karacasoft.interestr.network.models.Group;
 import com.karacasoft.interestr.network.models.User;
 import com.karacasoft.interestr.pages.groups.GroupsFragment;
 import com.karacasoft.interestr.pages.groups.GroupRecyclerViewAdapter;
+import com.karacasoft.interestr.pages.newsfeed.NewsFeedFragment;
+import com.karacasoft.interestr.pages.newsfeed.NewsFeedListFragment;
 
 import java.util.ArrayList;
 
@@ -36,26 +41,17 @@ import java.util.ArrayList;
  */
 public class ProfileFragment extends Fragment {
     private static final String ARG_USER_ID = "user_id";
+
     private InterestrAPI api;
+
     private ErrorHandler errorHandler;
     private ToolbarHandler toolbarHandler;
+
     private int userId;
-    private View root;
-    private TextView followers;
-    private TextView following;
-    private TextView followingNum;
-    private TextView followerNum;
-    private Button btnFollow;
     private Button btnMore;
     private TextView aboutMe;
 
     private GroupsFragment.OnGroupsListItemClickedListener mListener;
-    private RecyclerView myGroupsList;
-    private GroupRecyclerViewAdapter recyclerViewAdapter;
-    private ArrayList<Group> myGroups = new ArrayList<>();
-    //todo group recycler reuse
-    //todo context menu add
-
 
     public ProfileFragment() {
         // Required empty public constructor
@@ -82,27 +78,16 @@ public class ProfileFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        root = inflater.inflate(R.layout.fragment_profile, container, false);
-        btnFollow = root.findViewById(R.id.btnFollowUser);
+        View root = inflater.inflate(R.layout.fragment_profile, container, false);
         btnMore = root.findViewById(R.id.btnMore);
-        followers = root.findViewById(R.id.tvFollowerNum);
-        following = root.findViewById(R.id.tvFollowingNum);
-        followerNum = root.findViewById(R.id.tvFollowerNum);
-        followingNum = root.findViewById(R.id.tvFollowingNum);
-        aboutMe =root.findViewById(R.id.tvAbout);
-        btnFollow.setVisibility(View.GONE);
-        followers.setVisibility(View.GONE);
-        following.setVisibility(View.GONE);
-        followerNum.setVisibility(View.GONE);
-        followingNum.setVisibility(View.GONE);
-        aboutMe.setVisibility(View.GONE);
         registerForContextMenu(btnMore);
 
-        myGroupsList = root.findViewById(R.id.rvMyGroups);
-        recyclerViewAdapter = new GroupRecyclerViewAdapter(myGroups,mListener);
-        myGroupsList.setLayoutManager(new LinearLayoutManager(getContext()));
-        myGroupsList.setAdapter(recyclerViewAdapter);
 
+        ViewPager viewPager = root.findViewById(R.id.user_lists_view_pager);
+
+        ProfilePagerAdapter adapter = new ProfilePagerAdapter(getContext(), getFragmentManager());
+
+        viewPager.setAdapter(adapter);
 
         btnMore.setOnClickListener((view -> {
             if(getActivity() != null) {
@@ -112,9 +97,6 @@ public class ProfileFragment extends Fragment {
             }
 
         }));
-        /*btnFollow.setOnClickListener(view -> {
-            //todo follow user
-        });*/
 
         return root;
     }
@@ -130,27 +112,27 @@ public class ProfileFragment extends Fragment {
         }
         errorHandler = (ErrorHandler) context;
         toolbarHandler = (ToolbarHandler) context;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
 
         fillProfileInfo();
-
     }
 
     private void fillProfileInfo() {
         api.getProfile(new InterestrAPI.Callback<User>() {
             @Override
             public void onResult(InterestrAPIResult<User> result) {
-                Log.d("profile","on result");
-                User user = result.get();
-                myGroups.clear();
-                myGroups.addAll(result.get().getJoinedGroups());
-                //todo
+                User u = result.get();
+
+                toolbarHandler.setTitle(u.getUsername());
             }
 
             @Override
-            public void onError(String error_message)
-            {
-                Log.d("error", "onError: profile");
-                //errorHandler.onError(error_message);
+            public void onError(String error_message) {
+                errorHandler.onError(error_message);
             }
         });
     }
@@ -176,4 +158,43 @@ public class ProfileFragment extends Fragment {
         }
         return super.onContextItemSelected(item);
     }
+
+    public static class ProfilePagerAdapter extends FragmentStatePagerAdapter {
+
+        private Context context;
+
+        private NewsFeedListFragment[] fragments = new NewsFeedListFragment[3];
+
+        ProfilePagerAdapter(Context context, FragmentManager fm) {
+            super(fm);
+            this.context = context;
+        }
+
+        @Nullable
+        @Override
+        public CharSequence getPageTitle(int position) {
+            if(position == 0) {
+                return "Posts";
+            } else if(position == 1) {
+                return "Joined Groups";
+            } else if(position == 2) {
+                return "Moderated Groups";
+            }
+            return super.getPageTitle(position);
+        }
+
+        @Override
+        public Fragment getItem(int position) {
+            if(fragments[position] == null) {
+                fragments[position] = NewsFeedListFragment.newInstance(position + 2);
+            }
+            return fragments[position];
+        }
+
+        @Override
+        public int getCount() {
+            return 3;
+        }
+    }
+
 }

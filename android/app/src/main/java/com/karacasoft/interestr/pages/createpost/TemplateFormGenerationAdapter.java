@@ -222,6 +222,8 @@ public class TemplateFormGenerationAdapter extends RecyclerView.Adapter<FormFiel
     }
 
     private void configureDropdownField(TemplateField field, DropdownFormFieldViewHolder holder) {
+        holder.textView.setText(field.getName());
+
         holder.populateSpinner(((MultipleChoiceTemplateField) field).getChoices(),
                 postData.get(field.getName()).getResponse());
     }

@@ -10,13 +10,15 @@
 
     <Button
         android:id="@+id/btnFollowUser"
-        android:layout_width="76dp"
-        android:layout_height="37dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
+        android:layout_marginRight="8dp"
         android:layout_marginTop="8dp"
         android:text="Follow"
         app:layout_constraintEnd_toStartOf="@+id/btnMore"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        android:visibility="gone"/>
 
     <TextView
         android:id="@+id/tvFollowers"
@@ -27,29 +29,20 @@
         android:layout_marginTop="8dp"
         android:text="Followers:"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btnFollowUser" />
+        app:layout_constraintTop_toBottomOf="@+id/btnFollowUser"
+        android:visibility="gone"/>
 
     <Button
         android:id="@+id/btnMore"
         style="@style/InterestrTheme.ButtonStyleDark"
-        android:layout_width="84dp"
-        android:layout_height="36dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginTop="8dp"
-        android:text="More..."
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/tvFollowerNum"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginLeft="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginRight="8dp"
         android:layout_marginTop="8dp"
-        android:text="0"
-        app:layout_constraintStart_toEndOf="@+id/tvFollowers"
-        app:layout_constraintTop_toBottomOf="@+id/btnFollowUser" />
+        android:text="@string/actions"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/tvFollowing"
@@ -60,35 +53,13 @@
         android:layout_marginTop="8dp"
         android:text="Following:"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvFollowers" />
+        app:layout_constraintTop_toBottomOf="@+id/tvFollowers"
+        android:visibility="gone" />
 
-    <TextView
-        android:id="@+id/tvFollowingNum"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginTop="8dp"
-        android:text="0"
-        app:layout_constraintStart_toEndOf="@+id/tvFollowing"
-        app:layout_constraintTop_toBottomOf="@+id/tvFollowers" />
-
-    <TextView
-        android:id="@+id/tvAbout"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:text="Some Text about me..."
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvFollowing" />
-
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/rvMyGroups"
-        android:layout_width="368dp"
-        android:layout_height="286dp"
+    <android.support.v4.view.ViewPager
+        android:id="@+id/user_lists_view_pager"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:layout_marginBottom="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
@@ -96,16 +67,11 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvUserGroups" />
+        app:layout_constraintTop_toBottomOf="@+id/btnMore">
 
-    <TextView
-        android:id="@+id/tvUserGroups"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginTop="8dp"
-        android:text="Groups:"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvAbout" />
+        <android.support.design.widget.TabLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top" />
+    </android.support.v4.view.ViewPager>
 </android.support.constraint.ConstraintLayout>

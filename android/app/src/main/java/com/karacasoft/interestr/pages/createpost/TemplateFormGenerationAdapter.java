@@ -1,5 +1,6 @@
 package com.karacasoft.interestr.pages.createpost;
 
+import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -43,48 +44,62 @@ public class TemplateFormGenerationAdapter extends RecyclerView.Adapter<FormFiel
     private static final int VIEW_TYPE_TEL = 8;
     private static final int VIEW_TYPE_SELECT = 9;
 
+    @Nullable
     private Template template;
     private HashMap<String, PostData> postData;
 
     private final FragmentManager fragmentManager;
 
-    public TemplateFormGenerationAdapter(Template template, FragmentManager fragmentManager) {
+    public TemplateFormGenerationAdapter(FragmentManager fragmentManager) {
+        this(null, fragmentManager);
+    }
+
+    public TemplateFormGenerationAdapter(@Nullable Template template, FragmentManager fragmentManager) {
         this.template = template;
         this.fragmentManager = fragmentManager;
 
-        postData = new HashMap<>(this.template.getFields().size());
+        setDataTemplate(template);
+    }
 
-        for (TemplateField field : template.getFields()) {
-            PostData data = new PostData();
-            data.setQuestion(field.getName());
-            data.setResponse("");
-            postData.put(field.getName(), data);
+    public void setDataTemplate(@Nullable Template template) {
+        if(template != null) {
+            postData = new HashMap<>(template.getFields().size());
+
+            for (TemplateField field : template.getFields()) {
+                PostData data = new PostData();
+                data.setQuestion(field.getName());
+                data.setResponse("");
+                postData.put(field.getName(), data);
+            }
         }
+        this.template = template;
     }
 
     @Override
     public int getItemViewType(int position) {
-        switch (template.getFields().get(position).getType()) {
-            case CHECKBOX:
-                return VIEW_TYPE_CHECKBOX;
-            case MULTISEL:
-                return VIEW_TYPE_MULTISEL;
-            case TEXTAREA:
-                return VIEW_TYPE_TEXTAREA;
-            case TEXT:
-                return VIEW_TYPE_TEXT;
-            case NUMBER:
-                return VIEW_TYPE_NUMBER;
-            case DATE:
-                return VIEW_TYPE_DATE;
-            case EMAIL:
-                return VIEW_TYPE_EMAIL;
-            case URL:
-                return VIEW_TYPE_URL;
-            case TEL:
-                return VIEW_TYPE_TEL;
-            case SELECT:
-                return VIEW_TYPE_SELECT;
+        if(template != null) {
+            switch (template.getFields().get(position).getType()) {
+                case CHECKBOX:
+                    return VIEW_TYPE_CHECKBOX;
+                case MULTISEL:
+                    return VIEW_TYPE_MULTISEL;
+                case TEXTAREA:
+                    return VIEW_TYPE_TEXTAREA;
+                case TEXT:
+                    return VIEW_TYPE_TEXT;
+                case NUMBER:
+                    return VIEW_TYPE_NUMBER;
+                case DATE:
+                    return VIEW_TYPE_DATE;
+                case EMAIL:
+                    return VIEW_TYPE_EMAIL;
+                case URL:
+                    return VIEW_TYPE_URL;
+                case TEL:
+                    return VIEW_TYPE_TEL;
+                case SELECT:
+                    return VIEW_TYPE_SELECT;
+            }
         }
         return super.getItemViewType(position);
     }
@@ -151,31 +166,33 @@ public class TemplateFormGenerationAdapter extends RecyclerView.Adapter<FormFiel
 
     @Override
     public void onBindViewHolder(FormFieldViewHolder holder, int position) {
-        TemplateField field = template.getFields().get(position);
+        if(template != null) {
+            TemplateField field = template.getFields().get(position);
 
-        holder.data = postData.get(field.getName());
+            holder.data = postData.get(field.getName());
 
-        int viewType = getItemViewType(position);
-        if(viewType == VIEW_TYPE_CHECKBOX) {
-            configureCheckBoxField(field, (CheckBoxFormFieldViewHolder) holder);
-        } else if(viewType == VIEW_TYPE_MULTISEL) {
-            configureMultiSelField(field, (MultipleSelectFormFieldViewHolder) holder);
-        } else if(viewType == VIEW_TYPE_TEXTAREA) {
-            configureTextField(field, (TextFormFieldViewHolder) holder);
-        } else if(viewType == VIEW_TYPE_TEXT) {
-            configureTextField(field, (TextFormFieldViewHolder) holder);
-        } else if(viewType == VIEW_TYPE_NUMBER) {
-            configureTextField(field, (TextFormFieldViewHolder) holder);
-        } else if(viewType == VIEW_TYPE_DATE) {
-            configureTextField(field, (TextFormFieldViewHolder) holder);
-        } else if(viewType == VIEW_TYPE_EMAIL) {
-            configureTextField(field, (TextFormFieldViewHolder) holder);
-        } else if(viewType == VIEW_TYPE_URL) {
-            configureTextField(field, (TextFormFieldViewHolder) holder);
-        } else if(viewType == VIEW_TYPE_TEL) {
-            configureTextField(field, (TextFormFieldViewHolder) holder);
-        } else if(viewType == VIEW_TYPE_SELECT) {
-            configureDropdownField(field, (DropdownFormFieldViewHolder) holder);
+            int viewType = getItemViewType(position);
+            if (viewType == VIEW_TYPE_CHECKBOX) {
+                configureCheckBoxField(field, (CheckBoxFormFieldViewHolder) holder);
+            } else if (viewType == VIEW_TYPE_MULTISEL) {
+                configureMultiSelField(field, (MultipleSelectFormFieldViewHolder) holder);
+            } else if (viewType == VIEW_TYPE_TEXTAREA) {
+                configureTextField(field, (TextFormFieldViewHolder) holder);
+            } else if (viewType == VIEW_TYPE_TEXT) {
+                configureTextField(field, (TextFormFieldViewHolder) holder);
+            } else if (viewType == VIEW_TYPE_NUMBER) {
+                configureTextField(field, (TextFormFieldViewHolder) holder);
+            } else if (viewType == VIEW_TYPE_DATE) {
+                configureTextField(field, (TextFormFieldViewHolder) holder);
+            } else if (viewType == VIEW_TYPE_EMAIL) {
+                configureTextField(field, (TextFormFieldViewHolder) holder);
+            } else if (viewType == VIEW_TYPE_URL) {
+                configureTextField(field, (TextFormFieldViewHolder) holder);
+            } else if (viewType == VIEW_TYPE_TEL) {
+                configureTextField(field, (TextFormFieldViewHolder) holder);
+            } else if (viewType == VIEW_TYPE_SELECT) {
+                configureDropdownField(field, (DropdownFormFieldViewHolder) holder);
+            }
         }
 
     }
@@ -218,6 +235,6 @@ public class TemplateFormGenerationAdapter extends RecyclerView.Adapter<FormFiel
 
     @Override
     public int getItemCount() {
-        return template.getFields().size();
+        return (template == null) ? 0 : template.getFields().size();
     }
 }

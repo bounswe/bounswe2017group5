@@ -24,6 +24,6 @@ public abstract class FormFieldViewHolder extends RecyclerView.ViewHolder {
     public abstract String getAnswer();
 
     public void updateField() {
-        data.setResponse(getAnswer());
+        if(data != null) data.setResponse(getAnswer());
     }
 }

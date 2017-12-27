@@ -5,7 +5,10 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.app.DatePickerDialog;
+import android.view.ContextThemeWrapper;
 import android.widget.DatePicker;
+
+import com.karacasoft.interestr.R;
 
 import java.util.Calendar;
 
@@ -28,7 +31,8 @@ public class DatePickerFragment extends DialogFragment implements DatePickerDial
         int day = c.get(Calendar.DAY_OF_MONTH);
 
 
-        return new DatePickerDialog(getActivity(), this, year, month, day);
+        return new DatePickerDialog(new ContextThemeWrapper(getContext(), R.style.InterestrTheme_AlertDialog),
+                this, year, month, day);
     }
 
     @Override

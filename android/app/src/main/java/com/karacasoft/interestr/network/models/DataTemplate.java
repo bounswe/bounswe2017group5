@@ -111,17 +111,11 @@ public class DataTemplate {
         t.setName(obj.getString("name"));
 
         if(obj.has("group")) {
-            JSONObject group = obj.getJSONObject("group");
-
-            t.setGroupId(group.getInt("id"));
-            t.setGroupName(group.getString("name"));
+            t.setGroupId(obj.getInt("group"));
         }
 
         if(obj.has("user")) {
-            JSONObject user = obj.getJSONObject("user");
-
-            t.setUserId(user.getInt("id"));
-            t.setUserName(user.getString("username"));
+            t.setUserId(obj.getInt("user"));
         }
 
         try {

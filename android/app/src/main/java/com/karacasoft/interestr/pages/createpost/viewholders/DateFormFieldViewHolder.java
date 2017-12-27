@@ -11,20 +11,36 @@ import java.util.Locale;
 
 public class DateFormFieldViewHolder extends TextFormFieldViewHolder {
 
+    private final FragmentManager fragmentManager;
+
+    private void displayDialog(FragmentManager fragmentManager) {
+        DatePickerFragment fragment = new DatePickerFragment();
+
+        fragment.setOnDateSetListener((year, month, day) -> {
+            textInputLayout.getEditText().setText(String.format(Locale.getDefault(),
+                    "%d/%d/%d",
+                    day, month + 1, year));
+            updateField();
+        });
+
+        fragment.show(fragmentManager, null);
+    }
+
     @SuppressWarnings("ConstantConditions")
     public DateFormFieldViewHolder(View itemView, FragmentManager fragmentManager) {
         super(itemView);
-        FragmentManager fragmentManager1 = fragmentManager;
+        this.fragmentManager = fragmentManager;
+
+        textInputLayout.getEditText().setOnFocusChangeListener((view, b) -> {
+            if(b) {
+                displayDialog(fragmentManager);
+            }
+        });
+
+        //textInputLayout.setClickable(true);
 
         textInputLayout.setOnClickListener(view -> {
-            DatePickerFragment fragment = new DatePickerFragment();
-
-            fragment.setOnDateSetListener((year, month, day) -> {
-                textInputLayout.getEditText().setText(String.format(Locale.getDefault(), "%d/%d/%d", day, month, year));
-                updateField();
-            });
-
-            fragment.show(fragmentManager, null);
+            displayDialog(fragmentManager);
         });
     }
 

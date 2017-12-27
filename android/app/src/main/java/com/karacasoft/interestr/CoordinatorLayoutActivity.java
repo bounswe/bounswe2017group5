@@ -1,8 +1,10 @@
 package com.karacasoft.interestr;
 
+import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -10,6 +12,7 @@ import android.support.v7.widget.Toolbar;
 import com.github.clans.fab.FloatingActionButton;
 import com.github.clans.fab.FloatingActionMenu;
 import com.karacasoft.interestr.errorhandling.ErrorDialogFragment;
+import com.karacasoft.interestr.pages.createpost.CreatePostFragment;
 import com.karacasoft.interestr.pages.datatemplates.DataTemplateCreatorFragment;
 import com.karacasoft.interestr.pages.datatemplates.data.Template;
 import com.karacasoft.interestr.pages.groupdetail.GroupDetailFragment;
@@ -29,9 +32,15 @@ public class CoordinatorLayoutActivity extends AppCompatActivity
     public static final String EXTRA_GROUP_ID = "com.karacasoft.interestr.extra_group_id";
 
     private Toolbar toolbar;
+    private AppBarLayout appBarLayout;
     private CollapsingToolbarLayout collapsingToolbarLayout;
 
+    private NestedScrollView nestedScrollView;
+
     private FloatingActionButton fab;
+
+    private int userId;
+    private int groupId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,7 +50,11 @@ public class CoordinatorLayoutActivity extends AppCompatActivity
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        appBarLayout = findViewById(R.id.app_bar_layout);
+
         collapsingToolbarLayout = findViewById(R.id.collapsing_toolbar_layout);
+
+        nestedScrollView = findViewById(R.id.nested_scroll_view);
 
         fab = findViewById(R.id.fab);
 
@@ -53,7 +66,7 @@ public class CoordinatorLayoutActivity extends AppCompatActivity
                         .commit();
             }else if(getIntent().getAction().equals(ACTION_DISPLAY_GROUP)){
                 fm.beginTransaction()
-                        .replace(R.id.coordinator_layout_activity_content, GroupDetailFragment.newInstance(getIntent().getIntExtra(EXTRA_GROUP_ID,0)))
+                        .replace(R.id.coordinator_layout_activity_content, GroupDetailFragment.newInstance(groupId = getIntent().getIntExtra(EXTRA_GROUP_ID,0)))
                         .commit();
             }
         }else{
@@ -106,9 +119,14 @@ public class CoordinatorLayoutActivity extends AppCompatActivity
     public void onAddPostButtonClicked() {
         FragmentManager fm = getSupportFragmentManager();
         fm.beginTransaction()
-                .replace(R.id.coordinator_layout_activity_content, DataTemplateCreatorFragment.newInstance())
+                .replace(R.id.coordinator_layout_activity_content, CreatePostFragment.newInstance(groupId))
                 .addToBackStack(null)
                 .commit();
+
+        appBarLayout.setExpanded(false, false);
+        appBarLayout.setActivated(false);
+
+        nestedScrollView.setNestedScrollingEnabled(false);
     }
 
     @Override

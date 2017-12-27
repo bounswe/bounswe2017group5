@@ -12,6 +12,7 @@ import android.support.v7.widget.Toolbar;
 import com.github.clans.fab.FloatingActionButton;
 import com.github.clans.fab.FloatingActionMenu;
 import com.karacasoft.interestr.errorhandling.ErrorDialogFragment;
+import com.karacasoft.interestr.network.models.Post;
 import com.karacasoft.interestr.pages.createpost.CreatePostFragment;
 import com.karacasoft.interestr.pages.datatemplates.DataTemplateCreatorFragment;
 import com.karacasoft.interestr.pages.datatemplates.data.Template;
@@ -23,6 +24,7 @@ public class CoordinatorLayoutActivity extends AppCompatActivity
         ToolbarHandler,
         FloatingActionButtonHandler,
         GroupDetailFragment.OnAddPostButtonClicked,
+        CreatePostFragment.OnPostSavedListener,
         DataTemplateCreatorFragment.OnDataTemplateSavedListener {
 
     public static final String ACTION_DISPLAY_USER ="com.karacasoft.interestr.display_user";
@@ -137,5 +139,12 @@ public class CoordinatorLayoutActivity extends AppCompatActivity
 
         FragmentManager fm = getSupportFragmentManager();
         fm.popBackStack();
+    }
+
+    @Override
+    public void onPostSaved(Post post) {
+        onBackPressed();
+
+        Snackbar.make(nestedScrollView, "Post saved successfully", Snackbar.LENGTH_SHORT);
     }
 }

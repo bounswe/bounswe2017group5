@@ -233,6 +233,10 @@ public class TemplateFormGenerationAdapter extends RecyclerView.Adapter<FormFiel
         super.onViewRecycled(holder);
     }
 
+    public HashMap<String, PostData> getPostData() {
+        return postData;
+    }
+
     @Override
     public int getItemCount() {
         return (template == null) ? 0 : template.getFields().size();

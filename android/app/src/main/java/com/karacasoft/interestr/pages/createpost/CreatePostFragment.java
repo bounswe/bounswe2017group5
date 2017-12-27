@@ -11,6 +11,9 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -23,6 +26,12 @@ import com.karacasoft.interestr.R;
 import com.karacasoft.interestr.network.InterestrAPI;
 import com.karacasoft.interestr.network.InterestrAPIResult;
 import com.karacasoft.interestr.network.models.DataTemplate;
+import com.karacasoft.interestr.network.models.Post;
+import com.karacasoft.interestr.pages.createpost.data.PostData;
+import com.karacasoft.interestr.pages.datatemplates.data.Template;
+
+import org.json.JSONArray;
+import org.json.JSONException;
 
 import java.util.ArrayList;
 
@@ -43,6 +52,9 @@ public class CreatePostFragment extends Fragment {
     private ErrorHandler errorHandler;
 
     private int groupId;
+    private int currentDataTemplateId;
+
+    private OnPostSavedListener onPostSavedListener;
 
     public static CreatePostFragment newInstance(int groupId) {
         CreatePostFragment postFragment = new CreatePostFragment();
@@ -67,6 +79,8 @@ public class CreatePostFragment extends Fragment {
         }
 
         groupId = getArguments().getInt(ARG_GROUP_ID);
+
+        setHasOptionsMenu(true);
     }
 
     @Override
@@ -91,8 +105,6 @@ public class CreatePostFragment extends Fragment {
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 updateForm(((DataTemplateWrapper)adapterView.getSelectedItem()).dataTemplate);
                 formFieldsView.setVisibility(View.VISIBLE);
-
-                Log.d("CreatePostFrag", "Wow");
             }
 
             @Override
@@ -109,6 +121,7 @@ public class CreatePostFragment extends Fragment {
         super.onAttach(context);
 
         errorHandler = (ErrorHandler) context;
+        onPostSavedListener = (OnPostSavedListener) context;
     }
 
     @Override
@@ -150,7 +163,62 @@ public class CreatePostFragment extends Fragment {
         adapter.setDataTemplate(template.getTemplate());
 
         adapter.notifyDataSetChanged();
+
+        currentDataTemplateId = template.getId();
     }
+
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.main_with_save, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        int id = item.getItemId();
+
+        switch (id) {
+            case R.id.action_save:
+                if(currentDataTemplateId == 0) {
+                    errorHandler.onError("You have to select a data template first");
+                    return false;
+                } else {
+                    try {
+                        ArrayList<PostData> postDataArrayList = new ArrayList<>();
+
+                        postDataArrayList.addAll(adapter.getPostData().values());
+
+                        Post p = new Post();
+
+                        p.setGroupId(groupId);
+                        p.setDataTemplateId(currentDataTemplateId);
+                        p.setData(PostData.toJSONArrayFromList(postDataArrayList));
+
+                        api.createPost(p, new InterestrAPI.Callback<Post>() {
+                            @Override
+                            public void onResult(InterestrAPIResult<Post> result) {
+                                onPostSavedListener.onPostSaved(result.get());
+                            }
+
+                            @Override
+                            public void onError(String error_message) {
+                                errorHandler.onError(error_message);
+                            }
+                        });
+
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+                    return true;
+                }
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
 
     private static class DataTemplateWrapper {
         @NonNull
@@ -164,6 +232,10 @@ public class CreatePostFragment extends Fragment {
         public String toString() {
             return dataTemplate.getName();
         }
+    }
+
+    public interface OnPostSavedListener {
+        void onPostSaved(Post post);
     }
 
 }

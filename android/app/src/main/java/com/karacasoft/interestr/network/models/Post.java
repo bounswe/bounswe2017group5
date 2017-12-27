@@ -121,15 +121,23 @@ public class Post {
 
         p.setId(obj.getInt("id"));
 
-        JSONObject owner = obj.getJSONObject("owner");
+        try {
+            JSONObject owner = obj.getJSONObject("owner");
 
-        p.setOwner(owner.getInt("id"));
-        p.setOwnerName(owner.getString("username"));
+            p.setOwner(owner.getInt("id"));
+            p.setOwnerName(owner.getString("username"));
+        } catch (JSONException e) {
+            p.setOwner(obj.getInt("owner"));
+        }
 
-        JSONObject group = obj.getJSONObject("group");
+        try {
+            JSONObject group = obj.getJSONObject("group");
 
-        p.setGroupId(group.getInt("id"));
-        p.setGroupName(group.getString("name"));
+            p.setGroupId(group.getInt("id"));
+            p.setGroupName(group.getString("name"));
+        } catch(JSONException e) {
+            p.setGroupId(obj.getInt("group"));
+        }
 
 
         try {
@@ -147,6 +155,8 @@ public class Post {
             p.setCreated(ModelUtils.jsonGetDate(obj, "created"));
             p.setUpdated(ModelUtils.jsonGetDate(obj, "updated"));
         } catch (ParseException e) {
+            e.printStackTrace();
+        } catch (JSONException e) {
             e.printStackTrace();
         }
 

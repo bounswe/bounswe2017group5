@@ -250,7 +250,6 @@ class AnnotationSerializer(serializers.ModelSerializer):
             "bodyValue": instance.text,
             "target": {
                 "source": str(instance.target),
-                "type": str(instance.annotype),
                 "selector": str(instance.selector)
             }
         }
@@ -269,7 +268,6 @@ class AnnotationSerializer(serializers.ModelSerializer):
     def to_internal_value(self, data):
         newdata = {
             "text": data["bodyValue"], 
-            "annotype": data["target"]["type"],
             "target": data["target"]["source"],
             "created": data["created"],
             "selector": str(data["target"]["selector"])

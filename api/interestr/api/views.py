@@ -195,6 +195,18 @@ class ProfilePageList(generics.ListAPIView):
     queryset = core_models.ProfilePage.objects.all()
     serializer_class = core_serializers.ProfilePageSerializer
 
+class AnnotationList(generics.ListCreateAPIView):
+    """
+    get:
+    Return a list of all the existing annotations.
+
+    post:
+    Create a new annotatiob instance.
+    """
+    queryset = core_models.Annotation.objects.all()
+    serializer_class = core_serializers.AnnotationSerializer
+
+
 # List Views END
 
 # Detail Views BEGIN
@@ -311,6 +323,18 @@ class ProfilePageDetail(generics.RetrieveUpdateAPIView):
     """
     queryset = core_models.ProfilePage.objects.all()
     serializer_class = core_serializers.ProfilePageSerializer
+
+class AnnotationDetail(generics.RetrieveUpdateAPIView):
+    """
+    get:
+    Return the details of the annotation with the given id.
+
+    update:
+    Update the annotation detail with the given id.
+    """
+    queryset = core_models.Annotation.objects.all()
+    serializer_class = core_serializers.AnnotationSerializer
+
 
 
 class VoteDetail(generics.RetrieveUpdateDestroyAPIView):
@@ -553,3 +577,5 @@ class SignUpView(APIView):
             return JsonResponse(out_serializer.data)
         else:
             return JsonResponse(serialized._errors, status=417)
+
+

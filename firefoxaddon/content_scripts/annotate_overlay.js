@@ -1,13 +1,28 @@
 (function() {
+    /**
+     * Check and set a global guard variable.
+     * If this content script is injected into the same page again,
+     * it will do nothing next time.
+     */
+    if (window.hasRun) {
+        return;
+    }
+    window.hasRun = true;
+
+
     var css = document.createElement("style");
     css.type = "text/css";
     css.innerHTML = `
-    .anno-highlight-hover {
+    .anno-stored {
+        box-shadow: 0 0 2px 1px tomato;
+    }
+
+    .anno-hover {
         box-shadow: 0 0 2px 1px yellowgreen;
     }
-    
-    .anno-highlight-selected {
-        box-shadow: 0 0 2px 4px tomato;
+        
+    .anno-selected {
+        box-shadow: 0 0 3px 2px tomato;
         transition: box-shadow 0.2s ease-out;
     }
 
@@ -33,29 +48,16 @@
     dismissButton.innerText = 'Dismiss';
 
     var sidebarPort = browser.runtime.connect({name: "cs-to-sidebar"});
-
-    /**
-     * Check and set a global guard variable.
-     * If this content script is injected into the same page again,
-     * it will do nothing next time.
-     */
-    if (window.hasRun) {
-        return;
-    }
-    window.hasRun = true;
     
-    /**
-     * Given a URL to a beast image, remove all existing beasts, then
-     * create and style an IMG node pointing to
-     * that image, then insert the node into the document.
-     */
-    function insertBeast(beastURL) {
-        removeExistingBeasts();
-        let beastImage = document.createElement("img");
-        beastImage.setAttribute("src", beastURL);
-        beastImage.style.height = "100vh";
-        beastImage.className = "beastify-image";
-        document.body.appendChild(beastImage);
+    // https://stackoverflow.com/a/30265431
+    function request(method, url) {
+        return new Promise(function (resolve, reject) {
+            var xhr = new XMLHttpRequest();
+            xhr.open(method, url);
+            xhr.onload = resolve;
+            xhr.onerror = reject;
+            xhr.send();
+        });
     }
     
     /**
@@ -119,7 +121,7 @@
      */
     function annoUnselectAll() {
         window.annoSelected.forEach(element => {
-            element.classList.remove('anno-highlight-selected');
+            element.classList.remove('anno-selected');
         });
 
         window.annoSelected = [];
@@ -129,11 +131,12 @@
         annoUnselectAll();
 
         window.annoSelected.push(event.target);
-        event.target.classList.add('anno-highlight-selected');
+        event.target.classList.add('anno-selected');
         sidebarPort.postMessage({
             target: {
                 source: window.location.href,
-                selector: CssSelector(event.target)
+                selector: CssSelector(event.target),
+                annotations: event.target.annotations
             }
         });
 
@@ -146,12 +149,12 @@
      * Two functions for getting highlight over the elements
      */
     function handleMouseOver(event) {
-        event.target.classList.add('anno-highlight-hover');
+        event.target.classList.add('anno-hover');
         event.stopPropagation();
     }
     
     function handleMouseOut(event) {
-        event.target.classList.remove('anno-highlight-hover');
+        event.target.classList.remove('anno-hover');
         event.stopPropagation();
     }
 
@@ -166,6 +169,8 @@
             element.originalOnmouseover = undefined;
             element.originalOnmouseout = undefined;
             element.originalOnclick = undefined;
+
+            element.annotations = undefined;
         }
         
         document.body.removeChild(dismissButton);
@@ -173,6 +178,106 @@
 
     dismissButton.addEventListener('click', dismissOverlay);
     
+    function applyAnnotation(annotation) {
+        if (annotation.target === undefined) {
+            console.log('Annotation target is not defined for:');
+            console.log(annotation);
+            return;
+        }
+
+        if (annotation.target.source !== window.location.href) {
+            console.log('This annotation does not belong here:');
+            console.log(annotation);
+            return;
+        }
+
+        if (annotation.target.selector === undefined) {
+            console.log('Annotation target does not have a selector:');
+            console.log(annotation);
+            return;
+        }
+
+        var sel = annotation.target.selector;
+        var el;
+
+        switch (sel.type) {
+            case 'CssSelector':
+                el = document.querySelector(sel.value);
+                break;
+            default:
+                console.log(`'${sel.type}' is not supported as a selector type:`);
+                console.log(annotation);
+                return;
+        }
+
+        el.classList.add('anno-stored');
+        el.annotations.push(annotation);
+    }
+
+    function applyAnnotations(annotations) {
+        annotations.forEach(applyAnnotation);
+    }
+
+    function retrieveAnnotations() {
+        // request('GET', 'someurl')
+        // .then((e) => {
+        //     stuffonsuccess;
+        // }, (e) => {
+        //     stuffonerror;
+        // });
+
+        annotations = [
+            {
+                "@context": "http://www.w3.org/ns/anno.jsonld",
+                "id": "http://interestr.com/annotations/{id}",
+                "type": "Annotation",
+                "created": "2015-01-28T12:00:00Z",
+                "creator": {
+                    "id": "http://interestr.com/profile/anno1",
+                    "type": "Person",
+                    "name": "{firstname} {lastname}",
+                    "nickname": "{username}",
+                    "email": "{email}"
+                },
+              
+                "bodyValue": "Love that place",
+                "target": {
+                    "source": "http://127.0.0.1:8000/groups/1/",
+                    "type": "Text",
+                    "selector": {
+                        "type": "CssSelector",
+                        "value": "div.group-detail-content:nth-child(4) > div:nth-child(2) > p:nth-child(1) > span:nth-child(2)"
+                    }
+                }
+            },
+            {
+                "@context": "http://www.w3.org/ns/anno.jsonld",
+                "id": "http://interestr.com/annotations/anno2",
+                "type": "Annotation",
+                "created": "2015-01-28T12:00:00Z",
+                "creator": {
+                    "id": "http://interestr.com/profile/{id}",
+                    "type": "Person",
+                    "name": "{firstname} {lastname}",
+                    "nickname": "{username}",
+                    "email": "{email}"
+                },
+              
+                "bodyValue": "Spent a night there once",
+                "target": {
+                    "source": "http://127.0.0.1:8000/groups/1/",
+                    "type": "Text",
+                    "selector": {
+                        "type": "CssSelector",
+                        "value": "div.group-detail-content:nth-child(4) > div:nth-child(2) > p:nth-child(1) > span:nth-child(2)"
+                    }
+                }
+            }
+        ];
+
+        applyAnnotations(annotations);
+    }
+
     function applyOverlay() {
         document.body.appendChild(css);
 
@@ -184,13 +289,16 @@
             element.onmouseover = handleMouseOver;
             element.onmouseout = handleMouseOut;
             element.onclick = handleClick;
+
+            element.annotations = [];
         }
 
         document.body.appendChild(dismissButton);
+
+        retrieveAnnotations();
     }
 
     applyOverlay();
-    
     
     /**
      * Listen for messages from the background script.

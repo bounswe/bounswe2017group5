@@ -1,5 +1,8 @@
 var myWindowId;
-const annotationInput = document.querySelector("#annotationInput");
+
+const annotationInput = document.getElementById('annotationInput');
+const submitButton = document.getElementById('submitButton');
+
 const annotationsList = document.getElementById('annotations');
 
 /*
@@ -14,13 +17,7 @@ When the user mouses out, save the current contents of the box.
 */
 window.addEventListener("mouseout", () => {
 	annotationInput.setAttribute("contenteditable", false);
-	browser.tabs.query({windowId: myWindowId, active: true}).then((tabs) => {
-		let contentToStore = {};
-		contentToStore[tabs[0].url] = annotationInput.textContent;
-		browser.storage.local.set(contentToStore);
-	});
 });
-
 
 // A URL parser, reference: https://stackoverflow.com/a/15979390
 var urlParser = document.createElement('a');
@@ -107,6 +104,13 @@ browser.runtime.onConnect.addListener(function (port) {
             if (message.elementClicked) {
                 updateBinding(message.elementClicked);
             }
+        });
+
+        submitButton.addEventListener('click', function (event) {
+            var anno = { bodyValue: annotationInput.textContent };
+            
+            appendAnnotation(anno);            
+            port.postMessage({ submitButtonClicked: anno });
         });
     }
 });

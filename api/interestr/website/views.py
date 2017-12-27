@@ -180,6 +180,12 @@ class SearchView(LoginRequiredMixin, generic.ListView):
             users = users.filter(Q(username__icontains=query)).distinct()
         return render(request, self.template_name, {'groups': groups, 'users': users, 'search_term': query})
 
+class SearchAdvancedView(LoginRequiredMixin, generic.ListView):
+    template_name = 'website/search_advanced.html'
+
+    def get(self, request):
+        data_templates = [data_template for group in Group.objects.all() for data_template in group.data_templates.all()]
+        return render(request, self.template_name, {'data_templates': data_templates})
 
 class MyProfileView(LoginRequiredMixin, View):
     form_class = ProfileForm

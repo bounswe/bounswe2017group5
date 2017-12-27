@@ -47,7 +47,7 @@
     dismissButton.id = 'anno-dismiss-button';
     dismissButton.innerText = 'Dismiss';
 
-    var sidebarPort = browser.runtime.connect({name: "cs-to-sidebar"});
+    var sidebarPort = browser.runtime.connect({name: "cs-sidebar"});
     
     // https://stackoverflow.com/a/30265431
     function request(method, url) {
@@ -60,16 +60,6 @@
         });
     }
     
-    /**
-     * Remove every beast from the page.
-     */
-    function removeExistingBeasts() {
-        let existingBeasts = document.querySelectorAll(".beastify-image");
-        for (let beast of existingBeasts) {
-            beast.remove();
-        }
-    }
-
     // https://stackoverflow.com/a/4588211, edited
     function CssSelector(el){
         var names = [];
@@ -133,9 +123,9 @@
         window.annoSelected.push(event.target);
         event.target.classList.add('anno-selected');
         sidebarPort.postMessage({
-            target: {
+            elementClicked: {
                 source: window.location.href,
-                selector: CssSelector(event.target),
+                target: CssSelector(event.target),
                 annotations: event.target.annotations
             }
         });
@@ -256,11 +246,11 @@
                 "type": "Annotation",
                 "created": "2015-01-28T12:00:00Z",
                 "creator": {
-                    "id": "http://interestr.com/profile/{id}",
+                    "id": "http://interestr.com/profile/1",
                     "type": "Person",
-                    "name": "{firstname} {lastname}",
-                    "nickname": "{username}",
-                    "email": "{email}"
+                    "name": "Utkan Gezer",
+                    "nickname": "thoappelsin",
+                    "email": "tho.appelsin@gmail.com"
                 },
               
                 "bodyValue": "Spent a night there once",

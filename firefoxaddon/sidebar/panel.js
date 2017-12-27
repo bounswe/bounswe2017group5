@@ -1,21 +1,22 @@
 var myWindowId;
-const contentBox = document.querySelector("#content");
+const annotationInput = document.querySelector("#annotationInput");
+const annotationsList = document.getElementById('annotations');
 
 /*
 Make the content box editable as soon as the user mouses over the sidebar.
 */
 window.addEventListener("mouseover", () => {
-	contentBox.setAttribute("contenteditable", true);
+	annotationInput.setAttribute("contenteditable", true);
 });
 
 /*
 When the user mouses out, save the current contents of the box.
 */
 window.addEventListener("mouseout", () => {
-	contentBox.setAttribute("contenteditable", false);
+	annotationInput.setAttribute("contenteditable", false);
 	browser.tabs.query({windowId: myWindowId, active: true}).then((tabs) => {
 		let contentToStore = {};
-		contentToStore[tabs[0].url] = contentBox.textContent;
+		contentToStore[tabs[0].url] = annotationInput.textContent;
 		browser.storage.local.set(contentToStore);
 	});
 });
@@ -50,14 +51,14 @@ function updateContent() {
 		})
 		.then(
             (storedInfo) => {
-			    // contentBox.textContent = storedInfo[Object.keys(storedInfo)[0]];
-                contentBox.textContent = "Supported website.";
+			    // annotationInput.textContent = storedInfo[Object.keys(storedInfo)[0]];
+                annotationInput.textContent = "Supported website.";
                 browser.tabs.executeScript({file: "/content_scripts/annotate_overlay.js"});
                 // .then(listenForClicks)
                 // .catch(reportExecuteScriptError);
             },
             (error) => {
-                contentBox.textContent = "Unsupported website.";
+                annotationInput.textContent = "Unsupported website.";
             }
         );
 }
@@ -81,14 +82,31 @@ browser.windows.getCurrent({populate: true}).then((windowInfo) => {
 	updateContent();
 });
 
-function updateBinding(target) {
-    contentBox.textContent = 'Now targeting: ' + JSON.stringify(target);
+function appendAnnotation(annotation) {
+    var div = document.createElement('div');
+    div.classList.add('annotation');
+    div.textContent = annotation.bodyValue;
+
+    annotationsList.appendChild(div);
+}
+
+function updateAnnotations(annotations) {
+    annotationsList.innerHTML = '';
+    annotations.forEach(appendAnnotation);
+}
+
+function updateBinding(elementClicked) {
+    updateAnnotations(elementClicked.annotations);
+    annotationInput.textContent = '';
+    
 }
 
 browser.runtime.onConnect.addListener(function (port) {
-    if (port.name === "cs-to-sidebar") {
+    if (port.name === "cs-sidebar") {
         port.onMessage.addListener(function (message) {
-            updateBinding(message.target);
+            if (message.elementClicked) {
+                updateBinding(message.elementClicked);
+            }
         });
     }
 });

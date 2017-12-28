@@ -72,7 +72,8 @@ class SignupTests(TestCase):
                                         'username': 'name',
                                         'email': 'email@email.com',
                                         'password': 'password123'
-                                    })
+                                    },
+                                    format='json')
 
         self.assertEqual(response.status_code, 200,
                          responseError(response, 'Sign Up'))

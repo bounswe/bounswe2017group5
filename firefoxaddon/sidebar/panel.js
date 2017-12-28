@@ -1,5 +1,11 @@
 var myWindowId;
 
+var sidebarDisabledReasons = {
+    csNotConnected = true,
+    websiteNotAllowed = true,
+    sidebarDismissed = true
+};
+
 const annotationInput = document.getElementById('annotationInput');
 const submitButton = document.getElementById('submitButton');
 

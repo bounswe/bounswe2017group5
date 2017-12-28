@@ -87,9 +87,9 @@ class GroupList(generics.ListCreateAPIView):
             description = form['description'],
             location = form['location'],
             picture = form['picture'])
-        group.save()
         group.members.add(user)
         group.moderators.add(user)
+        group.save()
         serializer = core_serializers.GroupSerializer(group)
         return JsonResponse(serializer.data)
 

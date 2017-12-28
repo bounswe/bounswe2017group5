@@ -291,7 +291,7 @@
       }
       </script>
       {% for post in group.posts.all reversed %}
-      <div class="group-detail-content">
+      <div id="postbox-{{ post.id }}" class="group-detail-content">
 
         <!-- Post Start -->
         <div class="header">

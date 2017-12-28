@@ -260,10 +260,19 @@
         const submissionURL = `${parseURL(window.location.href, 'origin')}/api/v1/annotations/`;
         // const submissionURL = '/annotations/'
 
-        annotation.target = {
+        var selector = CssSelector(annoSelected[annoSelected.length - 1]);
+
+        annotation.target = [{
             source: window.location.href,
-            selector: CssSelector(annoSelected[annoSelected.length - 1])
-        };
+            selector: selector
+        }];
+
+        if (selector.value.startsWith('#postbox-')) {
+            annotation.target.push({
+                source: `${parseURL(window.location.href, 'origin')}/search_advanced/`,
+                selector: selector
+            });
+        }
 
         request('POST', submissionURL, annotation)
         .then((e) => {
@@ -284,6 +293,37 @@
         }
     });
 
+    function filterAndMinifyAnnotation(annotation) {
+        var ok = false;
+
+        if (Array.isArray(annotation.target)) {
+            for (var i = 0; i < annotation.target.length; i++) {
+                if (annotation.target[i].source === window.location.href) {
+                    annotation.target = annotation.target[i];
+                    ok = true;
+                    break;
+                }
+            }
+        }
+        else if (annotation.target.source === window.location.href) {
+            ok = true;
+        }
+
+        if (ok) {
+            return annotation;
+        }
+
+        return undefined;
+    }
+
+    function filterAndMinifyAnnotations(annotations) {
+        for (var i = 0; i < annotations.length; i++) {
+            annotations[i] = filterAndMinifyAnnotation(annotations[i]);
+        }
+
+        return annotations.filter(anno => { return anno; });
+    }
+
     function retrieveAnnotations() {
         // var retrievalURL = `${parseURL(window.location.href, 'origin')}/api/v1/annotations/?source=${window.location.href}`;
         var retrievalURL = `${parseURL(window.location.href, 'origin')}/api/v1/annotations/`;
@@ -292,6 +332,7 @@
         request('GET', retrievalURL)
         .then((e) => {
             var annotations = JSON.parse(e);
+            annotations = filterAndMinifyAnnotations(annotations);
             injectAnnotations(annotations);
         }, (e) => {
             console.log('Failed to retrieve annotations');

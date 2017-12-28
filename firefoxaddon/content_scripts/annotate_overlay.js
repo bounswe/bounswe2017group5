@@ -54,6 +54,13 @@
         urlParser.href = url;
         return urlParser[value];
     }
+
+    // https://stackoverflow.com/a/15724300
+    function getCookie(name) {
+        var value = "; " + document.cookie;
+        var parts = value.split("; " + name + "=");
+        if (parts.length == 2) return parts.pop().split(";").shift();
+    }
     
     // https://stackoverflow.com/a/30265431
     function request(method, url, data) {
@@ -80,13 +87,13 @@
                     statusText: xhr.statusText
                 });
             };
+
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.setRequestHeader('Accept', 'application/json');
+            xhr.setRequestHeader('X-CSRFToken', getCookie('csrftoken'));
             
             if (data) {
-                for (var key in data) {
-                    strData.push(`${key}=${data[key]}`);
-                }
-                alert(strData.join('&'));
-                xhr.send(strData.join('&'));
+                xhr.send(JSON.stringify(data));
             }
             else {
                 xhr.send();
@@ -202,33 +209,6 @@
 
     dismissButton.addEventListener('click', dismissOverlay);
 
-    function submitAnnotation(annotation) {
-        const submissionURL = `${parseURL(window.location.href, 'origin')}/api/v1/annotations/`;
-        // const submissionURL = '/annotations/'
-
-        annotation.target = {
-            source: window.location.href,
-            selector: CssSelector(annoSelected[annoSelected.length - 1])
-        };
-
-        request('POST', submissionURL, annotation)
-        .then((e) => {
-            sidebarPort.postMessage({ submissionSuccessful: annotation });
-        }, (e) => {
-            alert('Failed to submit annotation: ' + submissionURL);
-            
-            console.log('Failed to submit annotation:');
-            console.log(e);
-            console.log(annotation);
-        });
-    }
-
-    sidebarPort.onMessage.addListener(function (message) {
-        if (message.submitButtonClicked) {
-            submitAnnotation(message.submitButtonClicked);
-        }
-    });
-
     function injectAnnotation(annotation) {
         if (annotation.target === undefined) {
             console.log('Annotation target is not defined for:');
@@ -247,7 +227,7 @@
             console.log(annotation);
             return;
         }
-
+        
         var sel = annotation.target.selector;
         var el;
 
@@ -269,18 +249,47 @@
         annotations.forEach(injectAnnotation);
     }
 
+    function submitAnnotation(annotation) {
+        const submissionURL = `${parseURL(window.location.href, 'origin')}/api/v1/annotations/`;
+        // const submissionURL = '/annotations/'
+
+        annotation.target = {
+            source: window.location.href,
+            selector: CssSelector(annoSelected[annoSelected.length - 1])
+        };
+
+        request('POST', submissionURL, annotation)
+        .then((e) => {
+            sidebarPort.postMessage({ submissionSuccessful: annotation });
+            injectAnnotation(annotation);
+        }, (e) => {
+            alert('Failed to submit annotation: ' + submissionURL);
+            
+            console.log('Failed to submit annotation:');
+            console.log(e);
+            console.log(annotation);
+        });
+    }
+
+    sidebarPort.onMessage.addListener(function (message) {
+        if (message.submitButtonClicked) {
+            submitAnnotation(message.submitButtonClicked);
+        }
+    });
+
     function retrieveAnnotations() {
         var retrievalURL = `${parseURL(window.location.href, 'origin')}/api/v1/annotations/?source=${window.location.href}`;
         // var retrievalURL = '/annotations/'
 
         request('GET', retrievalURL)
         .then((e) => {
-            console.log(e);
+            var annotations = JSON.parse(e);
+            injectAnnotations(annotations);
         }, (e) => {
             console.log('Failed to retrieve annotations');
         });
 
-        annotations = [
+        var annotations = [
             {
                 "@context": "http://www.w3.org/ns/anno.jsonld",
                 "id": "http://interestr.com/annotations/{id}",
@@ -354,20 +363,6 @@
 
     applyOverlay();
     
-    /**
-     * Listen for messages from the background script.
-     * Call "beastify()" or "reset()".
-     browser.runtime.onMessage.addListener((message) => {
-        if (message.command === "beastify") {
-            insertBeast(message.beastURL);
-        } else if (message.command === "reset") {
-            removeExistingBeasts();
-        }
-    });
-    */
-    
-    
     // CSSPathTest();
-
     
 })();

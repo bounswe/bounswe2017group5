@@ -250,7 +250,7 @@ class AnnotationSerializer(serializers.ModelSerializer):
             "bodyValue": instance.text,
             "target": {
                 "source": str(instance.target),
-                "selector": str(instance.selector)
+                "selector": instance.selector
             }
         }
 
@@ -269,7 +269,7 @@ class AnnotationSerializer(serializers.ModelSerializer):
         newdata = {
             "text": data["bodyValue"], 
             "target": data["target"]["source"],
-            "selector": str(data["target"]["selector"])
+            "selector": data["target"]["selector"]
         }
         
         if ("creator" in data.keys()): 

@@ -892,3 +892,46 @@ class SearchTests(TestCase):
             self.fail('Search response should have a field named \'count\'') 
 
     
+class GroupModerationTests(TestCase):
+
+    def setUp(self):
+        self.client = APIClient()
+        self.test_user1 = User.objects.create_user(
+            'user', 'e@mail.com', '1234')
+        self.test_user2 = User.objects.create_user(
+            'iser', 'g@mail.com', '4321')
+        self.test_group = test_utils.createDummyGroup()
+        self.test_group.members.add(self.test_user2)
+        self.test_group.moderators.add(self.test_user2)
+        self.test_group.members.add(self.test_user1)
+        self.test_group.save()
+
+
+
+    def test_ban_existing_user(self):
+        # test_user2( a.k.a moderator) 
+        self.client.login(username='iser', password='4321')
+        test_group_id = self.test_group.id
+        test_url = '/api/v1/groups/' + str(test_group_id) + '/'
+        response = self.client.post(test_url, {'id' : self.test_user1.id})
+        json_response = json.loads(response.content)
+        self.assertEqual(json_response['size'], 1)
+
+    def test_ban_non_existing_user(self):
+        # test_user2( a.k.a moderator) 
+        self.client.login(username='iser', password='4321')
+        test_group_id = self.test_group.id
+        test_url = '/api/v1/groups/' + str(test_group_id) + '/'
+        response = self.client.post(test_url, {'id' : 129})
+        json_response = json.loads(response.content)
+        self.assertEqual(json_response['error'], 'patates')
+
+    def test_non_mod_tries_to_ban_existing_user(self):
+        # test_user2( a.k.a moderator) 
+        self.client.login(username='user', password='1234')
+        test_group_id = self.test_group.id
+        test_url = '/api/v1/groups/' + str(test_group_id) + '/'
+        response = self.client.post(test_url, {'id' : self.test_user1.id})
+        json_response = json.loads(response.content)
+        self.assertEqual(json_response['error'], 'patates')
+

@@ -61,6 +61,18 @@
         var parts = value.split("; " + name + "=");
         if (parts.length == 2) return parts.pop().split(";").shift();
     }
+
+    function addressEquality(add1, add2) {
+        if (add1.charAt(add1.length - 1) === '/') {
+            add1 = add1.substr(0, add1.length - 1);
+        }
+
+        if (add2.charAt(add2.length - 1) === '/') {
+            add2 = add2.substr(0, add2.length - 1);
+        }
+
+        return add1 === add2;
+    }
     
     // https://stackoverflow.com/a/30265431
     function request(method, url, data) {
@@ -223,7 +235,7 @@
             return;
         }
 
-        if (annotation.target.source !== window.location.href) {
+        if (!addressEquality(annotation.target.source, window.location.href)) {
             console.log('This annotation does not belong here:');
             console.log(annotation);
             return;
@@ -268,10 +280,19 @@
         }];
 
         if (selector.value.startsWith('#postbox-')) {
-            annotation.target.push({
-                source: `${parseURL(window.location.href, 'origin')}/search_advanced/`,
-                selector: selector
-            });
+            if (addressEquality(parseURL(window.location.href, 'pathname'), '/search_advanced/')) {
+                var groupID = document.querySelector(selector.value.split(' ')[0]).getAttribute('data-group-id');
+                annotation.target.push({
+                    source: `${parseURL(window.location.href, 'origin')}/groups/${groupID}/`,
+                    selector: selector
+                });
+            }
+            else {
+                annotation.target.push({
+                    source: `${parseURL(window.location.href, 'origin')}/search_advanced`,
+                    selector: selector
+                });
+            }
         }
 
         request('POST', submissionURL, annotation)
@@ -298,14 +319,14 @@
 
         if (Array.isArray(annotation.target)) {
             for (var i = 0; i < annotation.target.length; i++) {
-                if (annotation.target[i].source === window.location.href) {
+                if (addressEquality(annotation.target[i].source, window.location.href)) {
                     annotation.target = annotation.target[i];
                     ok = true;
                     break;
                 }
             }
         }
-        else if (annotation.target.source === window.location.href) {
+        else if (addressEquality(annotation.target.source, window.location.href)) {
             ok = true;
         }
 

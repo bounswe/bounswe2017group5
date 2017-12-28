@@ -56,7 +56,6 @@ class UserList(generics.ListCreateAPIView):
             ).distinct()
         return query_list
 
-
 class GroupList(generics.ListCreateAPIView):
     """
     get:
@@ -77,6 +76,24 @@ class GroupList(generics.ListCreateAPIView):
             ).distinct()
         return query_list
 
+    def post(self, request):
+        user = request.user
+        form = json.loads(request.body)
+        print(form['name'])
+        print(form['description'])
+        print(form['location'])
+        print(form['picture'])
+        group = core_models.Group(name = form['name'],
+            description = form['description'],
+            location = form['location'],
+            picture = form['picture'])
+        group.save()
+        group.members.add(user)
+        group.moderators.add(user)
+        serializer = core_serializers.GroupSerializer(group)
+        return JsonResponse(serializer.data)
+
+
 
 class DataTemplateList(generics.ListCreateAPIView):
     """
@@ -84,7 +101,7 @@ class DataTemplateList(generics.ListCreateAPIView):
     Return a list of all the existing data templates.
 
     post:
-    Create a new template instance.
+    Create a new template instancea.
     """
     serializer_class = core_serializers.DataTemplateSimpleSerializer
     pagination_class = DataTemplateLimitOffSetPagination
@@ -252,6 +269,7 @@ class UserDetail(generics.RetrieveUpdateAPIView):
     serializer_class = core_serializers.UserSerializer
 
 
+
 class GroupDetail(generics.RetrieveUpdateDestroyAPIView):
     """
     get:
@@ -265,6 +283,25 @@ class GroupDetail(generics.RetrieveUpdateDestroyAPIView):
     """
     queryset = core_models.Group.objects.all()
     serializer_class = core_serializers.GroupSerializer
+
+    def post(self, request, pk):
+        user = request.user
+        form = request.data
+        toxicId = int(form['id'])
+        group = core_models.Group.objects.get(pk=pk)
+
+        if ((group.members.filter(id=toxicId).count() == 1) 
+            and (group.moderators.filter(id=user.id).count() == 1)):
+            # toxic user
+            toxic = auth_models.User.objects.get(pk=toxicId)
+            group.members.remove(toxic)
+            group.save();
+            serializer = core_serializers.GroupSerializer(group)
+            return JsonResponse(serializer.data)        
+        else :
+            return JsonResponse({'error':'patates'})
+
+
 
 
 class DataTemplateDetail(generics.RetrieveUpdateDestroyAPIView):

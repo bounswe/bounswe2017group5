@@ -203,9 +203,19 @@ class AnnotationList(generics.ListCreateAPIView):
     post:
     Create a new annotatiob instance.
     """
-    queryset = core_models.Annotation.objects.all()
+    # queryset = core_models.Annotation.objects.all()
     serializer_class = core_serializers.AnnotationSerializer
 
+    def get_queryset(self):
+        """
+        Optionally restricts the returned annotations to a given source URI,
+        by filtering against a `source` query parameter in the URL.
+        """
+        queryset = core_models.Annotation.objects.all()
+        source = self.request.query_params.get('source', None)
+        if source is not None:
+            queryset = queryset.filter(target=source)
+        return queryset
 
 # List Views END
 

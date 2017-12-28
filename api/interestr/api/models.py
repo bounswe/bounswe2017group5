@@ -145,10 +145,8 @@ class Annotation(BaseModel):
     anno_id = models.AutoField(primary_key=True)
     user = models.ForeignKey(auth_models.User, related_name='annotations', on_delete=models.SET_NULL, default=None,
                              null=True)
-    text = models.TextField(default='', blank=True)
-    selector = JSONField()
-    target = models.URLField() 
-
+    bodyValue = models.TextField(default='', blank=True)
+    target = JSONField()
 
 
 # Models END

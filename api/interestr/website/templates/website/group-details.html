@@ -41,7 +41,7 @@
 
         {% for group in user.moderated_groups.all %}
           <div class="btn btn-round btn-left-nav">
-            <a href="{% url 'website:groups' group.id %}">{{group.name}}</a><span>...</span>
+            <a href="{% url 'website:group_details' group.id %}">{{group.name}}</a><span>...</span>
           </div>
         {% endfor %}
 

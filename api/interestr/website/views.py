@@ -156,6 +156,10 @@ class CreateGroupView(View):
 
         if form.is_valid():
             group = form.save(commit=True)
+            user = request.user
+            group.members.add(user)
+            group.moderators.add(user)
+            group.save()
             return redirect('website:group_details', group.id)
 
         return render(request,self.template_name, {'form': form})

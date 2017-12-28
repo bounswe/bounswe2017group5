@@ -174,7 +174,11 @@ class PostCreateSerializer(serializers.ModelSerializer):
 
 
     def validate(self, data):
-        template = data['data_template']
+        try:
+            template = data['data_template']
+        except:
+            # Default template case
+            return data
         post_data = data['data']
 
         template_errors = []

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <group android:id="@+id/simple">
+    <group>
         <item
             android:id="@+id/action_add_checkbox"
             android:title="@string/check_box"
@@ -20,7 +20,7 @@
             android:orderInCategory="30"
             />
     </group>
-    <group android:id="@+id/simple_with_constraints">
+    <group>
         <item
             android:id="@+id/action_add_number"
             android:title="@string/numeric"
@@ -43,7 +43,7 @@
             android:orderInCategory="70"
             />
     </group>
-    <group android:id="@+id/complex">
+    <group>
         <item
             android:id="@+id/action_add_date"
             android:title="@string/date"

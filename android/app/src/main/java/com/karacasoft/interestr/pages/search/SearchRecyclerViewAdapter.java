@@ -21,10 +21,9 @@ import java.util.List;
 
 public class SearchRecyclerViewAdapter extends RecyclerView.Adapter<SearchRecyclerViewAdapter.ViewHolder>{
     private List<SearchResultItem> searchResults;//type - group/user
-    private List<User> users;
-    private List<Group> groups;
     private ImageLoader imageLoader;
-    private SearchFragment.OnSearchFragmentInteractionListener slistener;
+
+    private OnSearchItemClickListener onSearchItemClickListener;
 
 
     public SearchRecyclerViewAdapter(List<SearchResultItem> searchResults) {
@@ -45,48 +44,58 @@ public class SearchRecyclerViewAdapter extends RecyclerView.Adapter<SearchRecycl
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         holder.item = searchResults.get(position);
-        //todo add type as string
 
-        imageLoader.displayImage(searchResults.get(position).getImageUrl(),holder.searchImageView);
-        holder.searchTextView.setText(searchResults.get(position).getName());
-        if(searchResults.get(position).getType() ==1){
-            holder.searchTypeView.setText("user");
-            //edit if necessary todo
-        }else if(searchResults.get(position).getType() ==0){
-            holder.searchTypeView.setText("group");
-        }else{
-            holder.searchTypeView.setText("");//todo set maybe or give exception
+        if(holder.item.getImageUrl() != null) {
+            imageLoader.displayImage(holder.item.getImageUrl(), holder.searchImageView);
+        } else if(holder.item.getType() == SearchResultItem.TYPE_USER) {
+            holder.searchImageView.setImageResource(R.drawable.ic_person_black_24dp);
+        } else {
+            holder.searchImageView.setImageResource(R.mipmap.ic_launcher);
+        }
+        holder.searchTextView.setText(holder.item.getName());
+
+        if (holder.item.getType() == 1) {
+            holder.searchTypeView.setText(R.string.user_lowercase);
+        } else if (holder.item.getType() == 0) {
+            holder.searchTypeView.setText(R.string.group_lowercase);
+        } else {
+            holder.searchTypeView.setText("");
         }
 
-        holder.searchView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if(slistener!=null){
-                    slistener.onSearchFragmentInteraction(holder.item);
-                }
-            }
-        });
+        holder.searchView.setOnClickListener(view1 ->
+                onSearchItemClickListener.onSearchItemClick(holder.item));
     }
+
     @Override
     public int getItemCount() {
         return searchResults.size();
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        public final View searchView;
-        public final ImageView searchImageView;
-        public final TextView searchTextView;
-        public final TextView searchTypeView;
+        final View searchView;
+
+        final ImageView searchImageView;
+        final TextView searchTextView;
+        final TextView searchTypeView;
 
         public SearchResultItem item;
 
-        public ViewHolder(View view) {
+        ViewHolder(View view) {
             super(view);
             searchView = view;
+
             searchTextView = view.findViewById(R.id.textSearchItem);
             searchImageView = view.findViewById(R.id.imgSearchItem);
             searchTypeView = view.findViewById(R.id.tvSearchItemType);
         }
+    }
+
+    public void setOnSearchItemClickListener(OnSearchItemClickListener onSearchItemClickListener) {
+        this.onSearchItemClickListener = onSearchItemClickListener;
+    }
+
+    public interface OnSearchItemClickListener {
+        void onSearchItemClick(SearchResultItem item);
     }
 
 }

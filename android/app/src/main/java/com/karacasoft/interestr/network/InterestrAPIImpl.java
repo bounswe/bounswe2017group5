@@ -742,6 +742,82 @@ public class InterestrAPIImpl implements InterestrAPI {
         networkHandler.post(job);
     }
 
+    @Override
+    public void searchUsers(String query, Callback<ArrayList<User>> callback) {
+        APIJob<ArrayList<User>> job = new APIJob<ArrayList<User>>(
+                REQUEST_METHOD_GET,
+                ENDPOINT_USERS + "?q=" + query + "&limit=" + limit + "0&offset=" + offset,
+                null,
+                callback
+        ) {
+            @Override
+            protected ArrayList<User> extractData(String data) {
+                ArrayList<User> users = new ArrayList<>();
+
+                try {
+                    JSONObject object = new JSONObject(data);
+
+                    JSONArray array = object.getJSONArray("results");
+
+                    for (int i = 0; i <array.length() ; i++) {
+                        JSONObject obj = array.getJSONObject(i);
+                        User usr = User.fromJSON(obj);
+                        users.add(usr);
+                    }
+                }catch (JSONException e){
+                    e.printStackTrace();
+                    return null;
+                }
+                return users;
+            }
+        };
+
+        jobQueue.add(job);
+        networkHandler.post(job);
+    }
+
+    @Override
+    public void searchGroups(String query, Callback<ArrayList<Group>> callback) {
+        APIJob<ArrayList<Group>> job = new APIJob<ArrayList<Group>>(
+                REQUEST_METHOD_GET,
+                ENDPOINT_GROUPS + "?q=" + query + "&limit=" + limit + "0&offset=" + offset,
+                null,
+                callback
+        ) {
+            @Override
+            protected ArrayList<Group> extractData(String data) {
+                ArrayList<Group> groups = null;
+
+                try {
+                    groups = new ArrayList<>();
+
+                    JSONObject obj = new JSONObject(data);
+
+                    JSONArray results = obj.getJSONArray("results");
+
+                    for (int i = 0; i < results.length(); i++) {
+                        JSONObject groupObj = results.getJSONObject(i);
+
+                        Group group = Group.fromJSON(groupObj);
+
+                        groups.add(group);
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                return groups;
+            }
+        };
+
+        jobQueue.add(job);
+        networkHandler.post(job);
+    }
+
+    public ArrayList<APIJob> getJobQueue() {
+        return jobQueue;
+    }
+
     private abstract class APIJob<T> implements Runnable {
 
         Callback<T> callback;

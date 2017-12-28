@@ -44,11 +44,13 @@ public interface InterestrAPI {
     public void getRecommendedPosts(Callback<ArrayList<Post>> callback);
     public void getRecommendedGroups(Callback<ArrayList<Group>> callback);
 
+    public void searchUsers(String query, Callback<ArrayList<User>> callback);
+    public void searchGroups(String query, Callback<ArrayList<Group>> callback);
+
     public void logout();
     public void authenticate(Token token);
 
     public boolean isLoggedIn();
-
 
     public void getProfile(Callback<User> callback);
 

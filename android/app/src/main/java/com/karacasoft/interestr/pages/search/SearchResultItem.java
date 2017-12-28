@@ -10,6 +10,7 @@ public class SearchResultItem  {
     public static final int TYPE_USER = 1;
 
     private int type;//group=0; user=1;
+    private int itemId;
     private String name;//item name
     private String imageUrl;//item image url
 
@@ -50,5 +51,13 @@ public class SearchResultItem  {
 
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
+    }
+
+    public int getItemId() {
+        return itemId;
+    }
+
+    public void setItemId(int itemId) {
+        this.itemId = itemId;
     }
 }

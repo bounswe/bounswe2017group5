@@ -1,7 +1,6 @@
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/create_group_content"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.karacasoft.interestr.pages.creategroup.CreateGroupFragment">
@@ -57,10 +56,10 @@
         android:src="@mipmap/ic_launcher"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        android:contentDescription="@string/add_image_for_group" />
 
     <Switch
-        android:id="@+id/switch_hidden"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"

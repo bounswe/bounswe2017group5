@@ -84,7 +84,7 @@ public class PostRecyclerViewAdapter extends RecyclerView.Adapter<PostRecyclerVi
             super(view);
             mView = view;
             mPostOwnerView = view.findViewById(R.id.tv_post_owner);
-            mPostContentView = view.findViewById(R.id.tv_postText);//todo change to another type if template used
+            mPostContentView = view.findViewById(R.id.tv_postText);
             mPostDetailButton = view.findViewById(R.id.btnPostDetail);
         }
     }

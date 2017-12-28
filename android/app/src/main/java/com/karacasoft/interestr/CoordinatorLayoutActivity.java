@@ -153,7 +153,6 @@ public class CoordinatorLayoutActivity extends AppCompatActivity
     @Override
     public void onDataTemplateSaved(DataTemplate template) {
         Snackbar.make(nestedScrollView, R.string.data_template_saved, Snackbar.LENGTH_SHORT)
-                // TODO maybe add an action to go edit that template more??
                 .show();
 
         FragmentManager fm = getSupportFragmentManager();

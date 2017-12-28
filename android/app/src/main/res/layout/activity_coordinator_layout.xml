@@ -21,11 +21,11 @@
             android:fitsSystemWindows="true"
             app:title="User/group name"
             >
-            <!-- TODO default image added, will be changed in pages-->
+
             <ImageView
-                android:id="@+id/coordinator_layout_image"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:contentDescription="@string/profile_picture"
                 android:scaleType="centerCrop"
                 android:fitsSystemWindows="true"
                 app:srcCompat="@drawable/ic_done_black_24dp"

@@ -22,11 +22,6 @@
         <item name="android:textViewStyle">@style/InterestrTheme.Text</item>
     </style>
 
-    <style name="SizeSpecificCollapsingToolbarLayout">
-        <item name="layout_scrollFlags">scroll|exitUntilCollapsed</item>
-        <item name="contentScrim">?attr/colorPrimary</item>
-    </style>
-
     <style name="InterestrTheme.ButtonStyle" parent="Widget.AppCompat.Button">
         <item name="android:background">@drawable/button_bg</item>
         <item name="android:textColor">@color/button_text_color</item>
@@ -48,11 +43,6 @@
     <style name="InterestrTheme.Text.Emphasis" parent="InterestrTheme.Text">
         <item name="android:textAllCaps">true</item>
         <item name="android:textStyle">bold</item>
-    </style>
-
-    <style name="InterestrTheme.Text.Small" parent="InterestrTheme.Text">
-        <item name="android:textSize">10sp</item>
-        <item name="android:textColor">@color/colorTextGray</item>
     </style>
 
 </resources>

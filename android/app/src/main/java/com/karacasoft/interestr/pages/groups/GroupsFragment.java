@@ -56,7 +56,6 @@ public class GroupsFragment extends Fragment {
             //noinspection unchecked
             dataset.addAll((ArrayList<Group>) result.get());
 
-            // TODO handle this via inserted and replaced
             groupRecyclerViewAdapter.notifyDataSetChanged();
 
         }
@@ -75,7 +74,6 @@ public class GroupsFragment extends Fragment {
     public GroupsFragment() {
     }
 
-    // TODO: Customize parameter initialization
     @SuppressWarnings("unused")
     public static GroupsFragment newInstance(int columnCount) {
         GroupsFragment fragment = new GroupsFragment();

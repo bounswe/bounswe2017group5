@@ -151,7 +151,6 @@ public class ProfileFragment extends Fragment {
     @Override
     public boolean onContextItemSelected(MenuItem item) {
         if(item.getItemId() == R.id.action_report) {
-            // TODO report action
             Snackbar.make(getView(), R.string.user_reported, Snackbar.LENGTH_SHORT)
                 .show();
             return true;

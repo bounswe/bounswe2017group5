@@ -67,7 +67,6 @@ public class CreateGroupFragment extends Fragment {
         if(args != null) {
             Group group;
             if((group = (Group) args.getSerializable(ARG_GROUP)) != null) {
-                // TODO add group information to form
             }
         }
 

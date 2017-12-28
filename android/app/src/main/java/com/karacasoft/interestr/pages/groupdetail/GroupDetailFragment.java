@@ -36,11 +36,8 @@ import java.util.List;
  * create an instance of this fragment.
  */
 public class GroupDetailFragment extends Fragment {
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_GROUP_ID = "group_id";
 
-    // TODO: Rename and change types of parameters
     private int mGroupId;
 
     private InterestrAPI api;
@@ -72,7 +69,6 @@ public class GroupDetailFragment extends Fragment {
      * @param groupId Group ID to view on fragment
      * @return A new instance of fragment GroupDetailFragment.
      */
-    // TODO: Rename and change types and number of parameters
     public static GroupDetailFragment newInstance(int groupId) {
         GroupDetailFragment fragment = new GroupDetailFragment();
         Bundle args = new Bundle();

@@ -24,6 +24,7 @@ import com.karacasoft.interestr.pages.groups.GroupsFragment;
 import com.karacasoft.interestr.pages.login.LoginFragment;
 import com.karacasoft.interestr.pages.newsfeed.NewsFeedFragment;
 import com.karacasoft.interestr.pages.search.SearchFragment;
+import com.karacasoft.interestr.pages.search.SearchResultItem;
 import com.karacasoft.interestr.pages.signup.SignUpFragment;
 
 public class MainActivity extends AppCompatActivity
@@ -36,7 +37,8 @@ public class MainActivity extends AppCompatActivity
         FloatingActionButtonHandler,
         ErrorHandler,
         ToolbarHandler,
-        MenuHandler {
+        MenuHandler,
+        SearchFragment.OnSearchFragmentInteractionListener {
 
     private FloatingActionButton fab;
     private Toolbar toolbar;
@@ -143,12 +145,13 @@ public class MainActivity extends AppCompatActivity
         } else if(id==R.id.nav_profile){
             Intent intent = new Intent(MainActivity.this, CoordinatorLayoutActivity.class);
             intent.setAction(CoordinatorLayoutActivity.ACTION_DISPLAY_USER);
-            intent.putExtra(CoordinatorLayoutActivity.EXTRA_USER_ID,0);//todo add id
+            intent.putExtra(CoordinatorLayoutActivity.EXTRA_USER_ID,0);
             startActivity(intent);
         }else if(id == R.id.nav_search){
             FragmentManager fm = getSupportFragmentManager();
             fm.beginTransaction()
                     .replace(R.id.content,SearchFragment.newInstance())
+                    .addToBackStack(null)
                     .commit();
         }
 
@@ -257,5 +260,17 @@ public class MainActivity extends AppCompatActivity
 
         FragmentManager fm = getSupportFragmentManager();
         fm.popBackStack();
+    }
+
+    @Override
+    public void onSearchFragmentInteraction(SearchResultItem item) {
+        if(item.getType() == SearchResultItem.TYPE_USER) {
+            // :(
+        } else if(item.getType() == SearchResultItem.TYPE_GROUP) {
+            Intent intent = new Intent(MainActivity.this, CoordinatorLayoutActivity.class);
+            intent.setAction(CoordinatorLayoutActivity.ACTION_DISPLAY_GROUP);
+            intent.putExtra(CoordinatorLayoutActivity.EXTRA_GROUP_ID, item.getItemId());
+            startActivity(intent);
+        }
     }
 }

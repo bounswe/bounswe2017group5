@@ -108,6 +108,16 @@ public class MockInterestrAPIImpl implements InterestrAPI {
     }
 
     @Override
+    public void searchUsers(String query, Callback<ArrayList<User>> callback) {
+
+    }
+
+    @Override
+    public void searchGroups(String query, Callback<ArrayList<Group>> callback) {
+
+    }
+
+    @Override
     public void logout() {
 
     }

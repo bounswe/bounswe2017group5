@@ -244,6 +244,8 @@ class UserSerializer(serializers.ModelSerializer):
         many=True, read_only=True)
     posts = PostSerializer(many=True, read_only=True)
     profilepage = ProfilePageSerializer(read_only=True, many=False)
+    votes = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
+
 
     class Meta:
         model = auth_models.User

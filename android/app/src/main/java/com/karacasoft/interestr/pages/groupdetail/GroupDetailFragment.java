@@ -25,6 +25,7 @@ import com.karacasoft.interestr.network.InterestrAPIResult;
 import com.karacasoft.interestr.network.models.Group;
 import com.karacasoft.interestr.network.models.Post;
 import com.karacasoft.interestr.network.models.Tag;
+import com.karacasoft.interestr.network.models.User;
 import com.karacasoft.interestr.util.StringUtils;
 
 import java.util.ArrayList;
@@ -92,8 +93,6 @@ public class GroupDetailFragment extends Fragment {
         gMemberNum = root.findViewById(R.id.tvMemberNum);
         gTags = root.findViewById(R.id.tvTagList);
 
-
-
         groupPostsList = root.findViewById(R.id.rvGroupPosts);
         recyclerViewAdapter = new PostRecyclerViewAdapter(posts);
         groupPostsList.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -124,6 +123,80 @@ public class GroupDetailFragment extends Fragment {
         onAddPostButtonClicked = (OnAddPostButtonClicked) context;
 
         fillGroupDetail();
+        setupJoinButton();
+    }
+
+    private boolean isUserJoinedThisGroup(User user) {
+        for (Group group : user.getJoinedGroups()) {
+            if(group.getId() == mGroupId) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void setButtonToJoin() {
+        gBtnJoin.setEnabled(true);
+        gBtnJoin.setText(R.string.join);
+        gBtnJoin.setOnClickListener(view -> {
+            api.joinGroup(mGroupId, new InterestrAPI.Callback<Boolean>() {
+                @Override
+                public void onResult(InterestrAPIResult<Boolean> result) {
+                    if(result.get()) {
+                        setButtonToLeave();
+                    } else {
+                        errorHandler.onError("Can't join group");
+                    }
+                }
+
+                @Override
+                public void onError(String error_message) {
+                    errorHandler.onError(error_message);
+                }
+            });
+            view.setEnabled(false);
+        });
+    }
+
+    private void setButtonToLeave() {
+        gBtnJoin.setEnabled(true);
+        gBtnJoin.setText(R.string.leave);
+        gBtnJoin.setOnClickListener(view -> {
+            api.leaveGroup(mGroupId, new InterestrAPI.Callback<Boolean>() {
+                @Override
+                public void onResult(InterestrAPIResult<Boolean> result) {
+                    if(result.get()) {
+                        setButtonToJoin();
+                    } else {
+                        errorHandler.onError("Can't leave group");
+                    }
+                }
+
+                @Override
+                public void onError(String error_message) {
+                    errorHandler.onError(error_message);
+                }
+            });
+            view.setEnabled(false);
+        });
+    }
+
+    private void setupJoinButton() {
+        api.getProfile(new InterestrAPI.Callback<User>() {
+            @Override
+            public void onResult(InterestrAPIResult<User> result) {
+                if(isUserJoinedThisGroup(result.get())) {
+                    setButtonToLeave();
+                } else {
+                    setButtonToJoin();
+                }
+            }
+
+            @Override
+            public void onError(String error_message) {
+                errorHandler.onError(error_message);
+            }
+        });
     }
 
     @Override

@@ -190,6 +190,8 @@ public class InterestrAPIImpl implements InterestrAPI {
 
     @Override
     public void logout() {
+        authToken = new Token();
+
         sharedPreferences.edit()
                 .putBoolean(PREF_LOGGED_IN, false)
                 .putString(PREF_TOKEN, null)

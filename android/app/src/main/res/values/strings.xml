@@ -57,5 +57,7 @@
     <string name="confirm_password">Confirm Password</string>
     <string name="user_lowercase">user</string>
     <string name="group_lowercase">group</string>
+    <string name="log_out">Log out</string>
+    <string name="leave">Leave</string>
 
 </resources>

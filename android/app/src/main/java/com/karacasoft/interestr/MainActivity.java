@@ -116,14 +116,6 @@ public class MainActivity extends AppCompatActivity
 
         if (id == R.id.action_settings) {
             return true;
-        } else if (id ==R.id.action_search){
-            //redirect to search page
-            FragmentManager fm = getSupportFragmentManager();
-            fm.beginTransaction()
-                    .replace(R.id.content, SearchFragment.newInstance())
-                    .addToBackStack(null)
-                    .commit();
-            return true;
         }
 
         return super.onOptionsItemSelected(item);
@@ -140,6 +132,7 @@ public class MainActivity extends AppCompatActivity
             FragmentManager fm = getSupportFragmentManager();
             fm.beginTransaction()
                     .replace(R.id.content, GroupsFragment.newInstance(1))
+                    .addToBackStack(null)
                     .commit();
 
         } else if(id==R.id.nav_profile){
@@ -152,6 +145,14 @@ public class MainActivity extends AppCompatActivity
             fm.beginTransaction()
                     .replace(R.id.content,SearchFragment.newInstance())
                     .addToBackStack(null)
+                    .commit();
+        } else if(id == R.id.nav_logout) {
+            ((InterestrApplication)getApplicationContext()).getApi().logout();
+
+            FragmentManager fm = getSupportFragmentManager();
+
+            fm.beginTransaction()
+                    .replace(R.id.content, LoginFragment.newInstance())
                     .commit();
         }
 

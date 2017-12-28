@@ -20,6 +20,12 @@
             android:id="@+id/nav_search"
             android:icon="@drawable/ic_menu_search"
             android:title="@string/search" />
+
+        <item
+            android:id="@+id/nav_logout"
+            android:icon="@drawable/ic_exit_to_app_black_24dp"
+            android:title="@string/log_out" />
+
     </group>
 
 

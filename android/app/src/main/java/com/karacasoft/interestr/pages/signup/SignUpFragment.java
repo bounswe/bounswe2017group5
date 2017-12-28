@@ -87,6 +87,8 @@ public class SignUpFragment extends Fragment {
     public void onAttach(Context context) {
         super.onAttach(context);
 
+        onSignupSuccessfulListener = (OnSignupSuccessfulListener) context;
+
         errorHandler = (ErrorHandler) context;
 
         fabHandler = (FloatingActionButtonHandler) context;

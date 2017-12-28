@@ -79,6 +79,10 @@ public class LoginFragment extends Fragment {
 
         onLoginFragmentInteractionListener = (OnLoginFragmentInteractionListener) getActivity();
         api = ((InterestrApplication) getActivity().getApplication()).getApi();
+
+        if(api.isLoggedIn()) {
+            onLoginFragmentInteractionListener.onLoginSuccessful(null);
+        }
     }
 
     @Override

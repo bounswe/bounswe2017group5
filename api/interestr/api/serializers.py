@@ -265,11 +265,8 @@ class AnnotationSerializer(serializers.ModelSerializer):
             "id": "http://interestr.com/annotations/" + str(instance.anno_id), 
             "type": "Annotation",
             "created": instance.created,
-            "bodyValue": instance.text,
-            "target": {
-                "source": str(instance.target),
-                "selector": instance.selector
-            }
+            "bodyValue": instance.bodyValue,
+            "target": instance.target
         }
 
         if (instance.user):
@@ -285,9 +282,8 @@ class AnnotationSerializer(serializers.ModelSerializer):
 
     def to_internal_value(self, data):
         newdata = {
-            "text": data["bodyValue"], 
-            "target": data["target"]["source"],
-            "selector": data["target"]["selector"]
+            "bodyValue": data["bodyValue"],
+            "target": data["target"]
         }
         
         if ("creator" in data.keys()): 

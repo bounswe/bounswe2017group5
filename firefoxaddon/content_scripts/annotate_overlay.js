@@ -158,6 +158,13 @@
         window.annoSelected = [];
     }
 
+    function selectedRange() {
+        var selObj = window.getSelection();
+        var selRange = selObj.getRangeAt(0);
+
+        // if (selRange)
+    }
+
     function handleClick(event) {
         annoUnselectAll();
 
@@ -278,7 +285,8 @@
     });
 
     function retrieveAnnotations() {
-        var retrievalURL = `${parseURL(window.location.href, 'origin')}/api/v1/annotations/?source=${window.location.href}`;
+        // var retrievalURL = `${parseURL(window.location.href, 'origin')}/api/v1/annotations/?source=${window.location.href}`;
+        var retrievalURL = `${parseURL(window.location.href, 'origin')}/api/v1/annotations/`;
         // var retrievalURL = '/annotations/'
 
         request('GET', retrievalURL)

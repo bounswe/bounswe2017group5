@@ -243,9 +243,9 @@ class AnnotationList(generics.ListCreateAPIView):
         by filtering against a `source` query parameter in the URL.
         """
         queryset = core_models.Annotation.objects.all()
-        source = self.request.query_params.get('source', None)
-        if source is not None:
-            queryset = queryset.filter(target=source)
+        # source = self.request.query_params.get('source', None)
+        # if source is not None:
+        #     queryset = queryset.filter(target__source=source)
         return queryset
 
 # List Views END

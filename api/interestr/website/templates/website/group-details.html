@@ -431,6 +431,10 @@
     Dropzone.autoDiscover = true;
 
     function initDropzone() {
+      var file = $("input[type=file]");
+      if (!file.length) return;
+      file.css({ "cursor": "pointer", "color": "#444", "background-color": "#fff" });
+      file.attr("readonly", "readonly");
       var dz = new Dropzone("input[type=file]", {
         url: '{% url "api:files" %}',
         paramName: 'file',
@@ -1124,6 +1128,20 @@ window.onload = function () {
       placeholder: 'Add some tags',
       minimumInputLength: 1, // don't query the API for empty search terms
       multiple: true, // make it a multi-select
+    });
+
+    const isImgLink = href => /.*.(png|gif|jpg|jpeg)$/.test(href);
+    $('p').linkify({
+      target: "_blank",
+      tagName: (href, linkType) => {
+        return isImgLink(href) ? 'img' : 'a';
+      },
+      attributes: (href, linkType) => {
+        return isImgLink(href) ? { src: href } : { };
+      },
+      className: (href) => {
+        return isImgLink(href) ? "img-responsive shadowed" : "";
+      }
     });
   };
 

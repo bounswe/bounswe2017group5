@@ -431,6 +431,10 @@
     Dropzone.autoDiscover = true;
 
     function initDropzone() {
+      var file = $("input[type=file]");
+      if (!file.length) return;
+      file.css({ "cursor": "pointer", "color": "#444", "background-color": "#fff" });
+      file.attr("readonly", "readonly");
       var dz = new Dropzone("input[type=file]", {
         url: '{% url "api:files" %}',
         paramName: 'file',

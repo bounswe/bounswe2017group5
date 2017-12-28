@@ -79,10 +79,6 @@ class GroupList(generics.ListCreateAPIView):
     def post(self, request):
         user = request.user
         form = json.loads(request.body)
-        print(form['name'])
-        print(form['description'])
-        print(form['location'])
-        print(form['picture'])
         group = core_models.Group(name = form['name'],
             description = form['description'],
             location = form['location'],

@@ -26,11 +26,11 @@ urlpatterns = [
 
     url(r'^profile_pages/$', views.ProfilePageList.as_view(), name='profilepages'),
     url(r'^profile_pages/(?P<pk>\d+)/$',
-        views.ProfilePageDetail.as_view(), name='profilepages'),
+        views.ProfilePageDetail.as_view(), name='profilepagedetail'),
 
     url(r'^annotations/$', views.AnnotationList.as_view(), name='annotations'),
     url(r'^annotations/(?P<pk>\d+)/$',
-        views.AnnotationDetail.as_view(), name='annotations'),
+        views.AnnotationDetail.as_view(), name='annotationdetail'),
 
     url(r'^data_templates/$', views.DataTemplateList.as_view(), name='datatemplates'),
     url(r'^data_templates/(?P<pk>\d+)/$',

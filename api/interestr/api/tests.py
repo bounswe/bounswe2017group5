@@ -120,26 +120,29 @@ class AnnotationTests(TestCase):
     def test_create_annotation(self):
         self.client.force_authenticate(self.test_user)
 
-        post_data = {   "@context": "http://www.w3.org/ns/anno.jsonld",
-                        "id": "http://interestr.com/annotations/1",
-                        "type": "Annotation",
-                        "created": "2015-01-28T12:00:00Z",
-                        "creator": {                    
-                            "id": "http://interestr.com/profile/" + str(self.test_profile.id),                    
-                            "type": "Person",                    
-                            "name": "Utkan Gezer",                    
-                            "nickname": "owner",                    
-                            "email": "wow@wow.com"                },                              
-                        "bodyValue": "Spent a night there once",                
-                        "target": {                    
-                        "source": "http://127.0.0.1:8000/groups/1/",                    
-                        "type": "Text",                    
-                        "selector": {                        
-                            "type": "CssSelector",                        
-                            "value": "div.group-detail-content:nth-child(4) > div:nth-child(2) > p:nth-child(1) > span:nth-child(2)"                    
-                            }                
-                        }            
-                        }
+        post_data = {
+            "@context": "http://www.w3.org/ns/anno.jsonld",
+            "id": "http://interestr.com/annotations/1",
+            "type": "Annotation",
+            "created": "2015-01-28T12:00:00Z",
+            "creator": {
+                "id": "http://interestr.com/profile/" + str(self.test_profile.id),
+                "type": "Person",
+                "name": "Utkan Gezer",
+                "nickname": "owner",
+                "email": "wow@wow.com"
+            },
+            "bodyValue": "Spent a night there once",
+            "target": {
+                "source": "http://127.0.0.1:8000/groups/1/",
+                "type": "Text",
+                "selector": {
+                    "type": "CssSelector",                        
+                    "value": "div.group-detail-content:nth-child(4) > div:nth-child(2) > p:nth-child(1) > span:nth-child(2)"
+                }
+            }
+        }
+        
         response = self.client.post('/api/v1/annotations/', post_data, format='json')
 
         self.assertEqual(response.status_code, 201,

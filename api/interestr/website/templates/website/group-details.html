@@ -1,6 +1,6 @@
 {% extends 'website/base.html' %}
 
-{% load voting_extras %}
+{% load filters %}
 {% load static %}
 
 {% block title %}Group Page{% endblock %}
@@ -8,6 +8,7 @@
 {% block navbaritems %}
 <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
   <ul class="nav navbar-nav navbar-right">
+    <li><a href="{% url 'website:search_advanced' %}">Advanced Search</a></li>
     <li class="nav-search">
       <input type="text" value="{{ search_term }}" class="form-control" placeholder="Search..." id="search-input">
     </li>
@@ -157,7 +158,12 @@
         <form class="group-detail-content-form">
           {% csrf_token %}
           {{ form.non_field_errors }}
-          <div id="formFields">
+          <div id="formFields"></div>
+          <div class="form-group row flex-center">
+              <label class="col-form-legend col-sm-2" for="create-post-tag-select" style="z-index: 123;"><span>Tags</span></label>
+              <div class="col-sm-10 template-input-container">
+                <select class="form-control" id="create-post-tag-select" multiple></select>
+              </div>
           </div>
 
           <div class="text-right">
@@ -296,7 +302,6 @@
         <div class="header">
           <div class="text">
             <p class="title"><strong>{{ post.owner.username }}</strong></p>
-            <p class="subtitle"><small>Shared in <i>{{ group.name }}</i></small></p>
           </div>
           <div class="img">
             <img src="{% static 'assets/img/user.jpg' %}" alt="User placeholder" class="img-circle avatar">
@@ -306,6 +311,17 @@
           {% for question_response in post.data %}
           <p><strong>{{ question_response.question }}</strong>: <span>{{ question_response.response }}</span></p>
           {% endfor %}
+
+          {% if post.tags.all %}
+          <p class="tags">
+            <i>
+              <strong>Tags: </strong>
+              {% for tag in post.tags.all %}
+                <span class="tag" data-toggle="tooltip" title="{{ tag.description }}">{{ tag.label }}</span>
+              {% endfor %}
+            </i>
+          </p>
+          {% endif %}
         </div>
         <!-- Post Start -->
 
@@ -1022,13 +1038,17 @@
         $.ajax({
           method: 'POST',
           url: '{% url "api:posts" %}',
-          data: {
-              data: JSON.stringify(Array.from(questionResponses)),
+          data: JSON.stringify({
+              data: Array.from(questionResponses),
               group: '{{ group.id }}',
               owner: '{{ user.id }}',
               data_template: selectedTemplate.id === '-1' ? undefined : selectedTemplate.id,
-          },
-          beforeSend: (xhr) => { xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken')); }
+              tags: Array.from(document.getElementById("create-post-tag-select").options).filter(opt => opt.selected).map(opt => JSON.parse(opt.value)),
+          }),
+          beforeSend: (xhr) => {
+            xhr.setRequestHeader("Content-Type", "application/json");
+            xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
+          }
         }).done(() => {
           location.reload();
         }).fail((xhr, status, err) => swal('Oops...', 'Unexpected error, couldn\'t send the post.', 'error'));
@@ -1056,6 +1076,32 @@ if(e.which == 13 && !e.shiftKey) {
         return false;
     }
 }
+
+window.onload = function () {
+    $("#create-post-tag-select").select2({
+      ajax: {
+          url: "{% url 'api:searchwiki' %}",
+          dataType: 'json',
+          delay: 200,
+          processResults: (data) => {
+              var results = data.results.map(el => Object.assign({}, el, {
+                  text: el.label + (el.description ? " (" + el.description + ")" : ""),
+              }));
+
+              return {
+                  results: results,
+                  pagination: {
+                      more: false,
+                  },
+              };
+          },
+          cache: true,
+      },
+      placeholder: 'Add some tags',
+      minimumInputLength: 1, // don't query the API for empty search terms
+      multiple: true, // make it a multi-select
+    });
+  };
 
   </script>
 

@@ -1,13 +1,14 @@
 {% extends 'website/base.html' %}
 
 {% load staticfiles %}
-{% load voting_extras %}
+{% load filters %}
 
 {% block title %}News Feed{% endblock %}
 
 {% block navbaritems %}
 <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
   <ul class="nav navbar-nav navbar-right">
+    <li><a href="{% url 'website:search_advanced' %}">Advanced Search</a></li>
     <li class="nav-search">
       <input type="text" value="{{ search_term }}" class="form-control" placeholder="Search..." id="search-input">
     </li>
@@ -214,7 +215,7 @@
           <div class="header">
             <div class="text">
               <p class="title"><strong>{{ post.owner.username }}</strong></p>
-              <p class="subtitle"><small>Shared in <i>{{ post.group.name }}</i></small></p>
+              <p class="subtitle"><small>Shared in <i><a href="{% url "website:group_details" post.group.id %}">{{ post.group.name }}</a></i></small></p>
             </div>
             <div class="img">
               <img src="{% static 'assets/img/user.jpg' %}" alt="User placeholder" class="img-circle avatar">

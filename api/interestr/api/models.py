@@ -89,6 +89,7 @@ class Post(BaseModel):
         Group, related_name='posts', on_delete=models.CASCADE, default=None, null=True)
     data_template = models.ForeignKey(
         'api.DataTemplate', related_name='posts', default=None, null=True)
+    tags = models.ManyToManyField(Tag, blank=True, related_name='posts')
     data = JSONField()
 
     def vote_sum(self):
@@ -132,6 +133,20 @@ class DataTemplate(BaseModel):
 
     def __str__(self):
         return self.name
+
+class AnnoTypes(ChoiceEnum):
+    text = "Text"
+    image = "Image"
+
+class Annotation(BaseModel):
+    anno_id = models.AutoField(primary_key=True)
+    user = models.ForeignKey(auth_models.User, related_name='annotations', on_delete=models.SET_NULL, default=None,
+                             null=True)
+    text = models.TextField(default='', blank=True)
+    selector = JSONField()
+    annotype = models.CharField(max_length=40, choices=AnnoTypes.choices())
+    target = models.URLField() 
+
 
 
 # Models END

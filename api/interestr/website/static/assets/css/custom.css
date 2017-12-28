@@ -283,3 +283,13 @@ div.col-form-legend, div.template-input-label {
 .recommended-posts .group-detail-content:not(:first-of-type) {
   margin-top: 30px;
 }
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+img.shadowed {
+  box-shadow: 0px 2px 12px 0px rgba(0,0,0,0.3);
+  border-radius: 4px;
+}

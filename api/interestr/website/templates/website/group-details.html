@@ -1129,6 +1129,20 @@ window.onload = function () {
       minimumInputLength: 1, // don't query the API for empty search terms
       multiple: true, // make it a multi-select
     });
+
+    const isImgLink = href => /.*.(png|gif|jpg|jpeg)$/.test(href);
+    $('p').linkify({
+      target: "_blank",
+      tagName: (href, linkType) => {
+        return isImgLink(href) ? 'img' : 'a';
+      },
+      attributes: (href, linkType) => {
+        return isImgLink(href) ? { src: href } : { };
+      },
+      className: (href) => {
+        return isImgLink(href) ? "img-responsive shadowed" : "";
+      }
+    });
   };
 
   </script>

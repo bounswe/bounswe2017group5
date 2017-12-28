@@ -93,7 +93,7 @@
               <span class="tag" data-toggle="tooltip" title="{{ tag.description }}">{{ tag.label }}</span>
             {% endfor %}
           </div>
-          <div class="buttons">
+          <div class="buttons" style="flex:none">
             <div id="leaveJoinButton" class="btn btn-round btn-fill" onclick="leave_join_group()"></div>
             <div class="btn btn-round">More ...</div>
 
@@ -428,6 +428,26 @@
     formFields = document.getElementById('formFields');
     currentTemplateText = document.getElementById('currentTemplateText');
 
+    Dropzone.autoDiscover = true;
+
+    function initDropzone() {
+      var dz = new Dropzone("input[type=file]", {
+        url: '{% url "api:files" %}',
+        paramName: 'file',
+        headers: {
+          'X-CSRFToken': getCookie('csrftoken')
+        },
+        autoProcessQueue: true,
+      });
+      (function() {
+        var el = $('input[type=file]');
+        dz.on("success", function(file, response) {
+          el.get(0).type = "text";
+          el.get(0).value = response.file;
+        });
+      })();
+
+    }
 
     function createTemplateOnClick() {
         templateName.value = '';
@@ -826,6 +846,7 @@
     registerTemplateField('tel', 'Phone Number', 'Phone Number', labellessInput('tel'));
 
     registerTemplateField('select', 'Dropdown', 'Currency', options2select(['USD', 'EUR', 'TRY']));
+    registerTemplateField('file', 'File', 'File', labellessInput('file'));
 
     dropdown = document.getElementById('newFieldDropdown');
 
@@ -974,6 +995,9 @@
           }
         });
       }
+      setTimeout(() => {
+        initDropzone();
+      }, 100);
     }
 
     defaultTemplateFields = [field2JSON(templateFieldTypes['text'].creator(false, 'Text'))];

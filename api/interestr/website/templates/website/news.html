@@ -56,7 +56,7 @@
       {% if recommended_groups %}
         {% for group in recommended_groups %}
         <div class="group">
-          <a href="{% url 'website:group_details' group.id %}">
+          <a href="{% url 'website:group_details' group.id %}" style="flex:none">
             <div class="group-image">
               <img src="{% static 'assets/img/group_default_icon.png' %}" alt="Group alt..." width='160' class="img-thumbnail img-responsive">
             </div>

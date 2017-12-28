@@ -183,6 +183,24 @@ class VoteList(generics.ListCreateAPIView):
         except:
             return core_serializers.VoteSerializer
 
+class FileList(generics.ListCreateAPIView):
+    """
+    get:
+    Return a list of all the existing files.
+
+    post:
+    Create a new file instance.
+    """
+    queryset = core_models.File.objects.all()
+
+    def get_serializer_class(self, *args, **kwargs):
+        try:  # without try-catch the api docs will break
+            if self.request.method in ["POST", "PUT", "PATCH"]:
+                return core_serializers.FileCreateSerializer
+            return core_serializers.FileSerializer
+        except:
+            return core_serializers.FileSerializer
+
 
 class ProfilePageList(generics.ListAPIView):
     """
@@ -368,6 +386,27 @@ class VoteDetail(generics.RetrieveUpdateDestroyAPIView):
         except:
             return core_serializers.VoteSerializer
 
+class FileDetail(generics.RetrieveUpdateDestroyAPIView):
+    """
+    get:
+    Return the details of the file with the given id.
+
+    update:
+    Update the file detail with the given id.
+
+    delete:
+    Delete the file detail with the given id.
+    """
+    queryset = core_models.File.objects.all()
+
+    def get_serializer_class(self, *args, **kwargs):
+        try:  # without try-catch the api docs will break
+            if self.request.method in ["POST", "PUT", "PATCH"]:
+                return core_serializers.FileCreateSerializer
+            return core_serializers.FileSerializer
+        except:
+            return core_serializers.FileSerializer
+
 #  Detail Views END
 
 class CurrentUserView(APIView):
@@ -528,7 +567,8 @@ def search_posts_by_template(request):
                   "multisel":"text",
                   "email": "text",
                   "url": "text",
-                  "tel": "text"
+                  "tel": "text",
+                  "file": "text",
             }
     operation_dict = { "greater": ">",
                   "less":"<",

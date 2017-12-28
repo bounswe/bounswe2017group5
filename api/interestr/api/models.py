@@ -67,7 +67,7 @@ class Group(BaseModel):
         auth_models.User, blank=True, related_name='joined_groups')
     moderators = models.ManyToManyField(
         auth_models.User, blank=True, related_name='moderated_groups')
-    picture = models.ImageField(blank=True, null=True)
+    picture = models.ImageField(blank=True, null=True, upload_to="images/")
 
     def __str__(self):
         return self.name
@@ -98,6 +98,13 @@ class Post(BaseModel):
     def __str__(self):
         return json.dumps(self.data)
 
+
+class File(BaseModel):
+    title = models.CharField(max_length=60, blank=True, null=True)
+    file = models.FileField(upload_to="files/")
+
+    def __unicode__(self):
+        return self.file.name
 
 class Comment(BaseModel):
     owner = models.ForeignKey(

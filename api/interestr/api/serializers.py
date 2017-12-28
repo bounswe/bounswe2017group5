@@ -44,7 +44,8 @@ class DataTemplateSimpleSerializer(serializers.ModelSerializer):
         'email',
         'url',
         'tel',
-        'select'
+        'select',
+        'file',
     ]
 
     class Meta:
@@ -141,6 +142,11 @@ class VoteSerializer(serializers.ModelSerializer):
         model = core_models.Vote
         fields = ('id', 'owner', 'post', 'up', 'created', 'updated',)
 
+class FileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = core_models.File
+        fields = ('id', 'title', 'file', 'created', 'updated',)
+
 class PostCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -203,6 +209,12 @@ class VoteCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = core_models.Vote
         fields = ('id', 'post', 'up')
+
+class FileCreateSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = core_models.File
+        fields = ('id', 'title', 'file')
 
 class PostSerializer(serializers.ModelSerializer):
     owner = UserIdNameSerializer(read_only=True)

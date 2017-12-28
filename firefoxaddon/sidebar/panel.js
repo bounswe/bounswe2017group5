@@ -21,6 +21,10 @@ window.addEventListener("mouseout", () => {
 
 // A URL parser, reference: https://stackoverflow.com/a/15979390
 var urlParser = document.createElement('a');
+function parseURL(url, value) {
+    urlParser.href = url;
+    return urlParser[value];
+}
 
 var allowedHosts = [
     "http://127.0.0.1:8000"
@@ -37,9 +41,8 @@ function updateContent() {
 	browser.tabs.query({windowId: myWindowId, active: true})
 		.then((tabs) => {
             var url = tabs[0].url;
-            urlParser.href = url;
             
-            if (allowedHosts.includes(urlParser.origin))
+            if (allowedHosts.includes(parseURL(url, 'origin')))
                 return browser.storage.local.get(url);
             else
                 return new Promise((resolve, reject) => {
@@ -95,7 +98,6 @@ function updateAnnotations(annotations) {
 function updateBinding(elementClicked) {
     updateAnnotations(elementClicked.annotations);
     annotationInput.textContent = '';
-    
 }
 
 browser.runtime.onConnect.addListener(function (port) {
@@ -104,12 +106,17 @@ browser.runtime.onConnect.addListener(function (port) {
             if (message.elementClicked) {
                 updateBinding(message.elementClicked);
             }
+            else if (message.submissionSuccessful) {
+                appendAnnotation(message.submissionSuccessful);
+
+                annotationInput.textContent = '';
+                annotationInput.setAttribute("contenteditable", true);
+            }
         });
 
         submitButton.addEventListener('click', function (event) {
             var anno = { bodyValue: annotationInput.textContent };
-            
-            appendAnnotation(anno);            
+            annotationInput.setAttribute("contenteditable", false);
             port.postMessage({ submitButtonClicked: anno });
         });
     }

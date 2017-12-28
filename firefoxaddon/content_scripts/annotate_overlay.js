@@ -9,7 +9,6 @@
     }
     window.hasRun = true;
 
-
     var css = document.createElement("style");
     css.type = "text/css";
     css.innerHTML = `
@@ -48,15 +47,50 @@
     dismissButton.innerText = 'Dismiss';
 
     var sidebarPort = browser.runtime.connect({name: "cs-sidebar"});
+
+    // A URL parser, reference: https://stackoverflow.com/a/15979390
+    var urlParser = document.createElement('a');
+    function parseURL(url, value) {
+        urlParser.href = url;
+        return urlParser[value];
+    }
     
     // https://stackoverflow.com/a/30265431
-    function request(method, url) {
+    function request(method, url, data) {
         return new Promise(function (resolve, reject) {
+            var strData = [];
             var xhr = new XMLHttpRequest();
             xhr.open(method, url);
-            xhr.onload = resolve;
-            xhr.onerror = reject;
-            xhr.send();
+
+            xhr.onload = function () {
+                if (this.status >= 200 && this.status < 300) {
+                    resolve(xhr.response);
+                }
+                else {
+                    reject({
+                        status: this.status,
+                        statusText: xhr.statusText
+                    });
+                }
+            };
+
+            xhr.onerror = function () {
+                reject({
+                    status: this.status,
+                    statusText: xhr.statusText
+                });
+            };
+            
+            if (data) {
+                for (var key in data) {
+                    strData.push(`${key}=${data[key]}`);
+                }
+                alert(strData.join('&'));
+                xhr.send(strData.join('&'));
+            }
+            else {
+                xhr.send();
+            }
         });
     }
     
@@ -169,13 +203,24 @@
     dismissButton.addEventListener('click', dismissOverlay);
 
     function submitAnnotation(annotation) {
+        const submissionURL = `${parseURL(window.location.href, 'origin')}/api/v1/annotations/`;
+        // const submissionURL = '/annotations/'
+
         annotation.target = {
             source: window.location.href,
-            selector: {
-                type: 'CssSelector',
-                value: CssSelector(annoSelected[annoSelected.length - 1])
-            }
-        }
+            selector: CssSelector(annoSelected[annoSelected.length - 1])
+        };
+
+        request('POST', submissionURL, annotation)
+        .then((e) => {
+            sidebarPort.postMessage({ submissionSuccessful: annotation });
+        }, (e) => {
+            alert('Failed to submit annotation: ' + submissionURL);
+            
+            console.log('Failed to submit annotation:');
+            console.log(e);
+            console.log(annotation);
+        });
     }
 
     sidebarPort.onMessage.addListener(function (message) {
@@ -225,12 +270,15 @@
     }
 
     function retrieveAnnotations() {
-        // request('GET', 'someurl')
-        // .then((e) => {
-        //     stuffonsuccess;
-        // }, (e) => {
-        //     stuffonerror;
-        // });
+        var retrievalURL = `${parseURL(window.location.href, 'origin')}/api/v1/annotations/?source=${window.location.href}`;
+        // var retrievalURL = '/annotations/'
+
+        request('GET', retrievalURL)
+        .then((e) => {
+            console.log(e);
+        }, (e) => {
+            console.log('Failed to retrieve annotations');
+        });
 
         annotations = [
             {
@@ -281,7 +329,7 @@
             }
         ];
 
-        injectAnnotations(annotations);
+        // injectAnnotations(annotations);
     }
 
     function applyOverlay() {

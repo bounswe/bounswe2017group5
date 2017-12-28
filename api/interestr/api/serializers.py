@@ -145,7 +145,7 @@ class PostCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = core_models.Post
-        fields = ('id', 'owner', 'group', 'data_template', 'data')
+        fields = ('id', 'owner', 'group', 'data_template', 'data', 'tags',)
 
     def validate_data(self, value):
 
@@ -174,7 +174,11 @@ class PostCreateSerializer(serializers.ModelSerializer):
 
 
     def validate(self, data):
-        template = data['data_template']
+        try:
+            template = data['data_template']
+        except:
+            # Default template case
+            return data
         post_data = data['data']
 
         template_errors = []
@@ -210,7 +214,7 @@ class PostSerializer(serializers.ModelSerializer):
     class Meta:
         model = core_models.Post
         fields = ('id', 'owner', 'group', 'data_template', 'data',
-                  'created', 'updated', 'comments', 'votes')
+                  'created', 'updated', 'comments', 'votes', 'tags',)
 
 class ProfilePageSerializer(serializers.ModelSerializer):
 

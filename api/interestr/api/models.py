@@ -89,6 +89,7 @@ class Post(BaseModel):
         Group, related_name='posts', on_delete=models.CASCADE, default=None, null=True)
     data_template = models.ForeignKey(
         'api.DataTemplate', related_name='posts', default=None, null=True)
+    tags = models.ManyToManyField(Tag, blank=True, related_name='posts')
     data = JSONField()
 
     def vote_sum(self):

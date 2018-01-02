@@ -1,0 +1,1062 @@
+{% extends 'website/base.html' %}
+
+{% load voting_extras %}
+{% load static %}
+
+{% block title %}Group Page{% endblock %}
+
+{% block navbaritems %}
+<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+  <ul class="nav navbar-nav navbar-right">
+    <li class="nav-search">
+      <input type="text" value="{{ search_term }}" class="form-control" placeholder="Search..." id="search-input">
+    </li>
+    <li>
+      <a href="javascript:void(0);" onclick="window.search()">
+        <i class="fa fa-search"></i>
+      </a>
+    </li>
+    <li class="dropdown">
+      <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown">{{ user.username }}<b class="caret"></b></a>
+      <ul class="dropdown-menu">
+        <li><a href="{% url 'website:profile' user.id %}">Profile</a></li>
+        <li><a href="{% url 'website:my_profile' %}">Edit Profile</a></li>
+        <li><a href="{% url 'website:news' %}">News Feed</a></li>
+        <li><a href="{% url 'website:groups' %}">Groups</a></li>
+        <li class="divider"></li>
+        <li><a href="{% url 'website:logout' %}">Logout</a></li>
+      </ul>
+    </li>
+  </ul>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="main">
+  <div class="container">
+    <div class="col-md-3">
+      <div class="row left-nav-block">
+        <h5>YOUR GROUPS</h5>
+
+        {% for group in user.moderated_groups.all %}
+          <div class="btn btn-round btn-left-nav">
+            <a href="{% url 'website:groups' group.id %}">{{group.name}}</a><span>...</span>
+          </div>
+        {% endfor %}
+
+        <div class="btn btn-round btn-left-nav">
+          <strong><a href="{% url 'website:create_group' %}">+ Create More Groups</a></strong>
+        </div>
+
+
+      </div>
+
+      <div class="row left-nav-block">
+        <h5>JOINED GROUPS</h5>
+
+        {% for group in user.joined_groups.all %}
+          <div class="btn btn-round btn-left-nav">
+            <a href="{% url 'website:group_details' group.id %}">{{group.name}}</a><span>...</span>
+          </div>
+        {% endfor %}
+
+        <div class="btn btn-round btn-left-nav">
+          <strong><a href="{% url 'website:groups' %}">+ Join More Groups</a></strong>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-9 main-block">
+      <div class="group-detail-header-block">
+        <div class="group">
+          <div class="group-image">
+            <img src="{{ group.get_picture }}" alt="Group alt..." class="img-thumbnail img-responsive">
+          </div>
+          <div class="group-info">
+            <div class="group-name">
+              <h4>{{ group.name }}</h4>
+            </div>
+            <div class="group-member-count">
+              {{ group.size }} member{{ group.size|pluralize }}
+            </div>
+            <div class="group-description">
+              {{ group.description }}
+            </div>
+          </div>
+        </div>
+
+        <div class="footer">
+          <div class="tags">
+            <i>Tags: </i>
+            {% for tag in group.tags.all %}
+              <span class="tag" data-toggle="tooltip" title="{{ tag.description }}">{{ tag.label }}</span>
+            {% endfor %}
+          </div>
+          <div class="buttons">
+            <div id="leaveJoinButton" class="btn btn-round btn-fill" onclick="leave_join_group()"></div>
+            <div class="btn btn-round">More ...</div>
+
+            <script type="text/javascript">
+              var isJoined = {{ is_joined|yesno:"1,0" }};
+              var buttonText = ['Join Group', 'Leave Group'];
+              var buttonTextPending = ['Joining...', 'Leaving...'];
+              var btn = document.getElementById('leaveJoinButton');
+
+              function refresh_button() {
+                btn.textContent = buttonText[isJoined];
+                if (!isJoined) {
+                  btn.classList.add("btn-warning");
+                }
+                else {
+                  btn.classList.remove("btn-warning");
+                }
+                btn.disabled = false;
+              }
+
+              refresh_button();
+
+              function leave_join_group() {
+                if (!btn.disabled) {
+                  btn.disabled = true;
+                  btn.textContent = buttonTextPending[isJoined];
+
+                  $.ajax({
+                      method: isJoined ? 'DELETE' : 'PUT',
+                      url: '{% url "api:groupoperation" group.id %}',
+                      beforeSend: function(xhr) {
+                        xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
+                      }
+                    }).done(function (msg) {
+                      location.reload();
+                    });
+                }
+              }
+              </script>
+          </div>
+        </div>
+      </div>
+
+      <div class="group-detail-content-create-block">
+        <div class="dropdown">
+          <button class="btn btn-round dropdown-toggle" type="button" id="group-detail-content-block-dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <span id="currentTemplateText">Default</span>
+            <b class="caret"></b>
+          </button>
+          <ul class="dropdown-menu" role="menu" aria-labelledby="group-detail-content-block-dropdown">
+              <li><a href="javascript:void(0);" onclick="selectTemplate('-1', 'Default')">Default</a></li>
+              {% for template in group.data_templates.all %}
+                <li id="dropdown-select-template-{{template.id}}"><a href="javascript:void(0);" onclick="selectTemplate('{{ template.id }}', '{{ template.name }}')">{{ template.name }}</a></li>
+              {% endfor %}
+            </ul>
+
+          <button class="btn btn-round btn-success" type="button" data-toggle="modal" data-target="#createTemplateModal" onclick="createTemplateOnClick(event)">Create New</button>
+          <button class="btn btn-round" type="button" data-toggle="modal" data-target="#createTemplateModal" onclick="editTemplateOnClick(event)">Edit This</button>
+          <button class="btn btn-round btn-danger" onclick="removeCurrentTemplate()">Remove This</button>
+        </div>
+
+        <form class="group-detail-content-form">
+          {% csrf_token %}
+          {{ form.non_field_errors }}
+          <div id="formFields">
+          </div>
+
+          <div class="text-right">
+            <div role="button" class="btn btn-round btn-warning btn-fill btn-wide" onclick="sendPost()">Share</div>
+          </div>
+        </form>
+      </div>
+
+      <script type="text/javascript">
+      window.votecaster_onload = function (votecaster) {
+        var casteractive = false;
+
+        var postid = votecaster.getAttribute('data-post-id');
+        var voteid = votecaster.getAttribute('data-vote-id');
+        var absent_voteid = -1;
+
+        var counter = votecaster.getElementsByClassName('vote-count').item(0);
+        var upcaster = votecaster.getElementsByClassName('vote-up').item(0);
+        var downcaster = votecaster.getElementsByClassName('vote-down').item(0);
+
+        var caststatus;
+        var basevote = 0;
+
+        function refresh_current_vote() {
+          casteractive = false;
+          basevote = parseInt(counter.textContent, 10) || 0;
+
+          if (voteid == absent_voteid) {
+            caststatus = null;
+            casteractive = true;
+          }
+          else {
+            $.ajax({
+              method: 'GET',
+              url: '{% url "api:votedetail" 12345 %}'.replace(/12345/, voteid),
+              beforeSend: function(xhr) {
+                xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
+              }
+            }).done(function (msg) {
+              if (msg.owner.id == {{ user.id }} && msg.post == postid) {
+                caststatus = msg.up;
+                update_buttons();
+
+                if (caststatus === true) {
+                  basevote -= 1;
+                }
+                else if (caststatus === false) {
+                  basevote += 1;
+                }
+
+                casteractive = true;
+              }
+            });
+          }
+        }
+
+        refresh_current_vote();
+
+        function update_buttons() {
+          if (caststatus === true) {
+            upcaster.classList.add('voted');
+            downcaster.classList.remove('voted');
+          }
+          else if (caststatus === false) {
+            upcaster.classList.remove('voted');
+            downcaster.classList.add('voted');
+          } else {
+            upcaster.classList.remove('voted');
+            downcaster.classList.remove('voted');
+          }
+        }
+
+        upcaster.onclick = function (event) {
+          vote(true);
+        }
+
+        downcaster.onclick = function (event) {
+          vote(false);
+        }
+
+        function vote(up) {
+          if (casteractive) {
+            casteractive = false;
+
+            if (caststatus === up) {
+              caststatus = null;
+              counter.textContent = basevote.toString();
+            }
+            else {
+              caststatus = up;
+              counter.textContent = (basevote + (up ? 1 : -1)).toString();
+            }
+
+            update_buttons();
+
+            if (voteid == absent_voteid) {
+              // CREATE VOTE, MAKE IT `UP`
+              $.ajax({
+                method: 'POST',
+                url: '{% url "api:votes" %}',
+                data: {
+                  post: postid,
+                  up: caststatus
+                },
+                beforeSend: function(xhr) {
+                  xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
+                }
+              }).done(function (msg) {
+                voteid = msg.id;
+                casteractive = true;
+              });
+            }
+            else {
+              $.ajax({
+                method: 'PATCH',
+                url: '{% url "api:votedetail" 12345 %}'.replace(/12345/, voteid),
+                data: {
+                  post: postid,
+                  up: caststatus
+                },
+                beforeSend: function(xhr) {
+                  xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
+                }
+              }).done(function (msg) {
+                casteractive = true;
+              });
+            }
+          }
+        }
+      }
+      </script>
+      {% for post in group.posts.all reversed %}
+      <div class="group-detail-content">
+
+        <!-- Post Start -->
+        <div class="header">
+          <div class="text">
+            <p class="title"><strong>{{ post.owner.username }}</strong></p>
+            <p class="subtitle"><small>Shared in <i>{{ group.name }}</i></small></p>
+          </div>
+          <div class="img">
+            <img src="{% static 'assets/img/user.jpg' %}" alt="User placeholder" class="img-circle avatar">
+          </div>
+        </div>
+        <div class="content">
+          {% for question_response in post.data %}
+          <p><strong>{{ question_response.question }}</strong>: <span>{{ question_response.response }}</span></p>
+          {% endfor %}
+        </div>
+        <!-- Post Start -->
+
+        <div style="display: flex">
+          <!-- Votes Start -->
+          <div data-post-id="{{ post.id }}" data-vote-id="{{ post|vote_of_user:user.id }}" id="post-{{post.id}}" class="votecaster">
+            <span class="vote-count">{{ post.vote_sum }}</span>
+            <span title="+1 Vote Up" class="fa fa-chevron-up vote vote-up"></span>
+            <span title="-1 Vote Down" class="fa fa-chevron-down vote vote-down"></span>
+          </div><script type="text/javascript">votecaster_onload(document.getElementById("post-{{post.id}}"));</script>
+          <!-- Votes Start -->
+
+          <!-- Comments Header Start -->
+          <div class="comments-header">
+        		<a class="text-muted" onclick="$(this).parent().parent().next().slideToggle()" href="javascript:void(0);">
+              {{ post.comments|length }} Comment{{ post.comments|length|pluralize }}
+            </a>
+          </div>
+          <!-- Comments Header End -->
+        </div>
+
+        <!-- Comments Contents Start -->
+        <div class="comments-contents" style="display: none">
+          <div class="form-group" id="commentForm{{post.id}}">
+            <input name="text" class="form-control" id="comment-text-post-{{post.id}}" type="text" onkeypress="submitComment(event,this)" placeholder="Press Enter to send your comment!">
+          </div>
+
+          <div class="comments-old-contents" style="text-align: left">
+              {% for comment in post.comments.all%}
+                 <hr> </hr>
+                 <p style="font-size: 14px">{{ comment.text }} - <span style="color: #3af">{{comment.owner.username }}</span> <span style="color: #9199a1">{{comment.created}}</span></p>
+              {% endfor %}
+          </div>
+        </div>
+        <!-- Comments Contents End -->
+
+      </div>
+      {% endfor %}
+		</div>
+	</div>
+
+
+
+  <!-- Modal -->
+  <div class="modal fade" id="createTemplateModal" tabindex="-1" role="dialog" aria-labelledby="createTemplateModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="createTemplateModalLabel">Create a template</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form>
+            <div class="form-group row">
+              <label for="templateName" class="col-sm-2 col-form-label">Name</label>
+              <div class="col-sm-10">
+                <input type="text" class="form-control" id="templateName" value="">
+              </div>
+            </div>
+            <div id="templateFields"></div>
+            <div class="dropdown">
+              <button class="btn btn-primary dropdown-toggle" type="button" id="newFieldDropdownButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                + New Field
+              </button>
+              <ul class="dropdown-menu" id="newFieldDropdown" aria-labelledby="newFieldDropdownButton"></ul>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Dismiss</button>
+          <button id="templateSubmitButton" type="button" class="btn btn-primary">Create!</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="text/javascript">
+    var isUpdatingTemplate = false;
+    var fields;
+    var templateFieldTypes;
+    var dropdownItem;
+    var dropdown;
+    var removeButton;
+    var removeSymbol;
+    var spanEditorInput;
+    var spanEditorInitial;
+    var selectEditorTextarea;
+    var selectEditorInitial;
+    var modal;
+    var submitButton;
+    var selectedTemplate;
+    var currentFields;
+    var templateName;
+    var formFields;
+    var defaultTemplateFields;
+    var currentTemplateText;
+
+    modal = document.getElementById('createTemplateModal');
+    fields = document.getElementById('templateFields');
+    submitButton = document.getElementById('templateSubmitButton');
+    templateName = document.getElementById('templateName');
+    formFields = document.getElementById('formFields');
+    currentTemplateText = document.getElementById('currentTemplateText');
+
+
+    function createTemplateOnClick() {
+        templateName.value = '';
+        templateFields.innerHTML = '';
+        isUpdatingTemplate = false;
+        document.getElementById('createTemplateModalLabel').textContent = 'Create a template';
+        submitButton.textContent = 'Create!';
+    }
+
+    function editTemplateOnClick(e) {
+        if (selectedTemplate.id == '-1') {
+            swal('Sorry...', 'You can\'t edit the default template.', 'error');
+            e.stopPropagation();
+            e.preventDefault();
+            return;
+        }
+        isUpdatingTemplate = true;
+        templateName.value = selectedTemplate.name;
+        document.getElementById('createTemplateModalLabel').textContent = 'Update the template';
+        submitButton.textContent = 'Update!';
+        updateCreateFormFields(currentFields);
+    }
+
+    function input2Element(input, editable) {
+      var el;
+      var opt;
+      var optEl;
+
+      switch (input.type) {
+        case 'textarea':
+          el = document.createElement('textarea');
+          el.classList.add('form-control');
+          break;
+        case 'select':
+          el = makeSelect(input.options, editable);
+          break;
+        default:
+          el = document.createElement('input');
+          el.type = input.type;
+          el.className = 'form-control';
+          if (input.type == 'checkbox') {
+            el.classList.add('form-check-input');
+          }
+          break;
+      }
+
+      return el;
+    }
+
+    function input2type(input) {
+      inputTag = input.tagName.toLowerCase();
+
+      switch (inputTag) {
+        case 'textarea':
+        case 'select':
+          return inputTag;
+        default:
+          return input.type;
+      }
+    }
+
+    function replaceTextareaWithSelect() {
+      if (selectEditorTextarea) {
+        selectEditorTextarea.textContent = selectEditorTextarea.textContent.trim();
+        var select = makeSelect((selectEditorTextarea.textContent || selectEditorInitial).split('\n'));
+        selectEditorTextarea.parentNode.replaceChild(select, selectEditorTextarea);
+
+        selectEditorTextarea = null;
+
+        modal.focus();
+      }
+    }
+
+    // Credits: https://stackoverflow.com/a/21015393
+    function getTextWidth(text, font) {
+      getTextWidth.context.font = font;
+      return getTextWidth.context.measureText(text).width;
+    }
+    getTextWidth.canvas = document.createElement("canvas");
+    getTextWidth.context = getTextWidth.canvas.getContext("2d");
+
+    function getComputedFont(element) {
+      var cs = window.getComputedStyle(element);
+      return [
+        //'font-style',
+        //'font-variant',
+        //'font-weight',
+        //'font-stretch',
+        'font-size',
+        //'line-height',
+        'font-family'
+        ].map(s => cs.getPropertyValue(s)).join(' ');
+    }
+
+    function getComputedExtraWidth(element) {
+      var cs = window.getComputedStyle(element);
+      return ['padding-left', 'padding-right', 'border-left-width', 'border-right-width'].
+        map(s => Number.parseFloat(cs.getPropertyValue(s))).
+        reduce((a, b) => a + b);
+    }
+
+    function replaceSelectWithTextarea(select) {
+      replaceTextareaWithSelect();
+
+      var optionTexts = Array.from(select.getElementsByTagName('option'))
+        .map(option => option.textContent);
+
+      selectEditorInitial = optionTexts.join('\n');
+
+      selectEditorTextarea = document.createElement('textarea');
+      selectEditorTextarea.textContent = selectEditorInitial;
+      selectEditorTextarea.style['z-index'] = '123';
+      selectEditorTextarea.style['overflow'] = 'hidden';
+      selectEditorTextarea.style['padding'] = '5px';
+      selectEditorTextarea.textContent = selectEditorInitial;
+
+      selectEditorTextarea.oninput = function (event) {
+        var font = getComputedFont(selectEditorTextarea);
+        var optionTextLengths = selectEditorTextarea.textContent.split('\n')
+          .map(a => Math.ceil(getTextWidth(a, font)));
+        
+        // Resizes the textarea in width
+        selectEditorTextarea.style['width'] = Math.max(...optionTextLengths) +
+          getComputedExtraWidth(selectEditorTextarea) + 'px';
+        
+        // Resizes the textarea in height
+        selectEditorTextarea.style.height = "5px";
+        selectEditorTextarea.style.height = (selectEditorTextarea.scrollHeight)+"px";
+      }
+
+      selectEditorTextarea.onkeypress = function (event) {
+        if (event.ctrlKey && event.key == 'Enter') replaceTextareaWithSelect();
+      }
+
+      select.parentNode.replaceChild(selectEditorTextarea, select);
+
+      selectEditorTextarea.focus();
+      selectEditorTextarea.select();
+      selectEditorTextarea.oninput();
+    }
+
+    function makeSelect(options, editable = true) {
+      var select = document.createElement('select');
+      var option;
+      var optionElement;
+
+      for (option of options) {
+        option = option.trim();
+        if (option) {
+          optionElement = document.createElement('option');
+          optionElement.textContent = option;
+
+          select.appendChild(optionElement);
+        }
+      }
+
+      if (editable) {
+        select.onclick = function (event) {
+          replaceSelectWithTextarea(select);
+          event.stopPropagation();
+        };
+        // select.onkeydown = function (event) {
+        //   if (event.key == 'Enter') replaceInputWithSpan(select);
+        // }
+        select.tabIndex = '1';
+      }
+
+      return select;
+    }
+
+    function replaceInputWithSpan() {
+      if (spanEditorInput) {
+        var span = makeSpan(spanEditorInput.value || spanEditorInitial);
+        spanEditorInput.parentNode.replaceChild(span, spanEditorInput);
+
+        spanEditorInput = null;
+
+        modal.focus();
+      }
+    }
+
+    modal.onclick = function (event) {
+      if (event.target != spanEditorInput) {
+        replaceInputWithSpan();
+      }
+
+      if (event.target != selectEditorTextarea) {
+        replaceTextareaWithSelect();
+      }
+    };
+
+    function replaceSpanWithInput(span) {
+      replaceInputWithSpan();
+
+      spanEditorInitial = span.textContent;
+
+      spanEditorInput = document.createElement('input');
+      spanEditorInput.size = span.textContent.length;
+      spanEditorInput.style ='z-index:123';
+      spanEditorInput.value = spanEditorInitial;
+
+      spanEditorInput.onkeypress = function (event) {
+        if (event.key == 'Enter') replaceInputWithSpan();
+      };
+
+      span.parentNode.replaceChild(spanEditorInput, span);
+      spanEditorInput.focus();
+      spanEditorInput.select();
+    }
+
+    function makeSpan(str, editable = true) {
+      var span = document.createElement('span');
+      span.textContent = str;
+
+      if (editable) {
+        span.onclick = function (event) {
+          replaceSpanWithInput(span);
+          event.stopPropagation();
+        };
+        // span.onkeydown = function (event) {
+        //   if (event.key == 'Enter') replaceInputWithSpan(span);
+        // }
+        span.tabIndex = '1';
+      }
+
+      return span;
+    }
+
+    function createTemplateField(editable, type, legend, inputs) {
+      var input;
+      var label;
+      var inputElemCount;
+
+      var fieldElem;
+      var legendElem;
+      var inputElem;
+      var labelElem;
+      var text;
+      var inputContainer;
+
+      fieldElem = document.createElement('div');
+      fieldElem.classList.add('form-group', 'row', 'flex-center');
+      fieldElem.style = 'margin-right: 0px;';
+      fieldElem.attributes['data-template-type'] = type;
+
+      legendElem = document.createElement(editable ? 'div' : 'label');
+      legendElem.style = 'z-index:123';
+      legendElem.classList.add('col-form-legend', 'col-sm-2');
+      legendElem.appendChild(makeSpan(legend, editable));
+      fieldElem.appendChild(legendElem);
+
+      inputElemCount = 0;
+
+
+      inputContainer = document.createElement('div');
+      inputContainer.classList.add('col-sm-10', 'template-input-container');
+
+      function appendInput(input) {
+        inputElem = input2Element(input, editable);
+
+        if (input.label) {
+          labelElem = document.createElement(editable ? 'div' : 'label');
+          labelElem.classList.add('template-input-label');
+
+          if (input.type == 'checkbox') {
+            inputElem.value = input.label;
+            labelElem.classList.add('checkbox');
+            var checkboxIcons = document.createElement('span');
+            checkboxIcons.classList.add('icons');
+            checkboxIcons.innerHTML = '<span class="first-icon fa fa-square-o"></span><span class="second-icon fa fa-check-square-o">';
+            labelElem.appendChild(checkboxIcons);
+            $(inputElem).data('toggle', 'checkbox');
+          }
+          labelElem.appendChild(inputElem);
+
+          text = makeSpan(input.label, editable);
+          if (input.side == 'R') {
+            labelElem.appendChild(text);
+          }
+          else if (input.side == 'L') {
+            labelElem.insertBefore(text, inputElem);
+          }
+
+          inputContainer.appendChild(labelElem);
+        }
+        else {
+          inputContainer.appendChild(inputElem);
+        }
+
+        inputElemCount++;
+      }
+
+      for (var input of inputs) {
+        appendInput(input);
+      }
+
+      if (type == 'multisel' && editable) {
+          var createOptionBtn =  document.createElement('div');
+          createOptionBtn.attributes['data-ignore-on-submit'] = true;
+          createOptionBtn.textContent = '+';
+          createOptionBtn.classList.add('btn', 'btn-primary');
+          createOptionBtn.style = 'height:40px;width:44px;flex:none;';
+          createOptionBtn.onclick = function(e) {
+              appendInput({
+                type: 'checkbox',
+                label: 'new',
+                side: 'R'
+              });
+              inputContainer.appendChild(createOptionBtn);
+          };
+          inputContainer.appendChild(createOptionBtn);
+      }
+
+      fieldElem.appendChild(inputContainer);
+
+      function uniqueID() {
+        var id = '_' + Math.random().toString(36).substr(2, 9);
+
+        return document.getElementById(id) == null ? id : uniqueID();
+      }
+
+      if (inputElemCount == 1) {
+        inputElem.id = legendElem.htmlFor = uniqueID();
+      }
+
+      // Following are for the removal button
+      if (editable) {
+        removeButton = document.createElement('button');
+        removeButton.type = 'button';
+        removeButton.classList.add('close');
+        removeButton.attributes['data-dismiss'] = 'modal';
+        removeButton.attributes['aria-label'] = 'Remove';
+
+        removeSymbol = document.createElement('span');
+        removeSymbol.attributes['aria-hidden'] = 'true';
+        removeSymbol.innerHTML = '&times;';
+
+        removeButton.appendChild(removeSymbol);
+        removeButton.onclick = function (event) {
+          fieldElem.remove();
+        }
+
+        fieldElem.appendChild(removeButton);
+      }
+
+      return fieldElem;
+    }
+
+    templateFieldTypes = {};
+
+    function registerTemplateField(type, friendlyName, defLegend, defInputs) {
+      templateFieldTypes[type] = {
+        friendlyName: friendlyName,
+        creator: function (
+            editable = true,
+            legend = defLegend,
+            inputs = Array.isArray(defInputs) ? defInputs : [defInputs]
+          ) {
+          return createTemplateField(editable, type, legend, inputs);
+        }
+      };
+    }
+
+    function label2checkbox(label) {
+      return {
+        type: 'checkbox',
+        label: label,
+        side: 'R'
+      };
+    }
+
+    function labellessInput(type) {
+      return {
+        type: type,
+        label: false
+      };
+    }
+
+    function options2select(options) {
+      return {
+        type: 'select',
+        label: false,
+        options: options
+      }
+    }
+
+    registerTemplateField('checkbox', 'Checkbox', 'Doing stuff...', label2checkbox('is allowed'));
+    registerTemplateField('multisel', 'Multiple Selection', 'There are...', ['birds'].map(label2checkbox));
+    registerTemplateField('textarea', 'Text Area', 'Your feedback', labellessInput('textarea'));
+    
+    registerTemplateField('text', 'Text Line', 'Name', labellessInput('text'));
+    registerTemplateField('number', 'Number', 'Amount', labellessInput('number'));
+    registerTemplateField('date', 'Date', 'Date', labellessInput('date'));
+    registerTemplateField('email', 'E-mail', 'E-mail', labellessInput('email'));
+    registerTemplateField('url', 'URL', 'Website', labellessInput('url'));
+    registerTemplateField('tel', 'Phone Number', 'Phone Number', labellessInput('tel'));
+
+    registerTemplateField('select', 'Dropdown', 'Currency', options2select(['USD', 'EUR', 'TRY']));
+
+    dropdown = document.getElementById('newFieldDropdown');
+
+    function templateFieldTypesSorted(accordingTo) {
+      return Object.getOwnPropertyNames(templateFieldTypes).sort((a, b) =>
+        templateFieldTypes[a][accordingTo].localeCompare(templateFieldTypes[b][accordingTo])
+      );
+    }
+
+    // for (const type in templateFieldTypes) {
+    for (const type of templateFieldTypesSorted('friendlyName')) {
+      dropdownItem = document.createElement('li');
+      dropdownItemInner = document.createElement('a');
+      dropdownItemInner.href = 'javascript:void(0);';
+      dropdownItemInner.textContent = templateFieldTypes[type].friendlyName;
+      dropdownItemInner.onclick = function (event) {
+        var field = templateFieldTypes[type].creator();
+        fields.appendChild(field);
+        field.firstChild.firstChild.focus();
+      };
+
+      dropdownItem.appendChild(dropdownItemInner);
+      dropdown.appendChild(dropdownItem);
+    }
+
+    function input2JSON(input) {
+      var si;
+
+      if (input.tagName == 'LABEL') {
+        return {
+          type: input2type(input.querySelector('input')),
+          label: $(input).find('span').last().text(),
+          side: si == 0 ? 'L' : 'R'
+        };
+      }
+
+      if (input.tagName == 'SELECT') {
+        return {
+          type: input2type(input),
+          label: false,
+          options: Array.from(input.getElementsByTagName('option'))
+              .map(option => option.textContent)
+        }
+      }
+
+      return {
+        type: input2type(input),
+        label: false
+      };
+    }
+
+    function field2JSON(field) {
+      return {
+        type: field.attributes['data-template-type'],
+        legend: field.childNodes[0].textContent,
+        inputs: Array.from(field.childNodes[1].childNodes)
+            .filter(node => !node.attributes['data-ignore-on-submit'])
+            .map(input => input2JSON(input))
+      };
+    }
+
+    function toJSON() {
+      return {
+        name: templateName.value,
+        group: '{{ group.id }}',
+        user: '{{ user.id }}',
+        fields: Array.from(fields.childNodes).map(
+            field => field2JSON(field)
+          )
+      };
+    }
+
+    submitButton.onclick = function (event) {
+      var data;
+
+      if (!submitButton.disabled) {
+        submitButton.disabled = true;
+
+        replaceInputWithSpan();
+        replaceTextareaWithSelect();
+
+        templateFields.classList.add('hidden');
+        $("div.template-input-label").each((i, label) => {
+          var realLabel = document.createElement('label');
+          realLabel.classList.add('template-input-label');
+          realLabel.innerHTML = label.innerHTML;
+          $(label).replaceWith(realLabel);
+        });
+        data = toJSON();
+        data.csrfmiddlewaretoken = '{{ csrf_token }}';
+        data.fields = JSON.stringify(data.fields);
+
+        $.ajax({
+          method: isUpdatingTemplate ? 'PUT' : 'POST',
+          url: isUpdatingTemplate
+              ? '{% url "api:datatemplatedetail" 12345 %}'.replace(/12345/, selectedTemplate.id.toString())
+              : '{% url "api:datatemplates" %}',
+          data: data,
+          beforeSend: (xhr) => { xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken')); }
+        }).done(function (msg) {
+          location.reload();
+        }).fail(function (msg) {
+          $("label.template-input-label").each((i, label) => {
+            var divLabel = document.createElement('div');
+            divLabel.classList.add('template-input-label', 'checkbox');
+            divLabel.innerHTML = label.innerHTML;
+            $(label).replaceWith(divLabel);
+          });
+          templateFields.classList.remove('hidden');
+          console.error(msg);
+          swal("Oops...", 'Unexpected error, couldn\'t create the template.', "error");
+        }).always(function (msg) {
+          submitButton.disabled = false;
+        });
+      }
+    }
+
+    function updateFormFields(fieldObjects) {
+      formFields.innerHTML = '';
+      for (var field of fieldObjects) {
+        formFields.appendChild(createTemplateField(false, field.type, field.legend, field.inputs));
+      }
+    }
+
+    function updateCreateFormFields(fieldObjects) {
+        fields.innerHTML = '';
+        for (var field of fieldObjects) {
+          fields.appendChild(createTemplateField(true, field.type, field.legend, field.inputs));
+        }
+    }
+
+    function selectTemplate(id, name) {
+      selectedTemplate = { id: id, name: name };
+      currentTemplateText.textContent = name;
+      if (id == '-1') {
+        updateFormFields(defaultTemplateFields);
+      }
+      else {
+        $.ajax({
+          method: 'GET',
+          url: '{% url "api:datatemplatedetail" 12345 %}'.replace(/12345/, id.toString())
+        }).done(function (templateData) {
+          currentFields = templateData.fields;
+          if (templateData.group.id == {{ group.id }}) {
+            updateFormFields(templateData.fields);
+          }
+        });
+      }
+    }
+
+    defaultTemplateFields = [field2JSON(templateFieldTypes['text'].creator(false, 'Text'))];
+    selectTemplate('-1', 'Default');
+
+    function removeCurrentTemplate() {
+        if (selectedTemplate.id == '-1') {
+            swal('Sorry...', 'You can\'t remove the default template.', 'error')
+            return;
+        }
+
+        swal({
+          title: 'Are you sure?',
+          text: "You won't be able to revert this!",
+          type: 'warning',
+          showCancelButton: true,
+          confirmButtonText: 'Yes, remove it!'
+        }).then(function (result) {
+            if (result.value) {
+                $.ajax({
+                  method: 'DELETE',
+                  url: '{% url "api:datatemplatedetail" 12345 %}'.replace(/12345/, selectedTemplate.id.toString()),
+                  beforeSend: (xhr) => { xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken')); }
+                }).done(() => {
+                  var dropdownNode = document.getElementById('dropdown-select-template-' + selectedTemplate.id);
+                  dropdownNode.parentNode.removeChild(dropdownNode);
+                  selectTemplate('-1', 'Default');
+                  swal(
+                    'Removed!',
+                    'The template has been successfully removed.',
+                    'success'
+                  );
+                }).fail((xhr, status, err) => swal('Oops...', 'Unexpected error, couldn\'t remove the template.', 'error'));
+            }
+        });
+    }
+
+    function sendPost() {
+        var questionResponses = $(formFields).find('> .form-group').map((i, el) => {
+          var question = $(el).find('> label').text(), response = '';
+
+          var checkboxes = $(el).find('input[type="checkbox"]');
+          var dropdowns = $(el).find('select');
+
+          if (checkboxes.length) {
+            var checkedCheckboxes = checkboxes.filter((i, el) => el.checked).map((i, el) => el.value);
+            response = Array.from(checkedCheckboxes).join(', ');
+          }
+          else if (dropdowns.length) {
+            response = dropdowns.get(0).value;
+          }
+          else {
+            var inputOrTextarea = $(el).find('textarea');
+            if (!inputOrTextarea.length) {
+                inputOrTextarea = $(el).find('input');
+            }
+            response = inputOrTextarea.get(0).value;
+          }
+          return { question: question, response: response };
+        });
+
+        $.ajax({
+          method: 'POST',
+          url: '{% url "api:posts" %}',
+          data: {
+              data: JSON.stringify(Array.from(questionResponses)),
+              group: '{{ group.id }}',
+              owner: '{{ user.id }}',
+              data_template: selectedTemplate.id === '-1' ? undefined : selectedTemplate.id,
+          },
+          beforeSend: (xhr) => { xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken')); }
+        }).done(() => {
+          location.reload();
+        }).fail((xhr, status, err) => swal('Oops...', 'Unexpected error, couldn\'t send the post.', 'error'));
+    }
+
+function submitComment(e, commentText){
+
+if(e.which == 13 && !e.shiftKey) {
+            $.ajax({
+          method: 'POST',
+          url: '{% url "api:comments" %}',
+          data: {
+	      text: commentText.value,
+              post: commentText.id.replace('comment-text-post-',''),
+              owner: '{{ user.id }}',
+          },
+          beforeSend: (xhr) => { xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken')); }
+        }).done(() => {
+	  commentText.value = '';
+          location.reload();
+        }).fail((xhr, status, err) => swal('Oops...', 'Unexpected error, couldn\'t send the comment.', 'error'));
+
+
+        e.preventDefault();
+        return false;
+    }
+}
+
+  </script>
+
+{% endblock %}

@@ -30,6 +30,7 @@ from django.views.decorators.csrf import csrf_exempt
 
 import urllib
 import json
+import ast
 import random
 
 from . import serializers as core_serializers
@@ -55,7 +56,6 @@ class UserList(generics.ListCreateAPIView):
             ).distinct()
         return query_list
 
-
 class GroupList(generics.ListCreateAPIView):
     """
     get:
@@ -76,6 +76,20 @@ class GroupList(generics.ListCreateAPIView):
             ).distinct()
         return query_list
 
+    def post(self, request):
+        user = request.user
+        form = json.loads(request.body)
+        group = core_models.Group(name = form['name'],
+            description = form['description'],
+            location = form['location'],
+            picture = form['picture'])
+        group.members.add(user)
+        group.moderators.add(user)
+        group.save()
+        serializer = core_serializers.GroupSerializer(group)
+        return JsonResponse(serializer.data)
+
+
 
 class DataTemplateList(generics.ListCreateAPIView):
     """
@@ -83,7 +97,7 @@ class DataTemplateList(generics.ListCreateAPIView):
     Return a list of all the existing data templates.
 
     post:
-    Create a new template instance.
+    Create a new template instancea.
     """
     serializer_class = core_serializers.DataTemplateSimpleSerializer
     pagination_class = DataTemplateLimitOffSetPagination
@@ -182,6 +196,24 @@ class VoteList(generics.ListCreateAPIView):
         except:
             return core_serializers.VoteSerializer
 
+class FileList(generics.ListCreateAPIView):
+    """
+    get:
+    Return a list of all the existing files.
+
+    post:
+    Create a new file instance.
+    """
+    queryset = core_models.File.objects.all()
+
+    def get_serializer_class(self, *args, **kwargs):
+        try:  # without try-catch the api docs will break
+            if self.request.method in ["POST", "PUT", "PATCH"]:
+                return core_serializers.FileCreateSerializer
+            return core_serializers.FileSerializer
+        except:
+            return core_serializers.FileSerializer
+
 
 class ProfilePageList(generics.ListAPIView):
     """
@@ -193,6 +225,28 @@ class ProfilePageList(generics.ListAPIView):
     """
     queryset = core_models.ProfilePage.objects.all()
     serializer_class = core_serializers.ProfilePageSerializer
+
+class AnnotationList(generics.ListCreateAPIView):
+    """
+    get:
+    Return a list of all the existing annotations.
+
+    post:
+    Create a new annotatiob instance.
+    """
+    # queryset = core_models.Annotation.objects.all()
+    serializer_class = core_serializers.AnnotationSerializer
+
+    def get_queryset(self):
+        """
+        Optionally restricts the returned annotations to a given source URI,
+        by filtering against a `source` query parameter in the URL.
+        """
+        queryset = core_models.Annotation.objects.all()
+        # source = self.request.query_params.get('source', None)
+        # if source is not None:
+        #     queryset = queryset.filter(target__source=source)
+        return queryset
 
 # List Views END
 
@@ -211,6 +265,7 @@ class UserDetail(generics.RetrieveUpdateAPIView):
     serializer_class = core_serializers.UserSerializer
 
 
+
 class GroupDetail(generics.RetrieveUpdateDestroyAPIView):
     """
     get:
@@ -224,6 +279,25 @@ class GroupDetail(generics.RetrieveUpdateDestroyAPIView):
     """
     queryset = core_models.Group.objects.all()
     serializer_class = core_serializers.GroupSerializer
+
+    def post(self, request, pk):
+        user = request.user
+        form = request.data
+        toxicId = int(form['id'])
+        group = core_models.Group.objects.get(pk=pk)
+
+        if ((group.members.filter(id=toxicId).count() == 1) 
+            and (group.moderators.filter(id=user.id).count() == 1)):
+            # toxic user
+            toxic = auth_models.User.objects.get(pk=toxicId)
+            group.members.remove(toxic)
+            group.save();
+            serializer = core_serializers.GroupSerializer(group)
+            return JsonResponse(serializer.data)        
+        else :
+            return JsonResponse({'error':'patates'})
+
+
 
 
 class DataTemplateDetail(generics.RetrieveUpdateDestroyAPIView):
@@ -311,6 +385,18 @@ class ProfilePageDetail(generics.RetrieveUpdateAPIView):
     queryset = core_models.ProfilePage.objects.all()
     serializer_class = core_serializers.ProfilePageSerializer
 
+class AnnotationDetail(generics.RetrieveUpdateAPIView):
+    """
+    get:
+    Return the details of the annotation with the given id.
+
+    update:
+    Update the annotation detail with the given id.
+    """
+    queryset = core_models.Annotation.objects.all()
+    serializer_class = core_serializers.AnnotationSerializer
+
+
 
 class VoteDetail(generics.RetrieveUpdateDestroyAPIView):
     """
@@ -332,6 +418,27 @@ class VoteDetail(generics.RetrieveUpdateDestroyAPIView):
             return core_serializers.VoteSerializer
         except:
             return core_serializers.VoteSerializer
+
+class FileDetail(generics.RetrieveUpdateDestroyAPIView):
+    """
+    get:
+    Return the details of the file with the given id.
+
+    update:
+    Update the file detail with the given id.
+
+    delete:
+    Delete the file detail with the given id.
+    """
+    queryset = core_models.File.objects.all()
+
+    def get_serializer_class(self, *args, **kwargs):
+        try:  # without try-catch the api docs will break
+            if self.request.method in ["POST", "PUT", "PATCH"]:
+                return core_serializers.FileCreateSerializer
+            return core_serializers.FileSerializer
+        except:
+            return core_serializers.FileSerializer
 
 #  Detail Views END
 
@@ -480,6 +587,58 @@ def recommend_posts(request, limit=5):
         map(lambda post: core_serializers.PostSerializer(post).data, sample(candidates, limit)))
     return JsonResponse({"results": candidates})
 
+@api_view(['POST'])
+def search_posts_by_template(request):
+    """
+    Returns search results based on template field constraints
+    """
+    type_dict = { "number": "integer",
+                  "date":"date",
+                  "text":"text",
+                  "textarea":"text",
+                  "checkbox":"text",
+                  "multisel":"text",
+                  "email": "text",
+                  "url": "text",
+                  "tel": "text",
+                  "file": "text",
+            }
+    operation_dict = { "greater": ">",
+                  "less":"<",
+                  "equals":"=",
+                  "contains":"~" 
+            }
+
+    template_id = request.data.get('template_id', None)
+    constraints = request.data.get('constraints', [])
+
+    try:
+        template = core_models.DataTemplate.objects.get(id=template_id)
+        fields = template.fields
+    except:
+        # Handle the default template case.
+        fields = [{ "inputs": [{ "type": "text", "label": False }], "type": "text", "legend": "Text" }]
+    
+    sql_query = "SELECT * FROM api_post WHERE data_template_id" + (("=" + str(template_id)) if template_id != None else " IS NULL")
+    for constraint in constraints:
+        field_legend = constraint["field"]
+        field_idx = filter(lambda x: x[1]["legend"]==field_legend, enumerate(fields))
+        if len(field_idx) == 0:
+            # Incorrect POST data, non-existent field legend
+            return JsonResponse({"results": []})
+            break
+        field_idx = field_idx[0][0]
+        field_type = type_dict[fields[0]["type"]] 
+
+        operation = operation_dict[constraint["operation"]]
+        data = constraint["data"]
+
+        sql_query += " AND (data->" + str(field_idx)  + "->>'response')::" + field_type + operation + "('" + data + "')::" + field_type     
+
+    sql_query += ";"
+    qs =core_models.Post.objects.raw(sql_query)
+    results = core_serializers.PostSerializer(qs, many=True).data
+    return JsonResponse({"results": results})
 
 class SignUpView(APIView):
     def post(self, request):
@@ -501,3 +660,5 @@ class SignUpView(APIView):
             return JsonResponse(out_serializer.data)
         else:
             return JsonResponse(serialized._errors, status=417)
+
+

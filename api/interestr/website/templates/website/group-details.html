@@ -1,6 +1,6 @@
 {% extends 'website/base.html' %}
 
-{% load voting_extras %}
+{% load filters %}
 {% load static %}
 
 {% block title %}Group Page{% endblock %}
@@ -8,6 +8,7 @@
 {% block navbaritems %}
 <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
   <ul class="nav navbar-nav navbar-right">
+    <li><a href="{% url 'website:search_advanced' %}">Advanced Search</a></li>
     <li class="nav-search">
       <input type="text" value="{{ search_term }}" class="form-control" placeholder="Search..." id="search-input">
     </li>
@@ -40,7 +41,7 @@
 
         {% for group in user.moderated_groups.all %}
           <div class="btn btn-round btn-left-nav">
-            <a href="{% url 'website:groups' group.id %}">{{group.name}}</a><span>...</span>
+            <a href="{% url 'website:group_details' group.id %}">{{group.name}}</a><span>...</span>
           </div>
         {% endfor %}
 
@@ -92,7 +93,7 @@
               <span class="tag" data-toggle="tooltip" title="{{ tag.description }}">{{ tag.label }}</span>
             {% endfor %}
           </div>
-          <div class="buttons">
+          <div class="buttons" style="flex:none">
             <div id="leaveJoinButton" class="btn btn-round btn-fill" onclick="leave_join_group()"></div>
             <div class="btn btn-round">More ...</div>
 
@@ -157,7 +158,12 @@
         <form class="group-detail-content-form">
           {% csrf_token %}
           {{ form.non_field_errors }}
-          <div id="formFields">
+          <div id="formFields"></div>
+          <div class="form-group row flex-center">
+              <label class="col-form-legend col-sm-2" for="create-post-tag-select" style="z-index: 123;"><span>Tags</span></label>
+              <div class="col-sm-10 template-input-container">
+                <select class="form-control" id="create-post-tag-select" multiple></select>
+              </div>
           </div>
 
           <div class="text-right">
@@ -290,13 +296,12 @@
       }
       </script>
       {% for post in group.posts.all reversed %}
-      <div class="group-detail-content">
+      <div id="postbox-{{ post.id }}" class="group-detail-content">
 
         <!-- Post Start -->
         <div class="header">
           <div class="text">
             <p class="title"><strong>{{ post.owner.username }}</strong></p>
-            <p class="subtitle"><small>Shared in <i>{{ group.name }}</i></small></p>
           </div>
           <div class="img">
             <img src="{% static 'assets/img/user.jpg' %}" alt="User placeholder" class="img-circle avatar">
@@ -306,6 +311,17 @@
           {% for question_response in post.data %}
           <p><strong>{{ question_response.question }}</strong>: <span>{{ question_response.response }}</span></p>
           {% endfor %}
+
+          {% if post.tags.all %}
+          <p class="tags">
+            <i>
+              <strong>Tags: </strong>
+              {% for tag in post.tags.all %}
+                <span class="tag" data-toggle="tooltip" title="{{ tag.description }}">{{ tag.label }}</span>
+              {% endfor %}
+            </i>
+          </p>
+          {% endif %}
         </div>
         <!-- Post Start -->
 
@@ -412,6 +428,30 @@
     formFields = document.getElementById('formFields');
     currentTemplateText = document.getElementById('currentTemplateText');
 
+    Dropzone.autoDiscover = true;
+
+    function initDropzone() {
+      var file = $("input[type=file]");
+      if (!file.length) return;
+      file.css({ "cursor": "pointer", "color": "#444", "background-color": "#fff" });
+      file.attr("readonly", "readonly");
+      var dz = new Dropzone("input[type=file]", {
+        url: '{% url "api:files" %}',
+        paramName: 'file',
+        headers: {
+          'X-CSRFToken': getCookie('csrftoken')
+        },
+        autoProcessQueue: true,
+      });
+      (function() {
+        var el = $('input[type=file]');
+        dz.on("success", function(file, response) {
+          el.get(0).type = "text";
+          el.get(0).value = response.file;
+        });
+      })();
+
+    }
 
     function createTemplateOnClick() {
         templateName.value = '';
@@ -810,6 +850,7 @@
     registerTemplateField('tel', 'Phone Number', 'Phone Number', labellessInput('tel'));
 
     registerTemplateField('select', 'Dropdown', 'Currency', options2select(['USD', 'EUR', 'TRY']));
+    registerTemplateField('file', 'File', 'File', labellessInput('file'));
 
     dropdown = document.getElementById('newFieldDropdown');
 
@@ -958,6 +999,9 @@
           }
         });
       }
+      setTimeout(() => {
+        initDropzone();
+      }, 100);
     }
 
     defaultTemplateFields = [field2JSON(templateFieldTypes['text'].creator(false, 'Text'))];
@@ -1022,13 +1066,17 @@
         $.ajax({
           method: 'POST',
           url: '{% url "api:posts" %}',
-          data: {
-              data: JSON.stringify(Array.from(questionResponses)),
+          data: JSON.stringify({
+              data: Array.from(questionResponses),
               group: '{{ group.id }}',
               owner: '{{ user.id }}',
               data_template: selectedTemplate.id === '-1' ? undefined : selectedTemplate.id,
-          },
-          beforeSend: (xhr) => { xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken')); }
+              tags: Array.from(document.getElementById("create-post-tag-select").options).filter(opt => opt.selected).map(opt => JSON.parse(opt.value)),
+          }),
+          beforeSend: (xhr) => {
+            xhr.setRequestHeader("Content-Type", "application/json");
+            xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
+          }
         }).done(() => {
           location.reload();
         }).fail((xhr, status, err) => swal('Oops...', 'Unexpected error, couldn\'t send the post.', 'error'));
@@ -1056,6 +1104,46 @@ if(e.which == 13 && !e.shiftKey) {
         return false;
     }
 }
+
+window.onload = function () {
+    $("#create-post-tag-select").select2({
+      ajax: {
+          url: "{% url 'api:searchwiki' %}",
+          dataType: 'json',
+          delay: 200,
+          processResults: (data) => {
+              var results = data.results.map(el => Object.assign({}, el, {
+                  text: el.label + (el.description ? " (" + el.description + ")" : ""),
+              }));
+
+              return {
+                  results: results,
+                  pagination: {
+                      more: false,
+                  },
+              };
+          },
+          cache: true,
+      },
+      placeholder: 'Add some tags',
+      minimumInputLength: 1, // don't query the API for empty search terms
+      multiple: true, // make it a multi-select
+    });
+
+    const isImgLink = href => /.*.(png|gif|jpg|jpeg)$/.test(href);
+    $('p').linkify({
+      target: "_blank",
+      tagName: (href, linkType) => {
+        return isImgLink(href) ? 'img' : 'a';
+      },
+      attributes: (href, linkType) => {
+        return isImgLink(href) ? { src: href } : { };
+      },
+      className: (href) => {
+        return isImgLink(href) ? "img-responsive shadowed" : "";
+      }
+    });
+  };
 
   </script>
 

@@ -67,7 +67,7 @@ class Group(BaseModel):
         auth_models.User, blank=True, related_name='joined_groups')
     moderators = models.ManyToManyField(
         auth_models.User, blank=True, related_name='moderated_groups')
-    picture = models.ImageField(blank=True, null=True)
+    picture = models.ImageField(blank=True, null=True, upload_to="images/")
 
     def __str__(self):
         return self.name
@@ -89,6 +89,7 @@ class Post(BaseModel):
         Group, related_name='posts', on_delete=models.CASCADE, default=None, null=True)
     data_template = models.ForeignKey(
         'api.DataTemplate', related_name='posts', default=None, null=True)
+    tags = models.ManyToManyField(Tag, blank=True, related_name='posts')
     data = JSONField()
 
     def vote_sum(self):
@@ -97,6 +98,13 @@ class Post(BaseModel):
     def __str__(self):
         return json.dumps(self.data)
 
+
+class File(BaseModel):
+    title = models.CharField(max_length=60, blank=True, null=True)
+    file = models.FileField(upload_to="files/")
+
+    def __unicode__(self):
+        return self.file.name
 
 class Comment(BaseModel):
     owner = models.ForeignKey(
@@ -132,6 +140,13 @@ class DataTemplate(BaseModel):
 
     def __str__(self):
         return self.name
+
+class Annotation(BaseModel):
+    anno_id = models.AutoField(primary_key=True)
+    user = models.ForeignKey(auth_models.User, related_name='annotations', on_delete=models.SET_NULL, default=None,
+                             null=True)
+    bodyValue = models.TextField(default='', blank=True)
+    target = JSONField()
 
 
 # Models END

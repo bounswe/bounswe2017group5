@@ -9,6 +9,30 @@
     }
     window.hasRun = true;
 
+    function addressEquality(add1, add2) {
+        if (add1.charAt(add1.length - 1) === '/') {
+            add1 = add1.substr(0, add1.length - 1);
+        }
+
+        if (add2.charAt(add2.length - 1) === '/') {
+            add2 = add2.substr(0, add2.length - 1);
+        }
+
+        return add1 === add2;
+    }
+
+    // A URL parser, reference: https://stackoverflow.com/a/15979390
+    var urlParser = document.createElement('a');
+    function parseURL(url, value) {
+        urlParser.href = url;
+        return urlParser[value];
+    }
+
+    /*
+    Check if we are visiting an up-to-date website.
+    */
+    useOldVersion = addressEquality(parseURL(window.location.href, 'origin'), 'http://35.177.96.220');
+
     var css = document.createElement("style");
     css.type = "text/css";
     css.innerHTML = `
@@ -48,30 +72,11 @@
 
     var sidebarPort = browser.runtime.connect({name: "cs-sidebar"});
 
-    // A URL parser, reference: https://stackoverflow.com/a/15979390
-    var urlParser = document.createElement('a');
-    function parseURL(url, value) {
-        urlParser.href = url;
-        return urlParser[value];
-    }
-
     // https://stackoverflow.com/a/15724300
     function getCookie(name) {
         var value = "; " + document.cookie;
         var parts = value.split("; " + name + "=");
         if (parts.length == 2) return parts.pop().split(";").shift();
-    }
-
-    function addressEquality(add1, add2) {
-        if (add1.charAt(add1.length - 1) === '/') {
-            add1 = add1.substr(0, add1.length - 1);
-        }
-
-        if (add2.charAt(add2.length - 1) === '/') {
-            add2 = add2.substr(0, add2.length - 1);
-        }
-
-        return add1 === add2;
     }
     
     // https://stackoverflow.com/a/30265431
@@ -274,24 +279,32 @@
 
         var selector = CssSelector(annoSelected[annoSelected.length - 1]);
 
-        annotation.target = [{
-            source: window.location.href,
-            selector: selector
-        }];
-
-        if (selector.value.startsWith('#postbox-')) {
-            if (addressEquality(parseURL(window.location.href, 'pathname'), '/search_advanced/')) {
-                var groupID = document.querySelector(selector.value.split(' ')[0]).getAttribute('data-group-id');
-                annotation.target.push({
-                    source: `${parseURL(window.location.href, 'origin')}/groups/${groupID}/`,
-                    selector: selector
-                });
-            }
-            else {
-                annotation.target.push({
-                    source: `${parseURL(window.location.href, 'origin')}/search_advanced`,
-                    selector: selector
-                });
+        if (useOldVersion) {
+            annotation.target = {
+                source: window.location.href,
+                selector: CssSelector(annoSelected[annoSelected.length - 1])
+            };
+        }
+        else {
+            annotation.target = [{
+                source: window.location.href,
+                selector: selector
+            }];
+    
+            if (selector.value.startsWith('#postbox-')) {
+                if (addressEquality(parseURL(window.location.href, 'pathname'), '/search_advanced/')) {
+                    var groupID = document.querySelector(selector.value.split(' ')[0]).getAttribute('data-group-id');
+                    annotation.target.push({
+                        source: `${parseURL(window.location.href, 'origin')}/groups/${groupID}/`,
+                        selector: selector
+                    });
+                }
+                else {
+                    annotation.target.push({
+                        source: `${parseURL(window.location.href, 'origin')}/search_advanced`,
+                        selector: selector
+                    });
+                }
             }
         }
 
@@ -346,14 +359,16 @@
     }
 
     function retrieveAnnotations() {
-        // var retrievalURL = `${parseURL(window.location.href, 'origin')}/api/v1/annotations/?source=${window.location.href}`;
-        var retrievalURL = `${parseURL(window.location.href, 'origin')}/api/v1/annotations/`;
+        var retrievalURL = `${parseURL(window.location.href, 'origin')}/api/v1/annotations/?source=${window.location.href}`;
+        // var retrievalURL = `${parseURL(window.location.href, 'origin')}/api/v1/annotations/`;
         // var retrievalURL = '/annotations/'
 
         request('GET', retrievalURL)
         .then((e) => {
             var annotations = JSON.parse(e);
-            annotations = filterAndMinifyAnnotations(annotations);
+            if (!useOldVersion) {
+                annotations = filterAndMinifyAnnotations(annotations);
+            }
             injectAnnotations(annotations);
         }, (e) => {
             console.log('Failed to retrieve annotations');

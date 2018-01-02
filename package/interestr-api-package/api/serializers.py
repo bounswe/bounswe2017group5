@@ -44,7 +44,8 @@ class DataTemplateSimpleSerializer(serializers.ModelSerializer):
         'email',
         'url',
         'tel',
-        'select'
+        'select',
+        'file',
     ]
 
     class Meta:
@@ -141,11 +142,16 @@ class VoteSerializer(serializers.ModelSerializer):
         model = core_models.Vote
         fields = ('id', 'owner', 'post', 'up', 'created', 'updated',)
 
+class FileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = core_models.File
+        fields = ('id', 'title', 'file', 'created', 'updated',)
+
 class PostCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = core_models.Post
-        fields = ('id', 'owner', 'group', 'data_template', 'data')
+        fields = ('id', 'owner', 'group', 'data_template', 'data', 'tags',)
 
     def validate_data(self, value):
 
@@ -174,7 +180,11 @@ class PostCreateSerializer(serializers.ModelSerializer):
 
 
     def validate(self, data):
-        template = data['data_template']
+        try:
+            template = data['data_template']
+        except:
+            # Default template case
+            return data
         post_data = data['data']
 
         template_errors = []
@@ -200,6 +210,12 @@ class VoteCreateSerializer(serializers.ModelSerializer):
         model = core_models.Vote
         fields = ('id', 'post', 'up')
 
+class FileCreateSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = core_models.File
+        fields = ('id', 'title', 'file')
+
 class PostSerializer(serializers.ModelSerializer):
     owner = UserIdNameSerializer(read_only=True)
     group = GroupIdNameDescriptionSerializer()
@@ -210,7 +226,7 @@ class PostSerializer(serializers.ModelSerializer):
     class Meta:
         model = core_models.Post
         fields = ('id', 'owner', 'group', 'data_template', 'data',
-                  'created', 'updated', 'comments', 'votes')
+                  'created', 'updated', 'comments', 'votes', 'tags',)
 
 class ProfilePageSerializer(serializers.ModelSerializer):
 
@@ -228,8 +244,51 @@ class UserSerializer(serializers.ModelSerializer):
         many=True, read_only=True)
     posts = PostSerializer(many=True, read_only=True)
     profilepage = ProfilePageSerializer(read_only=True, many=False)
+    votes = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
+
 
     class Meta:
         model = auth_models.User
         fields = ('id', 'username', 'email', 'joined_groups', 'data_templates',
                   'posts', 'profilepage', 'votes', 'moderated_groups', )
+
+class AnnotationSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = core_models.Annotation
+        exclude = ( )
+
+    def to_representation(self, instance):
+        data = super(AnnotationSerializer, self).to_representation(instance)
+        json_str = {
+            "@context": "http://www.w3.org/ns/anno.jsonld", 
+            "id": "http://interestr.com/annotations/" + str(instance.anno_id), 
+            "type": "Annotation",
+            "created": instance.created,
+            "bodyValue": instance.bodyValue,
+            "target": instance.target
+        }
+
+        if (instance.user):
+            json_str["creator"] = {
+                "id": "http://interestr.com/profile/" + str(instance.user.profile.id),
+                "type": "Person",
+                "name":  instance.user.profile.name + " " + str(instance.user.profile.surname),
+                "nickname": instance.user.username,
+                "email": instance.user.email
+            }
+
+        return json_str
+
+    def to_internal_value(self, data):
+        newdata = {
+            "bodyValue": data["bodyValue"],
+            "target": data["target"]
+        }
+        
+        if ("creator" in data.keys()): 
+            profile_id = data["creator"]["id"].strip("http://interestr.com/profile/")
+            user_id = core_models.ProfilePage.objects.get(id=profile_id).id
+            newdata["user"] = user_id 
+
+        return  super(AnnotationSerializer, self).to_internal_value(newdata)

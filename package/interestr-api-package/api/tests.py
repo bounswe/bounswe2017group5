@@ -5,7 +5,7 @@ from django.test import TestCase
 from rest_framework.test import APIClient
 
 from django.contrib.auth.models import User
-from .models import Post, Group, Comment, DataTemplate
+from .models import Post, Group, Comment, DataTemplate, ProfilePage
 
 
 from rest_framework.authtoken.models import Token
@@ -72,7 +72,8 @@ class SignupTests(TestCase):
                                         'username': 'name',
                                         'email': 'email@email.com',
                                         'password': 'password123'
-                                    })
+                                    },
+                                    format='json')
 
         self.assertEqual(response.status_code, 200,
                          responseError(response, 'Sign Up'))
@@ -109,6 +110,81 @@ class SignupTests(TestCase):
         self.assertEqual(response.status_code, 417,
                          responseError(response, 'Sign Up', False))
 
+class AnnotationTests(TestCase):
+
+    def setUp(self):
+        self.client = APIClient()
+        self.test_user = User.objects.create_user(
+            'owner', 'wow@wow.com', 'wowpass123')
+        self.test_profile = ProfilePage.objects.create(name="Utkan", surname="Gezer", user=self.test_user)
+        
+    def test_create_annotation(self):
+        self.client.force_authenticate(self.test_user)
+
+        post_data = {
+            "@context": "http://www.w3.org/ns/anno.jsonld",
+            "id": "http://interestr.com/annotations/1",
+            "type": "Annotation",
+            "created": "2015-01-28T12:00:00Z",
+            "creator": {
+                "id": "http://interestr.com/profile/" + str(self.test_profile.id),
+                "type": "Person",
+                "name": "Utkan Gezer",
+                "nickname": "owner",
+                "email": "wow@wow.com"
+            },
+            "bodyValue": "Spent a night there once",
+            "target": {
+                "source": "http://127.0.0.1:8000/groups/1/",
+                "type": "Text",
+                "selector": {
+                    "type": "CssSelector",                        
+                    "value": "div.group-detail-content:nth-child(4) > div:nth-child(2) > p:nth-child(1) > span:nth-child(2)"
+                }
+            }
+        }
+        
+        response = self.client.post('/api/v1/annotations/', post_data, format='json')
+
+        self.assertEqual(response.status_code, 201,
+                         responseError(response, 'Create Annotation'))
+
+        json_response = json.loads(response.content)
+
+
+        try:
+            self.assertEqual(json_response['creator']["email"], self.test_user.email)
+        except KeyError:
+            self.fail('Annotation object should have field \'creator\'')
+
+    def test_create_anonymous_annotation(self):
+        self.client.force_authenticate(self.test_user)
+
+        post_data = {   "@context": "http://www.w3.org/ns/anno.jsonld",
+                        "id": "http://interestr.com/annotations/1",
+                        "type": "Annotation",
+                        "created": "2015-01-28T12:00:00Z",                            
+                        "bodyValue": "No comment",                
+                        "target": {                    
+                        "source": "http://127.0.0.1:8000/groups/1/",                    
+                        "type": "Text",                    
+                        "selector": {                        
+                            "type": "CssSelector",                        
+                            "value": "div.group-detail-content:nth-child(4) > div:nth-child(2) > p:nth-child(1) > span:nth-child(2)"                    
+                            }                
+                        }            
+                        }
+        response = self.client.post('/api/v1/annotations/', post_data, format='json')
+
+        self.assertEqual(response.status_code, 201,
+                         responseError(response, 'Create Annotation'))
+
+        json_response = json.loads(response.content)
+
+        try:
+            self.assertEqual(json_response['bodyValue'], "No comment")
+        except KeyError:
+            self.fail('Annotation object should have field \'bodyValue\'')
 
 class PostTests(TestCase):
 
@@ -640,6 +716,39 @@ class SearchTests(TestCase):
             name="best", description="fine")
         self.test_group3 = Group.objects.create(
             name="awesome best", description="great")
+        self.test_template = DataTemplate.objects.create(
+			name="DummyTemplate %d" % 1,
+			user=self.test_user1,
+			group=self.test_group3,
+			fields=[
+				{
+					'type' : 'text',
+					'legend' : 'Wow'
+				},
+                                {
+					'type' : 'text',
+					'legend' : 'Lol'
+				}
+
+
+			]
+		)
+        self.test_post = Post.objects.create(
+			owner=self.test_user1,
+			group=self.test_group3,	
+                        data_template=self.test_template,
+			data=[
+				{
+					'question' : 'Dummy Question %d.1' % 1,
+					'response' : 'Dummy Response %d.1' % 1
+				},
+				{
+					'question' : 'Dummy Question %d.2' % 1,
+					'response' : 'Dummy Response %d.2' % 1
+				},
+			]
+		)
+
 
     def count_users(self, query):
         c = 0
@@ -722,7 +831,7 @@ class SearchTests(TestCase):
             self.fail('Search response should have a field named \'count\'')
 
         response = self.client.get(
-            '/api/v1/groups/' + '?q=' + self.test_group2.name)
+                '/api/v1/groups/', {'q':  self.test_group2.name})
         self.assertEqual(response.status_code, 200,
                          responseError(response, 'Search Group'))
 
@@ -757,3 +866,72 @@ class SearchTests(TestCase):
                 json_response['count'], self.count_groups('dummy'))
         except KeyError:
             self.fail('Search response should have a field named \'count\'')
+
+    def test_group_search_dummy_query(self):
+        search_json = {'template_id': self.test_template.id, 
+                       'constraints': 
+                       [{ "field": "Lol",
+                          "operation" : "contains",
+                          "data" : "Dumm"
+                                },
+                         { "field": "Wow",
+                           "operation" : "equals",
+                           "data" : "Dummy Response 1.1"
+                                }
+                                ]}
+        response = self.client.post('/api/v1/template_search/', search_json,
+                                                               format='json')
+        self.assertEqual(response.status_code, 200,
+                         responseError(response, 'Search by Template'))
+
+        json_response = json.loads(response.content)
+        try:
+            self.assertEqual(
+                json_response["results"][0]["id"], self.test_post.id)
+        except KeyError:
+            self.fail('Search response should have a field named \'count\'') 
+
+    
+class GroupModerationTests(TestCase):
+
+    def setUp(self):
+        self.client = APIClient()
+        self.test_user1 = User.objects.create_user(
+            'user', 'e@mail.com', '1234')
+        self.test_user2 = User.objects.create_user(
+            'iser', 'g@mail.com', '4321')
+        self.test_group = test_utils.createDummyGroup()
+        self.test_group.members.add(self.test_user2)
+        self.test_group.moderators.add(self.test_user2)
+        self.test_group.members.add(self.test_user1)
+        self.test_group.save()
+
+
+
+    def test_ban_existing_user(self):
+        # test_user2( a.k.a moderator) 
+        self.client.login(username='iser', password='4321')
+        test_group_id = self.test_group.id
+        test_url = '/api/v1/groups/' + str(test_group_id) + '/'
+        response = self.client.post(test_url, {'id' : self.test_user1.id})
+        json_response = json.loads(response.content)
+        self.assertEqual(json_response['size'], 1)
+
+    def test_ban_non_existing_user(self):
+        # test_user2( a.k.a moderator) 
+        self.client.login(username='iser', password='4321')
+        test_group_id = self.test_group.id
+        test_url = '/api/v1/groups/' + str(test_group_id) + '/'
+        response = self.client.post(test_url, {'id' : 129})
+        json_response = json.loads(response.content)
+        self.assertEqual(json_response['error'], 'patates')
+
+    def test_non_mod_tries_to_ban_existing_user(self):
+        # test_user2( a.k.a moderator) 
+        self.client.login(username='user', password='1234')
+        test_group_id = self.test_group.id
+        test_url = '/api/v1/groups/' + str(test_group_id) + '/'
+        response = self.client.post(test_url, {'id' : self.test_user1.id})
+        json_response = json.loads(response.content)
+        self.assertEqual(json_response['error'], 'patates')
+

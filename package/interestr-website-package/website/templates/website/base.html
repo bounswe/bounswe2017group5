@@ -21,6 +21,7 @@
 
   <!--     Font Awesome     -->
   <link href="{% static 'bootstrap3/css/font-awesome.css' %}" rel="stylesheet">
+  <link rel="stylesheet" href="https://rawgit.com/enyo/dropzone/master/dist/dropzone.css">
   <link href="http://fonts.googleapis.com/css?family=Grand+Hotel" rel="stylesheet"
     type="text/css">
   <script type="text/javascript">
@@ -39,16 +40,18 @@
       }
       return cookieValue;
     }
-    window.onload = function() {
-      window.search = function() {
-        var searchQuery = $("#search-input").val();
-        if (!searchQuery.length) {
-          swal('Sorry...', 'Please enter at least 1 character to search.', 'error');
-          return;
-        }
-        window.location.href = "{% url 'website:search' %}?q=" + searchQuery;
-      }
 
+
+  window.search = function() {
+      var searchQuery = $("#search-input").val();
+      if (!searchQuery.length) {
+        swal('Sorry...', 'Please enter at least 1 character to search.', 'error');
+        return;
+      }
+      window.location.href = "{% url 'website:search' %}?q=" + searchQuery;
+    }
+
+    window.onload = function() {
       // Search on enter
       $("#search-input").on('keydown', function(e) {
         if (e.keyCode === 13) {
@@ -68,6 +71,9 @@
   <script src="{% static 'assets/js/gsdk-bootstrapswitch.js' %}"></script>
   <script src="{% static 'assets/js/get-shit-done.js' %}"></script>
   <script src="{% static 'assets/js/select2.min.js' %}"></script>
+  <script src="{% static 'assets/js/dropzone.js' %}"></script>
+  <script src="{% static 'assets/js/linkify.min.js' %}"></script>
+  <script src="{% static 'assets/js/linkify-jquery.min.js' %}"></script>
 
   <script src="{% static 'assets/js/custom.js' %}"></script>
 </head>

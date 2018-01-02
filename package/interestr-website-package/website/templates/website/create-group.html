@@ -5,6 +5,7 @@
 {% block navbaritems %}
 <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
   <ul class="nav navbar-nav navbar-right">
+    <li><a href="{% url 'website:search_advanced' %}">Advanced Search</a></li>
     <li class="nav-search">
       <input type="text" value="{{ search_term }}" class="form-control" placeholder="Search..." id="search-input">
     </li>
@@ -35,7 +36,7 @@
     <div class="col-md-8">
       <h1>Create A Group</h1>
       <hr>
-      <form method='POST'>
+      <form method='POST' enctype="multipart/form-data">
 
       {% csrf_token %}
 

@@ -23,10 +23,16 @@ urlpatterns = [
         views.CommentDetail.as_view(), name='commentdetail'),
     url(r'^votes/$', views.VoteList.as_view(), name='votes'),
     url(r'^votes/(?P<pk>\d+)/$', views.VoteDetail.as_view(), name='votedetail'),
+    url(r'^files/$', views.FileList.as_view(), name='files'),
+    url(r'^files/(?P<pk>\d+)/$', views.FileDetail.as_view(), name='filedetail'),
 
     url(r'^profile_pages/$', views.ProfilePageList.as_view(), name='profilepages'),
     url(r'^profile_pages/(?P<pk>\d+)/$',
-        views.ProfilePageDetail.as_view(), name='profilepages'),
+        views.ProfilePageDetail.as_view(), name='profilepagedetail'),
+
+    url(r'^annotations/$', views.AnnotationList.as_view(), name='annotations'),
+    url(r'^annotations/(?P<pk>\d+)/$',
+        views.AnnotationDetail.as_view(), name='annotationdetail'),
 
     url(r'^data_templates/$', views.DataTemplateList.as_view(), name='datatemplates'),
     url(r'^data_templates/(?P<pk>\d+)/$',
@@ -42,4 +48,6 @@ urlpatterns = [
     url(r'^search_wiki/$', views.search_wikidata, name="searchwiki"),
     url(r'^recommend_groups/$', views.recommend_groups, name='recommendgroups'),
     url(r'^recommend_posts/$', views.recommend_posts, name='recommendposts'),
+    url(r'^template_search/$', views.search_posts_by_template, name='templatesearch'),
+
 ]

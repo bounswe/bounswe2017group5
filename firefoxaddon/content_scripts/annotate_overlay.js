@@ -31,7 +31,7 @@
     /*
     Check if we are visiting an up-to-date website.
     */
-    useOldVersion = addressEquality(parseURL(window.location.href, 'origin'), 'http://35.177.96.220');
+    useOldVersion = addressEquality(parseURL(window.location.href, 'origin'), 'http://138.197.88.171');
 
     var css = document.createElement("style");
     css.type = "text/css";

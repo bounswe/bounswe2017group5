@@ -33,7 +33,8 @@ function parseURL(url, value) {
 var allowedHosts = [
     "http://127.0.0.1:8000",
     "http://localhost:8000",
-    "http://35.177.96.220"
+    "http://35.177.96.220",
+    "http://138.197.88.171"
 ];
 
 /*
